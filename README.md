@@ -13,11 +13,11 @@
 ```
 joshi_dokusai/
 ├── apps/
-│   ├── frontend/          # Next.js フロントエンド
-│   └── backend/           # Node.js + Socket.io バックエンド
+│   └── frontend/          # Next.js フロントエンド
 ├── packages/
 │   ├── shared/            # 共通型定義・ユーティリティ
 │   └── ui/                # 共通UIコンポーネント
+├── functions/             # Firebase Cloud Functions
 ├── docs/                  # ゲームルール・仕様書
 └── README.md
 ```
@@ -32,17 +32,20 @@ joshi_dokusai/
 ### インストール
 
 1. リポジトリをクローン
+
 ```bash
 git clone https://github.com/siu-issiki/joshi_dokusai.git
 cd joshi_dokusai
 ```
 
 2. 依存関係をインストール
+
 ```bash
 npm install
 ```
 
 3. 環境変数を設定
+
 ```bash
 # ルートディレクトリ
 cp .env.sample .env
@@ -51,14 +54,26 @@ cp .env.sample .env
 cp apps/frontend/.env.sample apps/frontend/.env.local
 ```
 
-4. 開発サーバーを起動
+4. Firebase設定
+
+```bash
+# Firebase CLIにログイン
+firebase login
+
+# Firebase初期化（既に完了済み）
+# firebase init
+```
+
+5. 開発サーバーを起動
+
 ```bash
 npm run dev
 ```
 
 これで以下のサーバーが起動します：
+
 - フロントエンド: http://localhost:3000
-- バックエンド: http://localhost:3001
+- Firebase Emulator: http://localhost:4000 (必要に応じて)
 
 ## 🛠️ 利用可能なスクリプト
 
@@ -84,42 +99,40 @@ npm run clean
 
 ## 📝 環境変数
 
-### バックエンド (.env)
-
-| 変数名 | 説明 | デフォルト値 |
-|--------|------|-------------|
-| `NODE_ENV` | 実行環境 | `development` |
-| `PORT` | サーバーポート | `3001` |
-| `FRONTEND_URL` | フロントエンドURL（CORS用） | `http://localhost:3000` |
-| `REDIS_URL` | Redis接続URL | `redis://localhost:6379` |
-| `LOG_LEVEL` | ログレベル | `info` |
-
 ### フロントエンド (.env.local)
 
-| 変数名 | 説明 | デフォルト値 |
-|--------|------|-------------|
-| `NEXT_PUBLIC_API_URL` | バックエンドAPI URL | `http://localhost:3001` |
-| `NEXT_PUBLIC_SOCKET_URL` | Socket.io サーバーURL | `http://localhost:3001` |
-| `NEXT_PUBLIC_GAME_NAME` | ゲーム名 | `上司独裁` |
-| `NEXT_PUBLIC_MAX_PLAYERS` | 最大プレイヤー数 | `5` |
+| 変数名                                     | 説明                         | デフォルト値                                        |
+| ------------------------------------------ | ---------------------------- | --------------------------------------------------- |
+| `NEXT_PUBLIC_FIREBASE_API_KEY`             | Firebase API Key             | Firebase Consoleから取得                            |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`         | Firebase Auth Domain         | `your-project.firebaseapp.com`                      |
+| `NEXT_PUBLIC_FIREBASE_DATABASE_URL`        | Realtime Database URL        | `https://your-project-default-rtdb.firebaseio.com/` |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID`          | Firebase Project ID          | Firebase Consoleから取得                            |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`      | Firebase Storage Bucket      | `your-project.appspot.com`                          |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Firebase Messaging Sender ID | Firebase Consoleから取得                            |
+| `NEXT_PUBLIC_FIREBASE_APP_ID`              | Firebase App ID              | Firebase Consoleから取得                            |
+| `NEXT_PUBLIC_GAME_NAME`                    | ゲーム名                     | `上司独裁`                                          |
+| `NEXT_PUBLIC_MAX_PLAYERS`                  | 最大プレイヤー数             | `5`                                                 |
 
 ## 🎯 技術スタック
 
 ### フロントエンド
+
 - **Next.js 15** - React フレームワーク
 - **TypeScript** - 型安全性
 - **Tailwind CSS** - スタイリング
-- **Socket.io-client** - リアルタイム通信
+- **Firebase SDK** - リアルタイム通信・認証
 - **Zustand** - 状態管理
 
 ### バックエンド
-- **Node.js** - サーバーランタイム
-- **Express.js** - Web フレームワーク
-- **Socket.io** - リアルタイム通信
+
+- **Firebase Realtime Database** - リアルタイムデータベース
+- **Firebase Cloud Functions** - サーバーレス関数
+- **Firebase Authentication** - 認証システム
+- **Firebase Hosting** - 静的サイトホスティング
 - **TypeScript** - 型安全性
-- **Redis** - セッション管理（予定）
 
 ### 開発ツール
+
 - **Turborepo** - モノレポ管理
 - **ESLint** - コード品質
 - **Prettier** - コードフォーマット

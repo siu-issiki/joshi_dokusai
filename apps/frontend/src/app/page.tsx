@@ -1,5 +1,3 @@
-import ConnectionTest from '@/components/ConnectionTest';
-
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 py-8">
@@ -12,7 +10,12 @@ export default function Home() {
         </header>
 
         <main>
-          <ConnectionTest />
+          <div className="text-center">
+            <p className="text-lg text-gray-700 mb-4">Firebase移行中...</p>
+            <p className="text-gray-600">
+              Socket.ioからFirebase Realtime Databaseへの移行を進めています。
+            </p>
+          </div>
         </main>
       </div>
     </div>
