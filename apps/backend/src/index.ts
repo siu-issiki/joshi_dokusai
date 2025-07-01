@@ -47,6 +47,7 @@ io.on('connection', (socket) => {
 
   // テスト用のpingイベント
   socket.on('ping', () => {
+    console.log(`Ping received from ${socket.id}`);
     socket.emit('pong', { timestamp: Date.now() });
   });
 });

@@ -135,6 +135,9 @@ export interface ServerToClientEvents {
     playerId: string;
     playerName: string;
   }) => void;
+
+  // テスト用
+  pong: (data: { timestamp: number }) => void;
 }
 
 export interface ClientToServerEvents {
@@ -163,6 +166,9 @@ export interface ClientToServerEvents {
   'pass-turn': () => void;
   resign: () => void;
   'nullify-dictatorship': () => void;
+
+  // テスト用
+  ping: () => void;
 }
 
 // エラーコード定数
