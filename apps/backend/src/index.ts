@@ -2,33 +2,37 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+import 'dotenv/config';
 
 const app = express();
 const server = createServer(app);
 
 // CORS設定
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-domain.com'] 
-    : ['http://localhost:3000'],
-  credentials: true
-}));
+const allowedOrigins =
+  process.env.NODE_ENV === 'production'
+    ? (process.env.FRONTEND_URL || '').split(',')
+    : ['http://localhost:3000'];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
 // Socket.IO設定
 const io = new Server(server, {
   cors: {
-    origin: process.env.NODE_ENV === 'production' 
-      ? ['https://your-domain.com'] 
-      : ['http://localhost:3000'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
-    credentials: true
-  }
+    credentials: true,
+  },
 });
 
 // 基本的なHTTPエンドポイント
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
