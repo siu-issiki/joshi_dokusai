@@ -171,6 +171,129 @@ export interface ClientToServerEvents {
   ping: () => void;
 }
 
+// Firebase Realtime Database型定義
+export interface FirebaseRoom {
+  id: string;
+  name: string;
+  createdBy: string;
+  createdAt: number;
+  maxPlayers: number;
+  currentPlayers: number;
+  isPrivate: boolean;
+  password?: string;
+  status: 'waiting' | 'playing' | 'finished';
+  gameId?: string;
+  players: Record<string, FirebaseRoomPlayer>;
+}
+
+export interface FirebaseRoomPlayer {
+  id: string;
+  name: string;
+  isReady: boolean;
+  joinedAt: number;
+  role?: 'boss' | 'subordinate';
+}
+
+export interface FirebaseGame {
+  id: string;
+  roomId: string;
+  createdAt: number;
+  status: 'playing' | 'ended';
+  phase:
+    | 'dictatorship'
+    | 'subordinate_consultation'
+    | 'subordinate_turn'
+    | 'boss_turn'
+    | 'turn_end';
+  currentPlayerIndex: number;
+  turnCount: number;
+  maxTurns: number;
+  players: Record<string, FirebaseGamePlayer>;
+  gameState: FirebaseGameState;
+  turnHistory: FirebaseTurnAction[];
+  lastUpdated: number;
+}
+
+export interface FirebaseGamePlayer {
+  id: string;
+  name: string;
+  role: 'boss' | 'subordinate';
+  life: number;
+  maxLife: number;
+  handCount: number;
+  isConnected: boolean;
+  lastAction: number;
+}
+
+export interface FirebaseGameState {
+  deckCount: number;
+  discardPile: Card[];
+  presidentCard?: {
+    card: Card;
+    owner: 'boss' | 'subordinate';
+    turnsRemaining: number;
+    placedAt: number;
+  };
+  dictatorshipEffects: {
+    currentCard?: {
+      id: string;
+      name: string;
+      target: 'boss' | 'subordinate' | 'all';
+      isNullified: boolean;
+    };
+    nullificationsUsed: {
+      boss4Players: number;
+      boss3Players: number;
+    };
+  };
+}
+
+export interface FirebaseTurnAction {
+  turnNumber: number;
+  phase: string;
+  action: {
+    type: string;
+    playerId?: string;
+    cardId?: string;
+    targetPlayerId?: string;
+    timestamp: number;
+  };
+}
+
+export interface FirebasePlayerHand {
+  cards: Card[];
+  lastUpdated: number;
+}
+
+export interface FirebasePresence {
+  online: boolean;
+  lastSeen: number;
+  currentRoom?: string;
+  currentGame?: string;
+}
+
+export interface FirebaseGameHistory {
+  id: string;
+  startedAt: number;
+  endedAt: number;
+  duration: number;
+  winner: 'boss' | 'subordinate';
+  players: Array<{
+    id: string;
+    name: string;
+    role: 'boss' | 'subordinate';
+    finalLife: number;
+  }>;
+  finalState: {
+    turnCount: number;
+    endReason:
+      | 'boss_defeated'
+      | 'subordinates_defeated'
+      | 'turn_limit'
+      | 'resignation';
+  };
+}
+
 // エラーコード定数
 export const ERROR_CODES = {
   // ルーム関連
