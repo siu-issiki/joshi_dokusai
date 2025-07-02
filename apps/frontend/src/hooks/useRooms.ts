@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { database } from '@/lib/firebase';
-import { ref, onValue, off, set, remove } from 'firebase/database';
+import {
+  ref,
+  onValue,
+  off,
+  set,
+  remove,
+  runTransaction,
+} from 'firebase/database';
 import {
   FirebaseRoom,
   generateRoomId,
@@ -230,10 +237,14 @@ export function useRoom(roomId: string) {
         playerData
       );
 
-      // プレイヤー数を更新
-      await set(
+      // プレイヤー数を原子的に更新（トランザクション使用）
+      await runTransaction(
         ref(database, `${FirebasePaths.room(roomId)}/currentPlayers`),
-        room.currentPlayers + 1
+        (currentCount) => {
+          // currentCountがnullの場合は0として扱う
+          const count = currentCount ?? 0;
+          return count + 1;
+        }
       );
 
       // ローカルストレージにプレイヤー名を保存
@@ -262,10 +273,15 @@ export function useRoom(roomId: string) {
       // プレイヤー情報を削除
       await remove(ref(database, FirebasePaths.roomPlayer(roomId, user.uid)));
 
-      // プレイヤー数を更新
-      await set(
+      // プレイヤー数を原子的に更新（トランザクション使用）
+      await runTransaction(
         ref(database, `${FirebasePaths.room(roomId)}/currentPlayers`),
-        Math.max(0, room.currentPlayers - 1)
+        (currentCount) => {
+          // currentCountがnullの場合は0として扱う
+          const count = currentCount ?? 0;
+          // 0未満にならないように制限
+          return Math.max(0, count - 1);
+        }
       );
 
       console.log('ルーム退出成功:', roomId);
