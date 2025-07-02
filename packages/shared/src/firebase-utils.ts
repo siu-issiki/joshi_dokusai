@@ -1,18 +1,6 @@
-import {
-  FirebaseRoom,
-  FirebaseGame,
-  FirebaseGamePlayer,
-  GAME_CONFIG,
-} from './';
+import { FirebaseGame, FirebaseGamePlayer, GAME_CONFIG } from './';
 
 // Firebase Realtime Database用ユーティリティ関数
-
-/**
- * ルームIDを生成
- */
-export function generateRoomId(): string {
-  return `room_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-}
 
 /**
  * ゲームIDを生成
@@ -26,24 +14,6 @@ export function generateGameId(): string {
  */
 export function generatePlayerId(): string {
   return `player_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-}
-
-/**
- * ルームが満員かチェック
- */
-export function isRoomFull(room: FirebaseRoom): boolean {
-  return room.currentPlayers >= room.maxPlayers;
-}
-
-/**
- * ルームの全プレイヤーが準備完了かチェック
- */
-export function areAllPlayersReady(room: FirebaseRoom): boolean {
-  const players = Object.values(room.players);
-  return (
-    players.length >= GAME_CONFIG.MIN_PLAYERS &&
-    players.every((player) => player.isReady)
-  );
 }
 
 /**
