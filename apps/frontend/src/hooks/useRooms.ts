@@ -17,7 +17,7 @@ export function useRooms() {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !database) {
       setLoading(false);
       return;
     }
@@ -63,8 +63,8 @@ export function useRooms() {
     isPrivate: boolean = false,
     password?: string
   ): Promise<string> => {
-    if (!user) {
-      throw new Error('認証が必要です');
+    if (!user || !database) {
+      throw new Error('認証またはデータベース接続が必要です');
     }
 
     if (!roomName.trim()) {
@@ -116,8 +116,8 @@ export function useRooms() {
   };
 
   const deleteRoom = async (roomId: string): Promise<void> => {
-    if (!user) {
-      throw new Error('認証が必要です');
+    if (!user || !database) {
+      throw new Error('認証またはデータベース接続が必要です');
     }
 
     const room = rooms.find((r) => r.id === roomId);
@@ -159,7 +159,7 @@ export function useRoom(roomId: string) {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!roomId || !user) {
+    if (!roomId || !user || !database) {
       setLoading(false);
       return;
     }
@@ -194,8 +194,10 @@ export function useRoom(roomId: string) {
     playerName: string,
     password?: string
   ): Promise<void> => {
-    if (!user || !room) {
-      throw new Error('ユーザーまたはルームが見つかりません');
+    if (!user || !room || !database) {
+      throw new Error(
+        'ユーザー、ルーム、またはデータベース接続が見つかりません'
+      );
     }
 
     if (!playerName.trim()) {
@@ -246,8 +248,10 @@ export function useRoom(roomId: string) {
   };
 
   const leaveRoom = async (): Promise<void> => {
-    if (!user || !room) {
-      throw new Error('ユーザーまたはルームが見つかりません');
+    if (!user || !room || !database) {
+      throw new Error(
+        'ユーザー、ルーム、またはデータベース接続が見つかりません'
+      );
     }
 
     if (!room.players[user.uid]) {
@@ -273,8 +277,10 @@ export function useRoom(roomId: string) {
   };
 
   const toggleReady = async (): Promise<void> => {
-    if (!user || !room) {
-      throw new Error('ユーザーまたはルームが見つかりません');
+    if (!user || !room || !database) {
+      throw new Error(
+        'ユーザー、ルーム、またはデータベース接続が見つかりません'
+      );
     }
 
     const currentPlayer = room.players[user.uid];

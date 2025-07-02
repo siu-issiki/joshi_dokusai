@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // Firebase Hostingでの動的ルーティング対応
+  output: 'export',
   trailingSlash: true,
   images: {
     unoptimized: true,

@@ -229,7 +229,7 @@ export default function RoomList() {
   const router = useRouter();
 
   const handleJoinRoom = (roomId: string) => {
-    router.push(`/room/${roomId}`);
+    router.push(`/room?id=${roomId}`);
   };
 
   const handleCreateRoom = async (
@@ -239,7 +239,7 @@ export default function RoomList() {
     password?: string
   ) => {
     const roomId = await createRoom(name, maxPlayers, isPrivate, password);
-    router.push(`/room/${roomId}`);
+    router.push(`/room?id=${roomId}`);
   };
 
   if (loading) {

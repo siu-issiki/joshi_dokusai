@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useRoom } from '@/hooks/useRooms';
 import { useAuth, usePlayerName } from '@/lib/auth';
 import { FirebaseRoomPlayer } from '@/types/firebase';
@@ -156,10 +156,10 @@ function PlayerCard({ player, isOwner, isCurrentUser }: PlayerCardProps) {
   );
 }
 
-export default function RoomPage() {
-  const params = useParams();
+function RoomPageContent() {
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const roomId = params.roomId as string;
+  const roomId = searchParams.get('id') || '';
   const { user, loading: authLoading, autoSignIn } = useAuth();
   const { updatePlayerName } = usePlayerName();
   const {
@@ -377,5 +377,13 @@ export default function RoomPage() {
         isPrivate={room.isPrivate}
       />
     </div>
+  );
+}
+
+export default function RoomPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center">読み込み中...</div>}>
+      <RoomPageContent />
+    </Suspense>
   );
 }

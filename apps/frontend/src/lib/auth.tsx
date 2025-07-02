@@ -11,6 +11,10 @@ import {
 
 // 匿名認証でサインイン
 export async function signInAnonymous(): Promise<User> {
+  if (!auth) {
+    throw new Error('Firebase認証が初期化されていません');
+  }
+
   try {
     const result = await signInAnonymously(auth);
     console.log('匿名認証成功:', result.user.uid);
@@ -24,6 +28,10 @@ export async function signInAnonymous(): Promise<User> {
 
 // サインアウト
 export async function signOut(): Promise<void> {
+  if (!auth) {
+    throw new Error('Firebase認証が初期化されていません');
+  }
+
   try {
     await firebaseSignOut(auth);
     console.log('サインアウト成功');
@@ -41,6 +49,11 @@ export function useAuth() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(
       auth,
       (user) => {

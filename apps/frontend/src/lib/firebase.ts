@@ -1,6 +1,6 @@
-import { initializeApp } from 'firebase/app';
-import { getDatabase } from 'firebase/database';
-import { getAuth } from 'firebase/auth';
+import { initializeApp, FirebaseApp } from 'firebase/app';
+import { getDatabase, Database } from 'firebase/database';
+import { getAuth, Auth } from 'firebase/auth';
 
 // Firebase設定
 const firebaseConfig = {
@@ -13,11 +13,18 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Firebase初期化
-const app = initializeApp(firebaseConfig);
+// Firebase初期化（ブラウザ環境でのみ）
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let database: Database | null = null;
 
-// サービス初期化
-export const database = getDatabase(app);
-export const auth = getAuth(app);
+if (typeof window !== 'undefined' && firebaseConfig.projectId) {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  database = getDatabase(app);
+}
+
+// Firebase サービスをexport
+export { auth, database };
 
 export default app;
