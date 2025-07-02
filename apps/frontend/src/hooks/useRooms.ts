@@ -98,7 +98,6 @@ export function useRooms() {
         maxPlayers,
         currentPlayers: 1,
         isPrivate,
-        password: isPrivate ? password : undefined,
         status: 'waiting',
         players: {
           [user.uid]: {
@@ -111,6 +110,11 @@ export function useRooms() {
           },
         },
       };
+
+      // プライベートルームの場合のみpasswordを追加
+      if (isPrivate && password) {
+        roomData.password = password;
+      }
 
       await set(ref(database, FirebasePaths.room(roomId)), roomData);
       console.log('ルーム作成成功:', roomId);
