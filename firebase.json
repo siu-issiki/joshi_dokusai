@@ -1,17 +1,14 @@
 {
   "hosting": {
-    "public": "apps/frontend/out",
+    "source": "apps/frontend",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
+    "frameworksBackend": {
+      "region": "asia-northeast1"
+    }
   },
   "functions": [
     {
