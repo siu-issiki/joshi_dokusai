@@ -225,7 +225,7 @@ export function useRoom(roomId: string) {
       throw new Error('ルームが満員です');
     }
 
-    if (room.players[user.uid]) {
+    if (room.players?.[user.uid]) {
       throw new Error('既にこのルームに参加しています');
     }
 
@@ -271,7 +271,7 @@ export function useRoom(roomId: string) {
       );
     }
 
-    if (!room.players[user.uid]) {
+    if (!room.players?.[user.uid]) {
       throw new Error('このルームに参加していません');
     }
 
@@ -312,7 +312,7 @@ export function useRoom(roomId: string) {
       );
     }
 
-    const currentPlayer = room.players[user.uid];
+    const currentPlayer = room.players?.[user.uid];
     if (!currentPlayer) {
       throw new Error('このルームに参加していません');
     }
@@ -339,7 +339,7 @@ export function useRoom(roomId: string) {
     leaveRoom,
     toggleReady,
     // ヘルパー関数
-    isInRoom: !!(room && user && room.players[user.uid]),
+    isInRoom: !!(room && user && room.players?.[user.uid]),
     isRoomOwner: !!(room && user && room.createdBy === user.uid),
     canStartGame: !!(
       room &&
