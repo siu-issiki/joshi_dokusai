@@ -56,15 +56,17 @@ function RoomCard({ room, onJoin }: RoomCardProps) {
 
       <div className="flex justify-between items-center">
         <div className="flex space-x-2">
-          {Object.values(room.players).map((player: FirebaseRoomPlayer) => (
-            <div
-              key={player.id}
-              className={`w-3 h-3 rounded-full ${
-                player.isReady ? 'bg-green-500' : 'bg-gray-300'
-              }`}
-              title={`${player.name} ${player.isReady ? '(準備完了)' : '(準備中)'}`}
-            />
-          ))}
+          {Object.values(room.players || {}).map(
+            (player: FirebaseRoomPlayer) => (
+              <div
+                key={player.id}
+                className={`w-3 h-3 rounded-full ${
+                  player.isReady ? 'bg-green-500' : 'bg-gray-300'
+                }`}
+                title={`${player.name} ${player.isReady ? '(準備完了)' : '(準備中)'}`}
+              />
+            )
+          )}
         </div>
 
         <button
