@@ -11,6 +11,7 @@ export interface FirebaseRoom {
   id: string;
   name: string;
   createdBy: string;
+  createdByName?: string;
   createdAt: number;
   maxPlayers: number;
   currentPlayers: number;

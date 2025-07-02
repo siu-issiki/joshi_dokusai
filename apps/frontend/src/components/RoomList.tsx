@@ -30,7 +30,10 @@ function RoomCard({ room, onJoin }: RoomCardProps) {
             {room.name}
           </h3>
           <p className="text-sm text-gray-600">
-            作成者: {room.players[room.createdBy]?.name || '不明'}
+            作成者:{' '}
+            {room.createdByName ||
+              room.players?.[room.createdBy]?.name ||
+              '不明'}
           </p>
         </div>
         {room.isPrivate && (

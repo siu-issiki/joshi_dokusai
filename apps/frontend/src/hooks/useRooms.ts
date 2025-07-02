@@ -90,10 +90,14 @@ export function useRooms() {
       const roomId = generateRoomId();
       const now = Date.now();
 
+      const creatorName =
+        localStorage.getItem('playerName') || `プレイヤー${user.uid.slice(-4)}`;
+
       const roomData: FirebaseRoom = {
         id: roomId,
         name: roomName.trim(),
         createdBy: user.uid,
+        createdByName: creatorName,
         createdAt: now,
         maxPlayers,
         currentPlayers: 1,
@@ -102,9 +106,7 @@ export function useRooms() {
         players: {
           [user.uid]: {
             id: user.uid,
-            name:
-              localStorage.getItem('playerName') ||
-              `プレイヤー${user.uid.slice(-4)}`,
+            name: creatorName,
             isReady: false,
             joinedAt: now,
           },
@@ -274,6 +276,13 @@ export function useRoom(roomId: string) {
     }
 
     try {
+      // 作成者が退出する場合はルーム全体を削除
+      if (room.createdBy === user.uid) {
+        await remove(ref(database, FirebasePaths.room(roomId)));
+        console.log('ルーム削除成功（作成者退出）:', roomId);
+        return;
+      }
+
       // プレイヤー情報を削除
       await remove(ref(database, FirebasePaths.roomPlayer(roomId, user.uid)));
 
