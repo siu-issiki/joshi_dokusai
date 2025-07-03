@@ -17,6 +17,14 @@ import {
 } from '@/types/firebase';
 import { useAuth } from '@/lib/auth';
 
+// データ正規化関数：playersが常に存在することを保証
+function normalizeRoom(room: any): FirebaseRoom {
+  return {
+    ...room,
+    players: room.players || {},
+  };
+}
+
 export function useRooms() {
   const [rooms, setRooms] = useState<FirebaseRoom[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +45,7 @@ export function useRooms() {
         try {
           const data = snapshot.val();
           if (data) {
-            const roomList = Object.values(data) as FirebaseRoom[];
+            const roomList = Object.values(data).map(normalizeRoom);
             // 待機中のルームのみフィルタ
             const waitingRooms = roomList.filter(
               (room) => room.status === 'waiting'
@@ -184,7 +192,7 @@ export function useRoom(roomId: string) {
       (snapshot) => {
         try {
           const data = snapshot.val();
-          setRoom(data);
+          setRoom(data ? normalizeRoom(data) : null);
           setError(null);
         } catch (err) {
           console.error('ルーム詳細取得エラー:', err);
@@ -225,7 +233,7 @@ export function useRoom(roomId: string) {
       throw new Error('ルームが満員です');
     }
 
-    if (room.players?.[user.uid]) {
+    if (room.players[user.uid]) {
       throw new Error('既にこのルームに参加しています');
     }
 
@@ -271,7 +279,7 @@ export function useRoom(roomId: string) {
       );
     }
 
-    if (!room.players?.[user.uid]) {
+    if (!room.players[user.uid]) {
       throw new Error('このルームに参加していません');
     }
 
@@ -312,7 +320,7 @@ export function useRoom(roomId: string) {
       );
     }
 
-    const currentPlayer = room.players?.[user.uid];
+    const currentPlayer = room.players[user.uid];
     if (!currentPlayer) {
       throw new Error('このルームに参加していません');
     }
@@ -339,7 +347,7 @@ export function useRoom(roomId: string) {
     leaveRoom,
     toggleReady,
     // ヘルパー関数
-    isInRoom: !!(room && user && room.players?.[user.uid]),
+    isInRoom: !!(room && user && room.players[user.uid]),
     isRoomOwner: !!(room && user && room.createdBy === user.uid),
     canStartGame: !!(
       room &&

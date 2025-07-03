@@ -281,7 +281,7 @@ function RoomPageContent() {
               <p className="text-gray-600">
                 {room.currentPlayers}/{room.maxPlayers}人 • 作成者:{' '}
                 {room.createdByName ||
-                  room.players?.[room.createdBy]?.name ||
+                  room.players[room.createdBy]?.name ||
                   '不明'}
               </p>
             </div>
@@ -305,16 +305,14 @@ function RoomPageContent() {
               プレイヤー
             </h2>
             <div className="grid gap-3 md:grid-cols-2">
-              {Object.values(room?.players || {}).map(
-                (player: FirebaseRoomPlayer) => (
-                  <PlayerCard
-                    key={player.id}
-                    player={player}
-                    isOwner={player.id === room.createdBy}
-                    isCurrentUser={player.id === user?.uid}
-                  />
-                )
-              )}
+              {Object.values(room.players).map((player: FirebaseRoomPlayer) => (
+                <PlayerCard
+                  key={player.id}
+                  player={player}
+                  isOwner={player.id === room.createdBy}
+                  isCurrentUser={player.id === user?.uid}
+                />
+              ))}
             </div>
           </div>
 
@@ -333,14 +331,14 @@ function RoomPageContent() {
                   onClick={handleToggleReady}
                   disabled={actionLoading}
                   className={`px-6 py-3 rounded-md transition-colors ${
-                    room.players?.[user?.uid || '']?.isReady
+                    room.players[user?.uid || '']?.isReady
                       ? 'bg-yellow-600 text-white hover:bg-yellow-700'
                       : 'bg-green-600 text-white hover:bg-green-700'
                   }`}
                 >
                   {actionLoading
                     ? '変更中...'
-                    : room.players?.[user?.uid || '']?.isReady
+                    : room.players[user?.uid || '']?.isReady
                       ? '準備解除'
                       : '準備完了'}
                 </button>

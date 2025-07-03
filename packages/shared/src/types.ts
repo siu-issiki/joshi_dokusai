@@ -88,7 +88,7 @@ export interface FirebaseRoom {
   password?: string;
   status: 'waiting' | 'playing' | 'finished';
   gameId?: string;
-  players?: Record<string, FirebaseRoomPlayer>;
+  players: Record<string, FirebaseRoomPlayer>;
 }
 
 export interface FirebaseRoomPlayer {

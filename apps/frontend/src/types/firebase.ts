@@ -18,7 +18,7 @@ export interface FirebaseRoom {
   isPrivate: boolean;
   password?: string;
   status: 'waiting' | 'playing' | 'finished';
-  players?: Record<string, FirebaseRoomPlayer>;
+  players: Record<string, FirebaseRoomPlayer>;
 }
 
 export interface FirebaseGamePlayer {
@@ -151,6 +151,6 @@ export function isRoomFull(room: FirebaseRoom): boolean {
 }
 
 export function areAllPlayersReady(room: FirebaseRoom): boolean {
-  const players = Object.values(room.players || {});
+  const players = Object.values(room.players);
   return players.length >= 4 && players.every((player) => player.isReady);
 }
