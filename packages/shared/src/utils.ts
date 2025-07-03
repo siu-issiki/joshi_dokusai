@@ -189,5 +189,8 @@ export function isRoomFull(room: FirebaseRoom): boolean {
  */
 export function areAllPlayersReady(room: FirebaseRoom): boolean {
   const players = Object.values(room.players);
-  return players.length >= 4 && players.every((player) => player.isReady);
+  return (
+    players.length >= GAME_CONFIG.MIN_PLAYERS &&
+    players.every((player) => player.isReady)
+  );
 }
