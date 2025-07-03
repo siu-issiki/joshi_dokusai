@@ -23,17 +23,6 @@ type FirebaseRoomRaw = Omit<FirebaseRoom, 'players'> & {
   players?: Record<string, FirebaseRoomPlayer>;
 };
 
-// 型ガード関数：オブジェクトがFirebaseRoomRawの形式かチェック（将来の拡張用）
-function isFirebaseRoomRaw(obj: unknown): obj is FirebaseRoomRaw {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'id' in obj &&
-    'name' in obj &&
-    'createdBy' in obj
-  );
-}
-
 // データ正規化関数：playersが常に存在することを保証
 function normalizeRoom(room: FirebaseRoomRaw): FirebaseRoom {
   return {
