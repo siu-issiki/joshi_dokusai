@@ -80,6 +80,7 @@ export interface FirebaseRoom {
   id: string;
   name: string;
   createdBy: string;
+  createdByName?: string;
   createdAt: number;
   maxPlayers: number;
   currentPlayers: number;
@@ -87,7 +88,7 @@ export interface FirebaseRoom {
   password?: string;
   status: 'waiting' | 'playing' | 'finished';
   gameId?: string;
-  players: Record<string, FirebaseRoomPlayer>;
+  players?: Record<string, FirebaseRoomPlayer>;
 }
 
 export interface FirebaseRoomPlayer {

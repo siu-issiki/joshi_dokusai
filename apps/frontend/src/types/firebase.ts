@@ -18,7 +18,7 @@ export interface FirebaseRoom {
   isPrivate: boolean;
   password?: string;
   status: 'waiting' | 'playing' | 'finished';
-  players: Record<string, FirebaseRoomPlayer>;
+  players?: Record<string, FirebaseRoomPlayer>;
 }
 
 export interface FirebaseGamePlayer {
