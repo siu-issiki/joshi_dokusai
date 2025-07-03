@@ -10,6 +10,7 @@ import {
 } from 'firebase/database';
 import {
   FirebaseRoom,
+  FirebaseRoomPlayer,
   generateRoomId,
   FirebasePaths,
   isRoomFull,
@@ -17,8 +18,24 @@ import {
 } from '@/types/firebase';
 import { useAuth } from '@/lib/auth';
 
+// Firebaseから取得される生データの型（playersがundefinedの可能性がある）
+type FirebaseRoomRaw = Omit<FirebaseRoom, 'players'> & {
+  players?: Record<string, FirebaseRoomPlayer>;
+};
+
+// 型ガード関数：オブジェクトがFirebaseRoomRawの形式かチェック（将来の拡張用）
+function isFirebaseRoomRaw(obj: unknown): obj is FirebaseRoomRaw {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'name' in obj &&
+    'createdBy' in obj
+  );
+}
+
 // データ正規化関数：playersが常に存在することを保証
-function normalizeRoom(room: any): FirebaseRoom {
+function normalizeRoom(room: FirebaseRoomRaw): FirebaseRoom {
   return {
     ...room,
     players: room.players || {},
@@ -43,7 +60,7 @@ export function useRooms() {
       roomsRef,
       (snapshot) => {
         try {
-          const data = snapshot.val();
+          const data = snapshot.val() as Record<string, FirebaseRoomRaw> | null;
           if (data) {
             const roomList = Object.values(data).map(normalizeRoom);
             // 待機中のルームのみフィルタ
@@ -191,7 +208,7 @@ export function useRoom(roomId: string) {
       roomRef,
       (snapshot) => {
         try {
-          const data = snapshot.val();
+          const data = snapshot.val() as FirebaseRoomRaw | null;
           setRoom(data ? normalizeRoom(data) : null);
           setError(null);
         } catch (err) {
