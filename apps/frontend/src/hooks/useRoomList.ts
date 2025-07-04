@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { database } from '@/lib/firebase';
-import { ref, onValue, off, query, orderByChild, equalTo } from 'firebase/database';
-import { 
-  FirebaseRoom, 
-  FirebasePaths, 
-  handleFirebaseError 
+import { ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
+import {
+  FirebaseRoom,
+  FirebasePaths,
+  handleFirebaseError,
 } from '@joshi-dokusai/shared';
 
 interface UseRoomListReturn {
@@ -36,25 +36,31 @@ export function useRoomList(): UseRoomListReturn {
 
     // 待機中のルームのみを取得
     const roomsRef = ref(database, FirebasePaths.rooms());
-    const waitingRoomsQuery = query(roomsRef, orderByChild('status'), equalTo('waiting'));
+    const waitingRoomsQuery = query(
+      roomsRef,
+      orderByChild('status'),
+      equalTo('waiting')
+    );
 
     const unsubscribe = onValue(
       waitingRoomsQuery,
       (snapshot) => {
         try {
           const data = snapshot.val();
-          
+
           if (data) {
             const roomList = Object.values(data) as FirebaseRoom[];
-            
+
             // ルームを作成日時の降順でソート（新しいものが上）
-            const sortedRooms = roomList.sort((a, b) => b.createdAt - a.createdAt);
-            
+            const sortedRooms = roomList.sort(
+              (a, b) => b.createdAt - a.createdAt
+            );
+
             setRooms(sortedRooms);
           } else {
             setRooms([]);
           }
-          
+
           setLoading(false);
           setConnected(true);
         } catch (err) {
@@ -73,24 +79,32 @@ export function useRoomList(): UseRoomListReturn {
       }
     );
 
-    // 接続状態の監視
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  // 接続状態の監視を別のuseEffectで分離
+  useEffect(() => {
     const connectedRef = ref(database, '.info/connected');
     const connectionUnsubscribe = onValue(connectedRef, (snapshot) => {
       const isConnected = snapshot.val() === true;
       setConnected(isConnected);
-      
+
       if (!isConnected) {
         setError('接続が切断されました。再接続を試行中...');
-      } else if (error === '接続が切断されました。再接続を試行中...') {
-        setError(null);
+      } else {
+        // 接続復旧時は接続エラーのみクリア
+        setError((prev) =>
+          prev === '接続が切断されました。再接続を試行中...' ? null : prev
+        );
       }
     });
 
     return () => {
-      off(waitingRoomsQuery, 'value', unsubscribe);
-      off(connectedRef, 'value', connectionUnsubscribe);
+      connectionUnsubscribe();
     };
-  }, [error]);
+  }, []);
 
   return {
     rooms,
@@ -109,9 +123,12 @@ export function useRoomFilter(rooms: FirebaseRoom[]) {
   const [showPrivateRooms, setShowPrivateRooms] = useState(false);
   const [maxPlayersFilter, setMaxPlayersFilter] = useState<number | null>(null);
 
-  const filteredRooms = rooms.filter(room => {
+  const filteredRooms = rooms.filter((room) => {
     // 検索語でフィルタ
-    if (searchTerm && !room.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+    if (
+      searchTerm &&
+      !room.name.toLowerCase().includes(searchTerm.toLowerCase())
+    ) {
       return false;
     }
 

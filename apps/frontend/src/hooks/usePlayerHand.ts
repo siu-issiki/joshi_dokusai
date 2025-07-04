@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { database } from '@/lib/firebase';
-import { ref, onValue, off } from 'firebase/database';
+import { ref, onValue } from 'firebase/database';
 import {
   FirebasePlayerHand,
   FirebasePaths,
@@ -84,7 +84,13 @@ export function usePlayerHand(gameId: string | null): UsePlayerHandReturn {
       }
     );
 
-    // 接続状態の監視
+    return () => {
+      unsubscribe();
+    };
+  }, [gameId, user]);
+
+  // 接続状態の監視を別のuseEffectで分離
+  useEffect(() => {
     const connectedRef = ref(database, '.info/connected');
     const connectionUnsubscribe = onValue(connectedRef, (snapshot) => {
       const isConnected = snapshot.val() === true;
@@ -92,16 +98,18 @@ export function usePlayerHand(gameId: string | null): UsePlayerHandReturn {
 
       if (!isConnected) {
         setError('接続が切断されました。再接続を試行中...');
-      } else if (error === '接続が切断されました。再接続を試行中...') {
-        setError(null);
+      } else {
+        // 接続復旧時は接続エラーのみクリア
+        setError((prev) =>
+          prev === '接続が切断されました。再接続を試行中...' ? null : prev
+        );
       }
     });
 
     return () => {
-      off(handRef, 'value', unsubscribe);
-      off(connectedRef, 'value', connectionUnsubscribe);
+      connectionUnsubscribe();
     };
-  }, [gameId, user, error]);
+  }, []);
 
   // ヘルパー関数
   const getCardById = (cardId: string): Card | null => {

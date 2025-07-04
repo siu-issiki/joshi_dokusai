@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { database } from '@/lib/firebase';
-import { ref, onValue, off } from 'firebase/database';
-import { FirebaseGame, FirebasePaths, handleFirebaseError } from '@joshi-dokusai/shared';
+import { ref, onValue } from 'firebase/database';
+import {
+  FirebaseGame,
+  FirebasePaths,
+  handleFirebaseError,
+} from '@joshi-dokusai/shared';
 
 interface UseGameStateReturn {
   game: FirebaseGame | null;
@@ -38,7 +42,7 @@ export function useGameState(gameId: string | null): UseGameStateReturn {
       (snapshot) => {
         try {
           const data = snapshot.val();
-          
+
           if (data) {
             // データ正規化（必要に応じて）
             const normalizedGame: FirebaseGame = {
@@ -56,13 +60,13 @@ export function useGameState(gameId: string | null): UseGameStateReturn {
               },
               turnHistory: data.turnHistory || [],
             };
-            
+
             setGame(normalizedGame);
           } else {
             setGame(null);
             setError('ゲームが見つかりません');
           }
-          
+
           setLoading(false);
           setConnected(true);
         } catch (err) {
@@ -81,24 +85,32 @@ export function useGameState(gameId: string | null): UseGameStateReturn {
       }
     );
 
-    // 接続状態の監視
+    return () => {
+      unsubscribe();
+    };
+  }, [gameId]);
+
+  // 接続状態の監視を別のuseEffectで分離
+  useEffect(() => {
     const connectedRef = ref(database, '.info/connected');
     const connectionUnsubscribe = onValue(connectedRef, (snapshot) => {
       const isConnected = snapshot.val() === true;
       setConnected(isConnected);
-      
+
       if (!isConnected) {
         setError('接続が切断されました。再接続を試行中...');
-      } else if (error === '接続が切断されました。再接続を試行中...') {
-        setError(null);
+      } else {
+        // 接続復旧時は接続エラーのみクリア
+        setError((prev) =>
+          prev === '接続が切断されました。再接続を試行中...' ? null : prev
+        );
       }
     });
 
     return () => {
-      off(gameRef, 'value', unsubscribe);
-      off(connectedRef, 'value', connectionUnsubscribe);
+      connectionUnsubscribe();
     };
-  }, [gameId, error]);
+  }, []);
 
   return {
     game,
@@ -111,7 +123,10 @@ export function useGameState(gameId: string | null): UseGameStateReturn {
 /**
  * ゲーム状態のヘルパー関数
  */
-export function useGameHelpers(game: FirebaseGame | null, userId: string | null) {
+export function useGameHelpers(
+  game: FirebaseGame | null,
+  userId: string | null
+) {
   if (!game || !userId) {
     return {
       currentPlayer: null,

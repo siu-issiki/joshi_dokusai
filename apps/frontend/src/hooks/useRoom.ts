@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { database } from '@/lib/firebase';
-import { ref, onValue, off, set, runTransaction } from 'firebase/database';
+import { ref, onValue, set, runTransaction } from 'firebase/database';
 import {
   FirebaseRoom,
   FirebaseRoomPlayer,
@@ -93,7 +93,13 @@ export function useRoom(roomId: string | null): UseRoomReturn {
       }
     );
 
-    // 接続状態の監視
+    return () => {
+      unsubscribe();
+    };
+  }, [roomId]);
+
+  // 接続状態の監視を別のuseEffectで分離
+  useEffect(() => {
     const connectedRef = ref(database, '.info/connected');
     const connectionUnsubscribe = onValue(connectedRef, (snapshot) => {
       const isConnected = snapshot.val() === true;
@@ -101,16 +107,18 @@ export function useRoom(roomId: string | null): UseRoomReturn {
 
       if (!isConnected) {
         setError('接続が切断されました。再接続を試行中...');
-      } else if (error === '接続が切断されました。再接続を試行中...') {
-        setError(null);
+      } else {
+        // 接続復旧時は接続エラーのみクリア
+        setError((prev) =>
+          prev === '接続が切断されました。再接続を試行中...' ? null : prev
+        );
       }
     });
 
     return () => {
-      off(roomRef, 'value', unsubscribe);
-      off(connectedRef, 'value', connectionUnsubscribe);
+      connectionUnsubscribe();
     };
-  }, [roomId, error]);
+  }, []);
 
   /**
    * ルーム作成
