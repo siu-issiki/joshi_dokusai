@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRooms } from '@/hooks/useRooms';
 import { useRouter } from 'next/navigation';
-import { FirebaseRoom, FirebaseRoomPlayer } from '@/types/firebase';
+import { FirebaseRoom, FirebaseRoomPlayer } from '@joshi-dokusai/shared';
 
 interface RoomCardProps {
   room: FirebaseRoom;

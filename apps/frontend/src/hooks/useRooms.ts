@@ -15,7 +15,7 @@ import {
   FirebasePaths,
   isRoomFull,
   areAllPlayersReady,
-} from '@/types/firebase';
+} from '@joshi-dokusai/shared';
 import { useAuth } from '@/lib/auth';
 
 // Firebaseから取得される生データの型（playersがundefinedの可能性がある）
