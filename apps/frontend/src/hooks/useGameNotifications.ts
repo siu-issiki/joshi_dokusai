@@ -23,6 +23,7 @@ export function useGameNotifications(gameId: string) {
   const [notifications, setNotifications] = useState<GameNotification[]>([]);
   const { game } = useGameState(gameId);
   const prevGameRef = useRef<FirebaseGame | null>(null);
+  const timeoutIdsRef = useRef<NodeJS.Timeout[]>([]);
 
   useEffect(() => {
     if (!game || !prevGameRef.current) {
@@ -86,27 +87,46 @@ export function useGameNotifications(gameId: string) {
     prevGameRef.current = game;
   }, [game]);
 
+  // クリーンアップ用のuseEffect
+  useEffect(() => {
+    return () => {
+      // コンポーネントアンマウント時にすべてのタイムアウトをクリア
+      timeoutIdsRef.current.forEach(clearTimeout);
+      timeoutIdsRef.current = [];
+    };
+  }, []);
+
   const addNotification = (
     notification: Omit<GameNotification, 'id' | 'timestamp'>
   ) => {
     const newNotification: GameNotification = {
       ...notification,
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
       timestamp: Date.now(),
     };
 
     setNotifications((prev) => [newNotification, ...prev.slice(0, 9)]); // 最新10件保持
 
     // 5秒後に自動削除
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setNotifications((prev) =>
         prev.filter((n) => n.id !== newNotification.id)
       );
+      // タイムアウト完了後、配列から削除
+      timeoutIdsRef.current = timeoutIdsRef.current.filter(
+        (id) => id !== timeoutId
+      );
     }, 5000);
+
+    // タイムアウトIDを保存
+    timeoutIdsRef.current.push(timeoutId);
   };
 
   const clearNotifications = () => {
     setNotifications([]);
+    // 保留中のタイムアウトもクリア
+    timeoutIdsRef.current.forEach(clearTimeout);
+    timeoutIdsRef.current = [];
   };
 
   return {
