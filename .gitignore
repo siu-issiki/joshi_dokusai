@@ -152,3 +152,11 @@ temp/
 *.njsproj
 *.sln
 *.sw?
+
+# Firebase
+.firebase/
+.firebaserc
+firebase-debug.log
+firebase-debug.*.log
+ui-debug.log
+firestore-debug.log
