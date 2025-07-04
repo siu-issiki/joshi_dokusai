@@ -1,4 +1,10 @@
-import { Player, GameState, GAME_CONFIG, VICTORY_CONDITIONS } from './';
+import {
+  Player,
+  GameState,
+  GAME_CONFIG,
+  VICTORY_CONDITIONS,
+  FirebaseRoom,
+} from './';
 
 // ゲームユーティリティ関数
 
@@ -13,7 +19,9 @@ export function getPlayerRole(playerIndex: number): 'boss' | 'subordinate' {
  * 生存している部下の数を取得
  */
 export function getAliveSubordinatesCount(players: Player[]): number {
-  return players.filter(player => player.role === 'subordinate' && player.life > 0).length;
+  return players.filter(
+    (player) => player.role === 'subordinate' && player.life > 0
+  ).length;
 }
 
 /**
@@ -21,67 +29,79 @@ export function getAliveSubordinatesCount(players: Player[]): number {
  */
 export function checkBossVictory(players: Player[]): boolean {
   const aliveSubordinates = getAliveSubordinatesCount(players);
-  return aliveSubordinates <= (players.length - VICTORY_CONDITIONS.BOSS_WIN_SUBORDINATES_DOWN);
+  return (
+    aliveSubordinates <=
+    players.length - VICTORY_CONDITIONS.BOSS_WIN_SUBORDINATES_DOWN
+  );
 }
 
 /**
  * 部下の勝利条件をチェック
  */
 export function checkSubordinateVictory(gameState: GameState): boolean {
-  const boss = gameState.players.find(p => p.role === 'boss');
+  const boss = gameState.players.find((p) => p.role === 'boss');
   if (!boss) return false;
-  
+
   // 上司のライフが0
   if (boss.life <= VICTORY_CONDITIONS.SUBORDINATE_WIN_BOSS_LIFE) {
     return true;
   }
-  
+
   // 5ターン経過
   if (gameState.turnCount >= VICTORY_CONDITIONS.SUBORDINATE_WIN_TURNS) {
     return true;
   }
-  
+
   return false;
 }
 
 /**
  * ゲーム終了条件をチェック
  */
-export function checkGameEnd(gameState: GameState): { isEnded: boolean; winner?: 'boss' | 'subordinate' } {
+export function checkGameEnd(gameState: GameState): {
+  isEnded: boolean;
+  winner?: 'boss' | 'subordinate';
+} {
   if (checkBossVictory(gameState.players)) {
     return { isEnded: true, winner: 'boss' };
   }
-  
+
   if (checkSubordinateVictory(gameState)) {
     return { isEnded: true, winner: 'subordinate' };
   }
-  
+
   return { isEnded: false };
 }
 
 /**
  * 次のプレイヤーのインデックスを取得
  */
-export function getNextPlayerIndex(currentIndex: number, players: Player[]): number {
+export function getNextPlayerIndex(
+  currentIndex: number,
+  players: Player[]
+): number {
   let nextIndex = (currentIndex + 1) % players.length;
-  
+
   // 上司（インデックス0）はスキップして部下のターンのみ
   if (nextIndex === 0) {
     nextIndex = 1;
   }
-  
+
   return nextIndex;
 }
 
 /**
  * 辞表提出可能かチェック
  */
-export function canSubmitResignation(players: Player[], playerId: string): boolean {
-  const player = players.find(p => p.id === playerId);
+export function canSubmitResignation(
+  players: Player[],
+  playerId: string
+): boolean {
+  const player = players.find((p) => p.id === playerId);
   if (!player || player.role === 'boss' || player.life <= 0) {
     return false;
   }
-  
+
   const aliveSubordinates = getAliveSubordinatesCount(players);
   return aliveSubordinates <= 3;
 }
@@ -89,7 +109,10 @@ export function canSubmitResignation(players: Player[], playerId: string): boole
 /**
  * 辞表によるダメージ計算
  */
-export function calculateResignationDamage(currentLife: number, maxLife: number = GAME_CONFIG.SUBORDINATE_INITIAL_LIFE): number {
+export function calculateResignationDamage(
+  currentLife: number,
+  maxLife: number = GAME_CONFIG.SUBORDINATE_INITIAL_LIFE
+): number {
   return maxLife - currentLife;
 }
 
@@ -104,8 +127,8 @@ export function isNoOvertimeDay(turnCount: number): boolean {
  * 独裁カード無効化可能回数を取得
  */
 export function getNullificationLimit(playerCount: number): number {
-  return playerCount === 5 
-    ? GAME_CONFIG.NULLIFICATION_LIMIT_4_PLAYERS 
+  return playerCount === 5
+    ? GAME_CONFIG.NULLIFICATION_LIMIT_4_PLAYERS
     : GAME_CONFIG.NULLIFICATION_LIMIT_3_PLAYERS;
 }
 
@@ -114,13 +137,6 @@ export function getNullificationLimit(playerCount: number): number {
  */
 export function isEvenDiceResult(diceResult: number): boolean {
   return diceResult % 2 === 0;
-}
-
-/**
- * ランダムなIDを生成
- */
-export function generateId(): string {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
 
 /**
@@ -140,4 +156,41 @@ export function shuffleArray<T>(array: T[]): T[] {
  */
 export function rollDice(): number {
   return Math.floor(Math.random() * 6) + 1;
+}
+
+// Firebase関連ユーティリティ関数
+
+/**
+ * ランダムなIDを生成
+ */
+export function generateId(): string {
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
+}
+
+/**
+ * ルームIDを生成
+ */
+export function generateRoomId(): string {
+  return 'room_' + generateId();
+}
+
+/**
+ * ルームが満員かチェック
+ */
+export function isRoomFull(room: FirebaseRoom): boolean {
+  return room.currentPlayers >= room.maxPlayers;
+}
+
+/**
+ * 全プレイヤーが準備完了かチェック
+ */
+export function areAllPlayersReady(room: FirebaseRoom): boolean {
+  const players = Object.values(room.players);
+  return (
+    players.length >= GAME_CONFIG.MIN_PLAYERS &&
+    players.every((player) => player.isReady)
+  );
 }

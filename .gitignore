@@ -152,3 +152,8 @@ temp/
 *.njsproj
 *.sln
 *.sw?
+
+# Firebase
+.firebase/
+*-debug.log
+.runtimeconfig.json
