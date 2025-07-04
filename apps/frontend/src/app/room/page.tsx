@@ -2,9 +2,9 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useRoom } from '@/hooks/useRooms';
+import { useRoom } from '@/hooks/useRoom';
 import { useAuth, usePlayerName } from '@/lib/auth';
-import { FirebaseRoomPlayer } from '@/types/firebase';
+import { FirebaseRoomPlayer } from '@joshi-dokusai/shared';
 
 interface JoinRoomModalProps {
   isOpen: boolean;
@@ -169,10 +169,12 @@ function RoomPageContent() {
     joinRoom,
     leaveRoom,
     toggleReady,
-    isInRoom,
     isRoomOwner,
     canStartGame,
+    myPlayer,
   } = useRoom(roomId);
+
+  const isInRoom = !!myPlayer;
 
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
@@ -280,9 +282,7 @@ function RoomPageContent() {
               </h1>
               <p className="text-gray-600">
                 {room.currentPlayers}/{room.maxPlayers}人 • 作成者:{' '}
-                {room.createdByName ||
-                  room.players[room.createdBy]?.name ||
-                  '不明'}
+                {room.players[room.createdBy]?.name || '不明'}
               </p>
             </div>
             <button

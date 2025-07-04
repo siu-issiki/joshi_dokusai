@@ -1,10 +1,12 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import RoomList from '@/components/RoomList';
 import { useAuth } from '@/lib/auth';
 
 export default function Home() {
   const { user, loading, autoSignIn } = useAuth();
+  const router = useRouter();
 
   // 認証チェック
   if (loading) {
@@ -34,6 +36,18 @@ export default function Home() {
     );
   }
 
+  const handleJoinRoom = (roomId: string, password?: string) => {
+    const params = new URLSearchParams({ id: roomId });
+    if (password) {
+      params.append('password', password);
+    }
+    router.push(`/room?${params.toString()}`);
+  };
+
+  const handleCreateRoom = () => {
+    router.push('/create-room');
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="container mx-auto px-4">
@@ -45,7 +59,10 @@ export default function Home() {
         </header>
 
         <main>
-          <RoomList />
+          <RoomList
+            onJoinRoom={handleJoinRoom}
+            onCreateRoom={handleCreateRoom}
+          />
         </main>
       </div>
     </div>

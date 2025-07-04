@@ -51,6 +51,12 @@ export function useRoom(roomId: string | null): UseRoomReturn {
       return;
     }
 
+    if (!database) {
+      setError('データベースが初期化されていません');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -100,6 +106,11 @@ export function useRoom(roomId: string | null): UseRoomReturn {
 
   // 接続状態の監視を別のuseEffectで分離
   useEffect(() => {
+    if (!database) {
+      setConnected(false);
+      return;
+    }
+
     const connectedRef = ref(database, '.info/connected');
     const connectionUnsubscribe = onValue(connectedRef, (snapshot) => {
       const isConnected = snapshot.val() === true;
@@ -131,6 +142,10 @@ export function useRoom(roomId: string | null): UseRoomReturn {
   ): Promise<string> => {
     if (!user) {
       throw new Error('認証が必要です');
+    }
+
+    if (!database) {
+      throw new Error('データベースが初期化されていません');
     }
 
     setError(null);
@@ -180,6 +195,10 @@ export function useRoom(roomId: string | null): UseRoomReturn {
   ): Promise<void> => {
     if (!user) {
       throw new Error('認証が必要です');
+    }
+
+    if (!database) {
+      throw new Error('データベースが初期化されていません');
     }
 
     setError(null);
@@ -239,6 +258,10 @@ export function useRoom(roomId: string | null): UseRoomReturn {
       throw new Error('ルーム情報が見つかりません');
     }
 
+    if (!database) {
+      throw new Error('データベースが初期化されていません');
+    }
+
     setError(null);
 
     try {
@@ -287,6 +310,10 @@ export function useRoom(roomId: string | null): UseRoomReturn {
   const toggleReady = async (): Promise<void> => {
     if (!user || !room) {
       throw new Error('ルーム情報が見つかりません');
+    }
+
+    if (!database) {
+      throw new Error('データベースが初期化されていません');
     }
 
     setError(null);

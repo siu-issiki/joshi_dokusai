@@ -60,6 +60,10 @@ export function useGameActions(): UseGameActionsReturn {
     setError(null);
 
     try {
+      if (!database) {
+        throw new Error('データベースが初期化されていません');
+      }
+
       // ルーム情報を取得
       const roomRef = ref(database, FirebasePaths.room(roomId));
       const roomSnapshot = await runTransaction(
@@ -158,11 +162,11 @@ export function useGameActions(): UseGameActionsReturn {
       });
 
       // データベースに保存
-      await set(ref(database, FirebasePaths.game(gameId)), gameData);
+      await set(ref(database!, FirebasePaths.game(gameId)), gameData);
 
       // ルーム状態を更新
       await runTransaction(
-        ref(database, FirebasePaths.room(roomId)),
+        ref(database!, FirebasePaths.room(roomId)),
         (room) => {
           if (room) {
             room.status = 'playing';
@@ -265,6 +269,10 @@ export function useGameActions(): UseGameActionsReturn {
     setError(null);
 
     try {
+      if (!database) {
+        throw new Error('データベースが初期化されていません');
+      }
+
       // ゲーム状態を終了に更新
       await runTransaction(
         ref(database, FirebasePaths.game(gameId)),

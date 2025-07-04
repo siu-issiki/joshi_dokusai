@@ -39,6 +39,12 @@ export function usePlayerHand(gameId: string | null): UsePlayerHandReturn {
       return;
     }
 
+    if (!database) {
+      setError('データベースが初期化されていません');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -91,6 +97,11 @@ export function usePlayerHand(gameId: string | null): UsePlayerHandReturn {
 
   // 接続状態の監視を別のuseEffectで分離
   useEffect(() => {
+    if (!database) {
+      setConnected(false);
+      return;
+    }
+
     const connectedRef = ref(database, '.info/connected');
     const connectionUnsubscribe = onValue(connectedRef, (snapshot) => {
       const isConnected = snapshot.val() === true;
