@@ -141,6 +141,7 @@ export default function PlayerHand({
         {/* 手札が多い場合の表示調整 */}
         {hand.cards.length > 8 && (
           <div className="mt-3 text-center">
+            {/* TODO: 手札が8枚以上の場合のページング機能を実装する */}
             <button className="text-sm text-blue-600 hover:text-blue-800">
               すべてのカードを表示
             </button>
