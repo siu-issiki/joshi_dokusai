@@ -22,8 +22,9 @@ export function useGameActions(gameId: string) {
       const startGameFunction = httpsCallable(functions, 'startGame');
       const result = await startGameFunction({ roomId });
       return result.data;
-    } catch (error: any) {
-      const errorMessage = error.message || 'ゲーム開始に失敗しました';
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'ゲーム開始に失敗しました';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -47,8 +48,9 @@ export function useGameActions(gameId: string) {
         targetPlayerId,
       });
       return result.data;
-    } catch (error: any) {
-      const errorMessage = error.message || 'カードの使用に失敗しました';
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'カードの使用に失敗しました';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -68,8 +70,9 @@ export function useGameActions(gameId: string) {
       const drawCardFunction = httpsCallable(functions, 'drawCard');
       const result = await drawCardFunction({ gameId });
       return result.data;
-    } catch (error: any) {
-      const errorMessage = error.message || 'カードのドローに失敗しました';
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'カードのドローに失敗しました';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -89,8 +92,9 @@ export function useGameActions(gameId: string) {
       const passTurnFunction = httpsCallable(functions, 'passTurn');
       const result = await passTurnFunction({ gameId });
       return result.data;
-    } catch (error: any) {
-      const errorMessage = error.message || 'ターンパスに失敗しました';
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'ターンパスに失敗しました';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
