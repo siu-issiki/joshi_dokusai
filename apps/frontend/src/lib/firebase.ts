@@ -1,6 +1,7 @@
 import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getDatabase, Database } from 'firebase/database';
 import { getAuth, Auth } from 'firebase/auth';
+import { getFunctions, Functions } from 'firebase/functions';
 
 // Firebase設定
 const firebaseConfig = {
@@ -17,6 +18,7 @@ const firebaseConfig = {
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let database: Database | null = null;
+let functions: Functions | null = null;
 
 if (typeof window !== 'undefined') {
   // デバッグ用：環境変数の確認
@@ -35,6 +37,7 @@ if (typeof window !== 'undefined') {
       app = initializeApp(firebaseConfig);
       auth = getAuth(app);
       database = getDatabase(app);
+      functions = getFunctions(app);
       console.log('Firebase初期化成功');
     } catch (error) {
       console.error('Firebase初期化エラー:', error);
@@ -45,6 +48,6 @@ if (typeof window !== 'undefined') {
 }
 
 // Firebase サービスをexport
-export { auth, database };
+export { auth, database, functions };
 
 export default app;
