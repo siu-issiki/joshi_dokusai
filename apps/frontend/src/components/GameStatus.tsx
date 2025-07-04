@@ -72,7 +72,8 @@ export default function GameStatus({ game }: GameStatusProps) {
   const phaseDisplay = getPhaseDisplay();
 
   // ターン進行度を計算
-  const turnProgress = (game.turnCount / game.maxTurns) * 100;
+  const turnProgress =
+    game.maxTurns > 0 ? (game.turnCount / game.maxTurns) * 100 : 0;
 
   return (
     <div className="space-y-3">

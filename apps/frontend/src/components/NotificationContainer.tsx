@@ -6,17 +6,22 @@ import { Notification } from '@/hooks/useNotifications';
 interface NotificationContainerProps {
   notifications: Notification[];
   onRemove: (id: string) => void;
-  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center';
+  position?:
+    | 'top-right'
+    | 'top-left'
+    | 'bottom-right'
+    | 'bottom-left'
+    | 'top-center';
 }
 
 /**
  * 通知表示コンテナコンポーネント
  * 複数の通知をスタック形式で表示
  */
-export default function NotificationContainer({ 
-  notifications, 
-  onRemove, 
-  position = 'top-right' 
+export default function NotificationContainer({
+  notifications,
+  onRemove,
+  position = 'top-right',
 }: NotificationContainerProps) {
   const getPositionClasses = () => {
     switch (position) {
@@ -40,7 +45,9 @@ export default function NotificationContainer({
   }
 
   return (
-    <div className={`fixed z-50 ${getPositionClasses()} space-y-2 max-w-sm w-full`}>
+    <div
+      className={`fixed z-50 ${getPositionClasses()} space-y-2 max-w-sm w-full`}
+    >
       {notifications.map((notification) => (
         <NotificationItem
           key={notification.id}
@@ -117,22 +124,24 @@ function NotificationItem({ notification, onRemove }: NotificationItemProps) {
     const now = Date.now();
     const diff = now - timestamp;
     const seconds = Math.floor(diff / 1000);
-    
+
     if (seconds < 60) return '今';
-    
+
     const minutes = Math.floor(seconds / 60);
     if (minutes < 60) return `${minutes}分前`;
-    
+
     const hours = Math.floor(minutes / 60);
     return `${hours}時間前`;
   };
 
   return (
-    <div className={`
+    <div
+      className={`
       ${styles.bg} border rounded-lg shadow-lg p-4 
       transform transition-all duration-300 ease-in-out
       hover:shadow-xl animate-slide-in-right
-    `}>
+    `}
+    >
       <div className="flex items-start space-x-3">
         {/* アイコン */}
         <div className={`flex-shrink-0 ${styles.iconColor}`}>
@@ -149,7 +158,7 @@ function NotificationItem({ notification, onRemove }: NotificationItemProps) {
               {formatTimeAgo(notification.timestamp)}
             </span>
           </div>
-          
+
           <p className={`text-sm ${styles.messageColor} leading-relaxed`}>
             {notification.message}
           </p>
@@ -173,62 +182,37 @@ function NotificationItem({ notification, onRemove }: NotificationItemProps) {
           aria-label="通知を閉じる"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+            <path
+              fillRule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
           </svg>
         </button>
       </div>
 
       {/* プログレスバー（非永続通知の場合） */}
-      {!notification.persistent && notification.duration && notification.duration > 0 && (
-        <div className="mt-3 w-full bg-white bg-opacity-30 rounded-full h-1">
-          <div 
-            className={`h-1 rounded-full transition-all ease-linear ${
-              notification.type === 'success' ? 'bg-green-400' :
-              notification.type === 'error' ? 'bg-red-400' :
-              notification.type === 'warning' ? 'bg-yellow-400' :
-              'bg-blue-400'
-            }`}
-            style={{
-              width: '100%',
-              animation: `shrink ${notification.duration}ms linear forwards`
-            }}
-          />
-        </div>
-      )}
+      {!notification.persistent &&
+        notification.duration &&
+        notification.duration > 0 && (
+          <div className="mt-3 w-full bg-white bg-opacity-30 rounded-full h-1">
+            <div
+              className={`h-1 rounded-full transition-all ease-linear ${
+                notification.type === 'success'
+                  ? 'bg-green-400'
+                  : notification.type === 'error'
+                    ? 'bg-red-400'
+                    : notification.type === 'warning'
+                      ? 'bg-yellow-400'
+                      : 'bg-blue-400'
+              }`}
+              style={{
+                width: '100%',
+                animation: `shrink ${notification.duration}ms linear forwards`,
+              }}
+            />
+          </div>
+        )}
     </div>
   );
-}
-
-// CSS アニメーション用のスタイル
-const styles = `
-  @keyframes slide-in-right {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-
-  @keyframes shrink {
-    from {
-      width: 100%;
-    }
-    to {
-      width: 0%;
-    }
-  }
-
-  .animate-slide-in-right {
-    animation: slide-in-right 0.3s ease-out;
-  }
-`;
-
-// スタイルを動的に追加
-if (typeof document !== 'undefined') {
-  const styleElement = document.createElement('style');
-  styleElement.textContent = styles;
-  document.head.appendChild(styleElement);
 }

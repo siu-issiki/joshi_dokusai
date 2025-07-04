@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 export interface Notification {
   id: string;
@@ -30,6 +30,8 @@ interface UseNotificationsReturn {
  */
 export function useNotifications(): UseNotificationsReturn {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  // タイマーIDを管理するためのMapをRefで保持
+  const timersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // 通知を追加
   const addNotification = useCallback(
@@ -50,9 +52,14 @@ export function useNotifications(): UseNotificationsReturn {
         newNotification.duration &&
         newNotification.duration > 0
       ) {
-        setTimeout(() => {
+        const timerId = setTimeout(() => {
           setNotifications((prev) => prev.filter((n) => n.id !== id));
+          // タイマーMapからも削除
+          timersRef.current.delete(id);
         }, newNotification.duration);
+
+        // タイマーIDをMapに保存
+        timersRef.current.set(id, timerId);
       }
 
       return id;
@@ -65,12 +72,38 @@ export function useNotifications(): UseNotificationsReturn {
     setNotifications((prev) =>
       prev.filter((notification) => notification.id !== id)
     );
+
+    // 対応するタイマーがあれば停止して削除
+    const timerId = timersRef.current.get(id);
+    if (timerId) {
+      clearTimeout(timerId);
+      timersRef.current.delete(id);
+    }
   }, []);
 
   // 全通知をクリア
   const clearAll = useCallback(() => {
     setNotifications([]);
+
+    // 全てのタイマーを停止
+    timersRef.current.forEach((timerId) => {
+      clearTimeout(timerId);
+    });
+    timersRef.current.clear();
   }, []);
+
+  // クリーンアップ関数 - 全てのタイマーを停止
+  const cleanup = useCallback(() => {
+    timersRef.current.forEach((timerId) => {
+      clearTimeout(timerId);
+    });
+    timersRef.current.clear();
+  }, []);
+
+  // コンポーネントアンマウント時のクリーンアップ
+  useEffect(() => {
+    return cleanup;
+  }, [cleanup]);
 
   // ヘルパー関数
   const showSuccess = useCallback(

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { database } from '@/lib/firebase';
-import { ref, onValue, set, runTransaction } from 'firebase/database';
+import { ref, onValue, set, runTransaction, get } from 'firebase/database';
 import {
   FirebaseRoom,
   FirebaseRoomPlayer,
@@ -8,6 +8,8 @@ import {
   handleFirebaseError,
   generateRoomId,
   GAME_CONFIG,
+  hashPassword,
+  verifyPassword,
 } from '@joshi-dokusai/shared';
 import { useAuth } from '@/lib/auth';
 
@@ -154,6 +156,10 @@ export function useRoom(roomId: string | null): UseRoomReturn {
       const roomId = generateRoomId();
       const now = Date.now();
 
+      // パスワードをハッシュ化（プライベートルームの場合のみ）
+      const hashedPassword =
+        isPrivate && password ? await hashPassword(password) : undefined;
+
       const roomData: FirebaseRoom = {
         id: roomId,
         name,
@@ -162,7 +168,7 @@ export function useRoom(roomId: string | null): UseRoomReturn {
         maxPlayers,
         currentPlayers: 1,
         isPrivate,
-        password: isPrivate ? password : undefined,
+        password: hashedPassword,
         status: 'waiting',
         players: {
           [user.uid]: {
@@ -204,6 +210,28 @@ export function useRoom(roomId: string | null): UseRoomReturn {
     setError(null);
 
     try {
+      // まずルーム情報を取得してパスワード検証を行う
+      const roomSnapshot = await get(
+        ref(database, FirebasePaths.room(targetRoomId))
+      );
+      const roomData = roomSnapshot.val();
+
+      if (!roomData) {
+        throw new Error('ルームが見つかりません');
+      }
+
+      // プライベートルームの場合はパスワード検証
+      if (roomData.isPrivate && roomData.password) {
+        const isPasswordValid = await verifyPassword(
+          password || '',
+          roomData.password
+        );
+        if (!isPasswordValid) {
+          throw new Error('パスワードが正しくありません');
+        }
+      }
+
+      // パスワード検証が通った後にトランザクションを実行
       await runTransaction(
         ref(database, FirebasePaths.room(targetRoomId)),
         (room) => {
@@ -217,10 +245,6 @@ export function useRoom(roomId: string | null): UseRoomReturn {
 
           if (room.currentPlayers >= room.maxPlayers) {
             throw new Error('ルームが満員です');
-          }
-
-          if (room.isPrivate && room.password !== password) {
-            throw new Error('パスワードが正しくありません');
           }
 
           if (room.players[user.uid]) {

@@ -158,6 +158,46 @@ export function rollDice(): number {
   return Math.floor(Math.random() * 6) + 1;
 }
 
+// パスワードハッシュ関連ユーティリティ
+
+/**
+ * パスワードをハッシュ化
+ * SHA-256を使用してパスワードをハッシュ化する
+ */
+export async function hashPassword(password: string): Promise<string> {
+  // TextEncoderでパスワードをUint8Arrayに変換
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+
+  // Web Crypto APIを使用してSHA-256ハッシュを計算
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+  // ArrayBufferを16進数文字列に変換
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+
+  return hashHex;
+}
+
+/**
+ * パスワードの検証
+ * 入力されたパスワードとハッシュ化されたパスワードを比較する
+ */
+export async function verifyPassword(
+  inputPassword: string,
+  hashedPassword: string
+): Promise<boolean> {
+  try {
+    const inputHash = await hashPassword(inputPassword);
+    return inputHash === hashedPassword;
+  } catch (error) {
+    console.error('パスワード検証エラー:', error);
+    return false;
+  }
+}
+
 // Firebase関連ユーティリティ関数
 
 /**
