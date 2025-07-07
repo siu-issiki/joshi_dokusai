@@ -7,8 +7,8 @@ interface PlayerHandProps {
   hand: FirebasePlayerHand | null;
   loading: boolean;
   error: string | null;
-  onPlayCard?: (cardId: string, targetPlayerId?: string) => Promise<any>;
-  onPassTurn?: () => Promise<any>;
+  onPlayCard?: (cardId: string, targetPlayerId?: string) => Promise<unknown>;
+  onPassTurn?: () => Promise<unknown>;
   canPlayCards?: boolean;
   isMyTurn?: boolean;
   players?: Array<{

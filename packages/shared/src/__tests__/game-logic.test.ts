@@ -6,8 +6,7 @@ import {
   getNextPhase,
   getCurrentPlayer,
 } from '../game-logic';
-import { FirebaseGame, FirebaseGamePlayer } from '../types';
-import { GAME_CONFIG, VICTORY_CONDITIONS } from '../constants';
+import { FirebaseGame } from '../types';
 
 // テスト用のモックゲームデータ
 const createMockGame = (

@@ -354,10 +354,10 @@ export default function GameBoard({ gameId }: GameBoardProps) {
             canPlayCards={isMyTurn && game.phase !== 'dictatorship'}
             isMyTurn={isMyTurn}
             players={Object.values(game.players).map((player) => ({
-              id: (player as any).id,
-              name: (player as any).name,
-              role: (player as any).role,
-              life: (player as any).life,
+              id: player.id,
+              name: player.name,
+              role: player.role,
+              life: player.life,
             }))}
             currentPlayerId={user?.uid}
           />

@@ -34,13 +34,17 @@ export class DeckManager {
   drawWorkCard(): WorkCard | null {
     if (this.workDeck.length === 0) {
       // 捨札から勤務カードを回収してシャッフル
-      const workCardsInDiscard = this.discardPile.filter(card => card.type === 'work') as WorkCard[];
+      const workCardsInDiscard = this.discardPile.filter(
+        (card) => card.type === 'work'
+      ) as WorkCard[];
       if (workCardsInDiscard.length === 0) {
         return null; // カードが尽きた
       }
-      
+
       this.workDeck = shuffleArray(workCardsInDiscard);
-      this.discardPile = this.discardPile.filter(card => card.type !== 'work');
+      this.discardPile = this.discardPile.filter(
+        (card) => card.type !== 'work'
+      );
     }
 
     return this.workDeck.pop() || null;
@@ -92,18 +96,18 @@ export class DeckManager {
    */
   dealInitialHands(playerCount: number): { [playerId: string]: WorkCard[] } {
     this.shuffleWorkDeck();
-    
+
     const hands: { [playerId: string]: WorkCard[] } = {};
-    
+
     // プレイヤーIDを生成（実際の実装では外部から受け取る）
     for (let i = 0; i < playerCount; i++) {
       const playerId = `player_${i}`;
       const role = i === 0 ? 'boss' : 'subordinate';
       const handSize = role === 'boss' ? 7 : 2;
-      
+
       hands[playerId] = this.drawWorkCards(handSize);
     }
-    
+
     return hands;
   }
 
@@ -114,8 +118,10 @@ export class DeckManager {
     if (this.dictatorshipDeck.length === 0) {
       return null;
     }
-    
-    const randomIndex = Math.floor(Math.random() * this.dictatorshipDeck.length);
+
+    const randomIndex = Math.floor(
+      Math.random() * this.dictatorshipDeck.length
+    );
     return this.dictatorshipDeck[randomIndex];
   }
 
@@ -127,7 +133,7 @@ export class DeckManager {
       workDeckCount: this.workDeck.length,
       dictatorshipDeckCount: this.dictatorshipDeck.length,
       discardPileCount: this.discardPile.length,
-      discardPile: [...this.discardPile]
+      discardPile: [...this.discardPile],
     };
   }
 
@@ -145,9 +151,9 @@ export class DeckManager {
    */
   serialize() {
     return {
-      workDeck: this.workDeck.map(card => card.id),
-      dictatorshipDeck: this.dictatorshipDeck.map(card => card.id),
-      discardPile: this.discardPile.map(card => card.id)
+      workDeck: this.workDeck.map((card) => card.id),
+      dictatorshipDeck: this.dictatorshipDeck.map((card) => card.id),
+      discardPile: this.discardPile.map((card) => card.id),
     };
   }
 
@@ -160,19 +166,21 @@ export class DeckManager {
     discardPile: string[];
   }): DeckManager {
     const manager = new DeckManager();
-    
+
     manager.workDeck = serializedData.workDeck
-      .map(id => CardUtils.findById(id))
-      .filter(card => card && card.type === 'work') as WorkCard[];
-    
+      .map((id) => CardUtils.findById(id))
+      .filter((card) => card && card.type === 'work') as WorkCard[];
+
     manager.dictatorshipDeck = serializedData.dictatorshipDeck
-      .map(id => CardUtils.findById(id))
-      .filter(card => card && card.type === 'dictatorship') as DictatorshipCard[];
-    
+      .map((id) => CardUtils.findById(id))
+      .filter(
+        (card) => card && card.type === 'dictatorship'
+      ) as DictatorshipCard[];
+
     manager.discardPile = serializedData.discardPile
-      .map(id => CardUtils.findById(id))
-      .filter(card => card !== undefined) as Card[];
-    
+      .map((id) => CardUtils.findById(id))
+      .filter((card) => card !== undefined) as Card[];
+
     return manager;
   }
 }
@@ -194,34 +202,42 @@ export const DeckUtils = {
   /**
    * プレイヤー数に応じた初期手札を配布
    */
-  dealInitialHandsForPlayers(playerIds: string[]): { [playerId: string]: WorkCard[] } {
+  dealInitialHandsForPlayers(playerIds: string[]): {
+    [playerId: string]: WorkCard[];
+  } {
     const manager = DeckUtils.createShuffledDeck();
     const hands: { [playerId: string]: WorkCard[] } = {};
-    
+
     playerIds.forEach((playerId, index) => {
       const role = index === 0 ? 'boss' : 'subordinate';
       const handSize = role === 'boss' ? 7 : 2;
       hands[playerId] = manager.drawWorkCards(handSize);
     });
-    
+
     return hands;
   },
 
   /**
    * ゲーム開始時のデッキ状態を作成
    */
-  createInitialGameDeck(): {
+  createInitialGameDeck(playerIds: string[]): {
     deckState: any;
     hands: { [playerId: string]: WorkCard[] };
   } {
     const manager = DeckUtils.createShuffledDeck();
-    
-    // 仮のプレイヤーIDで初期手札を配布（実際の実装では外部から受け取る）
-    const hands = manager.dealInitialHands(4); // 4人プレイを仮定
-    
+
+    // プレイヤーIDを使って初期手札を配布
+    const hands: { [playerId: string]: WorkCard[] } = {};
+
+    playerIds.forEach((playerId, index) => {
+      const role = index === 0 ? 'boss' : 'subordinate';
+      const handSize = role === 'boss' ? 7 : 2;
+      hands[playerId] = manager.drawWorkCards(handSize);
+    });
+
     return {
       deckState: manager.getDeckState(),
-      hands
+      hands,
     };
-  }
+  },
 };

@@ -11,6 +11,7 @@ import {
   checkFirebaseGameEnd,
   getNextPhase,
   getNextFirebasePlayerIndex,
+  getCurrentPlayer,
 } from '@joshi-dokusai/shared';
 
 /**
@@ -39,8 +40,8 @@ export const passTurn = onCall(async (request) => {
     }
 
     // 基本的な検証
-    const currentPlayer = Object.values(game.players)[game.currentPlayerIndex];
-    if ((currentPlayer as any).id !== uid) {
+    const currentPlayer = getCurrentPlayer(game);
+    if (!currentPlayer || currentPlayer.id !== uid) {
       throw new Error('あなたのターンではありません');
     }
 
