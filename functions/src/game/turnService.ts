@@ -1,0 +1,102 @@
+/**
+ * ターン管理サービス
+ */
+
+import { onCall } from 'firebase-functions/v2/https';
+import { getDatabase } from 'firebase-admin/database';
+import * as logger from 'firebase-functions/logger';
+
+import {
+  GAME_CONFIG,
+  checkFirebaseGameEnd,
+  getNextPhase,
+  getNextFirebasePlayerIndex,
+} from '@joshi-dokusai/shared';
+
+/**
+ * ターンパスFunction
+ */
+export const passTurn = onCall(async (request) => {
+  const { gameId } = request.data;
+  const uid = request.auth?.uid;
+
+  if (!uid) {
+    throw new Error('認証が必要です');
+  }
+
+  logger.info('Passing turn', { gameId, uid });
+
+  const db = getDatabase();
+
+  try {
+    // ゲーム状態取得
+    const gameRef = db.ref(`games/${gameId}`);
+    const gameSnapshot = await gameRef.once('value');
+    const game = gameSnapshot.val();
+
+    if (!game || !game.players[uid]) {
+      throw new Error('ゲームが見つからないか、参加していません');
+    }
+
+    // 基本的な検証
+    const currentPlayer = Object.values(game.players)[game.currentPlayerIndex];
+    if ((currentPlayer as any).id !== uid) {
+      throw new Error('あなたのターンではありません');
+    }
+
+    // 次のプレイヤーインデックスとフェーズを計算
+    const nextPlayerIndex = getNextFirebasePlayerIndex(game);
+    const nextPhase = getNextPhase(game);
+
+    // ターン更新
+    const updates: any = {
+      currentPlayerIndex: nextPlayerIndex,
+      phase: nextPhase,
+      lastUpdated: Date.now(),
+    };
+
+    // フェーズが独裁フェーズに戻った場合、ターン数を増加
+    if (nextPhase === 'dictatorship' && game.phase !== 'dictatorship') {
+      updates.turnCount = game.turnCount + 1;
+
+      // 新しいターンが始まるので独裁カードの状態をクリア
+      updates['gameState/dictatorshipEffects/currentCard'] = null;
+
+      // 最大ターン数に達したかチェック
+      if (game.turnCount + 1 > GAME_CONFIG.MAX_TURNS) {
+        updates.status = 'ended';
+        updates.phase = 'turn_end';
+      }
+    }
+
+    // ゲーム終了条件をチェック
+    const gameEndCheck = checkFirebaseGameEnd(game);
+    if (gameEndCheck.isGameEnd) {
+      updates.status = 'ended';
+      updates.winner = gameEndCheck.winner;
+      updates.endReason = gameEndCheck.reason;
+    }
+
+    await gameRef.update(updates);
+
+    // ゲームログに追加
+    const turnAction = {
+      turnNumber: game.turnCount,
+      phase: game.phase,
+      action: {
+        type: 'pass-turn',
+        playerId: uid,
+        timestamp: Date.now(),
+      },
+    };
+
+    await gameRef.child('turnHistory').push(turnAction);
+
+    logger.info('Turn passed successfully', { gameId, uid, nextPlayerIndex });
+
+    return { success: true, nextPlayerIndex };
+  } catch (error) {
+    logger.error('Error passing turn', error);
+    throw error;
+  }
+});
