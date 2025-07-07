@@ -1,6 +1,7 @@
 import { FirebaseGame, FirebaseGamePlayer } from './types';
 import { GAME_CONFIG, VICTORY_CONDITIONS } from './constants';
 import { CardUtils } from './card-data';
+import { gameRandom } from './random';
 
 /**
  * ゲームロジック関連のユーティリティ関数
@@ -249,7 +250,7 @@ function applyRecoveryCard(
     // 部下：部下陣営1人のライフ1回復、またはライフ0時にサイコロ偶数で復活
     if (targetPlayer.life === 0) {
       // 復活判定（サイコロ）
-      const diceRoll = Math.floor(Math.random() * 6) + 1;
+      const diceRoll = gameRandom.rollDice();
       if (diceRoll % 2 === 0) {
         playerUpdates[targetId] = { life: 1 };
         return {
@@ -398,8 +399,6 @@ export function getNextFirebasePlayerIndex(game: FirebaseGame): number {
  */
 export function getNextPhase(game: FirebaseGame): FirebaseGame['phase'] {
   const currentPhase = game.phase;
-  const currentPlayerIndex = game.currentPlayerIndex;
-  const playerCount = Object.keys(game.players).length;
 
   switch (currentPhase) {
     case 'dictatorship':
@@ -409,8 +408,9 @@ export function getNextPhase(game: FirebaseGame): FirebaseGame['phase'] {
       return 'subordinate_turn';
 
     case 'subordinate_turn':
-      // 最後の部下のターンが終わったら上司ターン
-      if (currentPlayerIndex === playerCount - 1) {
+      // 現在のプレイヤーの役割をチェックして上司ターンかどうか判定
+      const currentPlayer = getCurrentPlayer(game);
+      if (currentPlayer && currentPlayer.role === 'boss') {
         return 'boss_turn';
       }
       return 'subordinate_turn';

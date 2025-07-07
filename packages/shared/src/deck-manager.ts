@@ -1,6 +1,7 @@
 import { Card, WorkCard, DictatorshipCard } from './types';
 import { ALL_WORK_CARDS, DICTATORSHIP_CARDS, CardUtils } from './card-data';
 import { shuffleArray } from './utils';
+import { gameRandom } from './random';
 
 /**
  * デッキ管理クラス
@@ -119,10 +120,7 @@ export class DeckManager {
       return null;
     }
 
-    const randomIndex = Math.floor(
-      Math.random() * this.dictatorshipDeck.length
-    );
-    return this.dictatorshipDeck[randomIndex];
+    return gameRandom.pickRandom(this.dictatorshipDeck);
   }
 
   /**

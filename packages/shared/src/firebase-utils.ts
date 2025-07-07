@@ -1,4 +1,5 @@
 import { FirebaseGame, FirebaseGamePlayer, GAME_CONFIG } from './';
+import { NonDeterministicRandom } from './random';
 
 // Firebase Realtime Database用ユーティリティ関数
 
@@ -6,14 +7,14 @@ import { FirebaseGame, FirebaseGamePlayer, GAME_CONFIG } from './';
  * ゲームIDを生成
  */
 export function generateGameId(): string {
-  return `game_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+  return NonDeterministicRandom.generateGameId();
 }
 
 /**
  * プレイヤーIDを生成（匿名認証用）
  */
 export function generatePlayerId(): string {
-  return `player_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+  return NonDeterministicRandom.generatePlayerId();
 }
 
 /**

@@ -5,6 +5,7 @@ import {
   VICTORY_CONDITIONS,
   FirebaseRoom,
 } from './';
+import { gameRandom, NonDeterministicRandom } from './random';
 
 // ゲームユーティリティ関数
 
@@ -143,19 +144,14 @@ export function isEvenDiceResult(diceResult: number): boolean {
  * 配列をシャッフル
  */
 export function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
+  return gameRandom.shuffle(array);
 }
 
 /**
  * サイコロを振る（1-6）
  */
 export function rollDice(): number {
-  return Math.floor(Math.random() * 6) + 1;
+  return gameRandom.rollDice();
 }
 
 // Firebase関連ユーティリティ関数
@@ -164,10 +160,7 @@ export function rollDice(): number {
  * ランダムなIDを生成
  */
 export function generateId(): string {
-  return (
-    Math.random().toString(36).substring(2, 15) +
-    Math.random().toString(36).substring(2, 15)
-  );
+  return NonDeterministicRandom.generateUUID();
 }
 
 /**
