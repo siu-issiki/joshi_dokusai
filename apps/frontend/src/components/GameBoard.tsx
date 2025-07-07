@@ -48,14 +48,17 @@ export default function GameBoard({ gameId }: GameBoardProps) {
     );
   }
 
-  if (!game || !hand || !user) {
+  if (!game || !user) {
     return <div className="text-gray-600 p-4">ゲーム情報が見つかりません</div>;
   }
 
-  const currentPlayer = game.players[user.uid];
+  // プレイヤーデータを取得（player.idがuser.uidと一致するものを探す）
+  const currentPlayer = Object.values(game.players).find(
+    (player) => (player as { id: string }).id === user.uid
+  );
+
   const isMyTurn =
-    game.players[Object.keys(game.players)[game.currentPlayerIndex]]?.id ===
-    user.uid;
+    Object.values(game.players)[game.currentPlayerIndex]?.id === user.uid;
 
   return (
     <div className="min-h-screen bg-green-100 p-4">
@@ -81,17 +84,33 @@ export default function GameBoard({ gameId }: GameBoardProps) {
       {/* 他プレイヤー情報 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {Object.values(game.players)
-          .filter((player) => player.id !== user.uid)
-          .map((player) => (
-            <div key={player.id} className="bg-white rounded-lg p-3 shadow-md">
-              <h3 className="font-semibold text-gray-800">{player.name}</h3>
-              <p className="text-sm text-gray-600">
-                {player.role === 'boss' ? '上司' : '部下'}
-              </p>
-              <p className="text-red-600">ライフ: {player.life}</p>
-              <p className="text-blue-600">手札: {player.handCount || 0}枚</p>
-            </div>
-          ))}
+          .filter((player) => (player as { id: string }).id !== user.uid)
+          .map((player) => {
+            const typedPlayer = player as {
+              id: string;
+              name: string;
+              role: string;
+              life: number;
+              handCount?: number;
+            };
+            return (
+              <div
+                key={typedPlayer.id}
+                className="bg-white rounded-lg p-3 shadow-md"
+              >
+                <h3 className="font-semibold text-gray-800">
+                  {typedPlayer.name}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {typedPlayer.role === 'boss' ? '上司' : '部下'}
+                </p>
+                <p className="text-red-600">ライフ: {typedPlayer.life}</p>
+                <p className="text-blue-600">
+                  手札: {typedPlayer.handCount || 0}枚
+                </p>
+              </div>
+            );
+          })}
       </div>
 
       {/* メインゲームエリア */}
@@ -140,7 +159,13 @@ export default function GameBoard({ gameId }: GameBoardProps) {
               </p>
             ) : (
               <p className="text-lg text-gray-600">
-                {Object.values(game.players)[game.currentPlayerIndex]?.name}
+                {
+                  (
+                    Object.values(game.players)[game.currentPlayerIndex] as {
+                      name: string;
+                    }
+                  )?.name
+                }
                 のターン
               </p>
             )}

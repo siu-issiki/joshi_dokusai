@@ -28,6 +28,16 @@ export function usePlayerHand(gameId: string) {
       (snapshot) => {
         try {
           const data = snapshot.val();
+          console.log('usePlayerHand Debug:', {
+            gameId,
+            playerId: auth?.currentUser?.uid,
+            path: FirebasePaths.playerHand(
+              gameId,
+              auth?.currentUser?.uid || ''
+            ),
+            data,
+            exists: snapshot.exists(),
+          });
           setHand(data);
           setLoading(false);
           setError(null);

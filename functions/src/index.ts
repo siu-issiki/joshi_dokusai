@@ -1,5 +1,6 @@
 /**
  * Firebase Cloud Functions for 上司独裁 Game
+ * Updated to fix authUid issue
  */
 
 import { setGlobalOptions } from 'firebase-functions';
@@ -49,24 +50,31 @@ export const startGame = onCall(async (request) => {
     }
 
     // ゲームIDを生成
-    const gameId = `game_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const gameId = `game_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 
     // プレイヤーの役割を決定（最初のプレイヤーが上司）
     const players = Object.values(room.players);
     const gamePlayersData: Record<string, any> = {};
 
     players.forEach((player: any, index: number) => {
+      const role = index === 0 ? 'boss' : 'subordinate';
+
+      logger.info('Processing player:', { player, index, role });
+
+      // 必要なプロパティのみを明示的に設定
       gamePlayersData[player.id] = {
-        id: player.id,
-        name: player.name,
-        role: index === 0 ? 'boss' : 'subordinate',
-        life: index === 0 ? 7 : 4, // 上司7、部下4
-        maxLife: index === 0 ? 7 : 4,
-        handCount: index === 0 ? 7 : 2, // 上司7枚、部下2枚
+        id: String(player.id),
+        name: String(player.name || `プレイヤー${index + 1}`),
+        role: role,
+        life: role === 'boss' ? 7 : 4, // 上司7、部下4
+        maxLife: role === 'boss' ? 7 : 4,
+        handCount: role === 'boss' ? 7 : 2, // 上司7枚、部下2枚
         isConnected: true,
         lastAction: Date.now(),
       };
     });
+
+    logger.info('Final game players data:', { gamePlayersData });
 
     // ゲーム状態を作成
     const gameData = {
@@ -95,6 +103,31 @@ export const startGame = onCall(async (request) => {
 
     // ゲームデータを保存
     await db.ref(`games/${gameId}`).set(gameData);
+
+    // 各プレイヤーの初期手札を作成
+    const handPromises = players.map(async (player: any, index: number) => {
+      const role = index === 0 ? 'boss' : 'subordinate';
+      const handSize = role === 'boss' ? 7 : 2;
+
+      // 仮の手札データ（実際のカードデッキ実装まで）
+      const initialCards = Array.from({ length: handSize }, (_, cardIndex) => ({
+        id: `temp_card_${Date.now()}_${cardIndex}`,
+        type: 'work',
+        category: 'attack',
+        name: '仮カード',
+        description: '仮のカードです',
+        isVisible: false,
+      }));
+
+      const handData = {
+        cards: initialCards,
+        lastUpdated: Date.now(),
+      };
+
+      await db.ref(`playerHands/${gameId}/${player.id}`).set(handData);
+    });
+
+    await Promise.all(handPromises);
 
     // ルームステータスを更新
     await roomRef.update({
@@ -213,7 +246,7 @@ export const drawCard = onCall(async (request) => {
 
     // 仮のカードデータ（実際のカードデータは後で実装）
     const newCard = {
-      id: `card_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `card_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
       type: 'work',
       category: 'attack',
       name: 'サンプルカード',
