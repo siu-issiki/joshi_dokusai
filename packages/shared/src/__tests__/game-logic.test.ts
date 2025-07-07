@@ -21,6 +21,7 @@ const createMockGame = (
     currentPlayerIndex: 1,
     turnCount: 1,
     maxTurns: 5,
+    playerOrder: ['boss-1', 'sub-1', 'sub-2', 'sub-3'], // Add player order for consistency
     players: {
       'boss-1': {
         id: 'boss-1',

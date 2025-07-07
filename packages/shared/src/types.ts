@@ -113,6 +113,7 @@ export interface FirebaseGame {
   currentPlayerIndex: number;
   turnCount: number;
   maxTurns: number;
+  playerOrder: string[]; // Consistent player order for reliable indexing
   players: Record<string, FirebaseGamePlayer>;
   gameState: FirebaseGameState;
   turnHistory: FirebaseTurnAction[];

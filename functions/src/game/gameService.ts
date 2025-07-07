@@ -62,9 +62,17 @@ export const startGame = onCall(async (request) => {
 
     // プレイヤーの役割を決定（入室順で最初のプレイヤーが上司）
     const players = (Object.values(room.players) as any[]).sort(
-      (a: any, b: any) => a.joinedAt - b.joinedAt
+      (a: any, b: any) => {
+        // Handle undefined joinedAt values to prevent NaN comparison
+        const aJoinedAt = a.joinedAt || 0;
+        const bJoinedAt = b.joinedAt || 0;
+        return aJoinedAt - bJoinedAt;
+      }
     );
     const gamePlayersData: Record<string, any> = {};
+
+    // Store the sorted player order for consistent indexing
+    const playerOrder = players.map((player: any) => String(player.id));
 
     players.forEach((player: any, index: number) => {
       const role = index === 0 ? 'boss' : 'subordinate';
@@ -117,6 +125,7 @@ export const startGame = onCall(async (request) => {
       currentPlayerIndex: 1, // 部下から開始
       turnCount: 1,
       maxTurns: GAME_CONFIG.MAX_TURNS,
+      playerOrder: playerOrder, // Store consistent player order
       players: gamePlayersData,
       gameState: {
         deckCount: initialDeck.workCards.length,

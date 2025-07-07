@@ -12,6 +12,7 @@ const createMockGame = (): FirebaseGame => ({
   currentPlayerIndex: 1,
   turnCount: 1,
   maxTurns: 5,
+  playerOrder: ['boss', 'subordinate1'], // Add player order for consistency
   players: {
     boss: {
       id: 'boss',
@@ -57,7 +58,6 @@ describe('Game Logic Dice Roll Reproducibility', () => {
 
   test('recovery card revival should produce consistent results with same seed', () => {
     const game = createMockGame();
-    const subordinatePlayer = game.players.subordinate1;
 
     // Set a specific seed for reproducible dice rolls
     gameRandom.setSeed(12345);

@@ -80,7 +80,8 @@ export function validateCardPlay(
 export function getCurrentPlayer(
   game: FirebaseGame
 ): FirebaseGamePlayer | null {
-  const playerIds = Object.keys(game.players);
+  // Use stored playerOrder for consistent indexing instead of Object.keys()
+  const playerIds = game.playerOrder || Object.keys(game.players);
   const currentPlayerId = playerIds[game.currentPlayerIndex];
   return currentPlayerId ? game.players[currentPlayerId] : null;
 }
@@ -407,13 +408,18 @@ export function getNextPhase(game: FirebaseGame): FirebaseGame['phase'] {
     case 'subordinate_consultation':
       return 'subordinate_turn';
 
-    case 'subordinate_turn':
-      // 現在のプレイヤーの役割をチェックして上司ターンかどうか判定
-      const currentPlayer = getCurrentPlayer(game);
-      if (currentPlayer && currentPlayer.role === 'boss') {
+    case 'subordinate_turn': {
+      // 次のプレイヤーの役割をチェックして上司ターンかどうか判定
+      const nextPlayerIndex = getNextFirebasePlayerIndex(game);
+      const playerIds = game.playerOrder || Object.keys(game.players);
+      const nextPlayerId = playerIds[nextPlayerIndex];
+      const nextPlayer = nextPlayerId ? game.players[nextPlayerId] : null;
+
+      if (nextPlayer && nextPlayer.role === 'boss') {
         return 'boss_turn';
       }
       return 'subordinate_turn';
+    }
 
     case 'boss_turn':
       return 'turn_end';
