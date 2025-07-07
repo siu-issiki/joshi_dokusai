@@ -12,7 +12,22 @@ import {
   getNextPhase,
   getNextFirebasePlayerIndex,
   getCurrentPlayer,
+  FirebaseGame,
 } from "@joshi-dokusai/shared";
+
+// ゲーム更新用の型定義
+interface GameUpdateData {
+  currentPlayerIndex: number;
+  phase: FirebaseGame["phase"];
+  lastUpdated: number;
+  turnCount?: number;
+  status?: FirebaseGame["status"];
+  winner?: FirebaseGame["winner"];
+  endReason?: string;
+  // Firebase nested path updates用
+  // 例: "gameState/dictatorshipEffects/currentCard"
+  [key: `gameState/${string}`]: any;
+}
 
 /**
  * ターンパスFunction
@@ -50,9 +65,9 @@ export const passTurn = onCall(async (request) => {
     const nextPhase = getNextPhase(game);
 
     // ターン更新
-    const updates: any = {
+    const updates: GameUpdateData = {
       currentPlayerIndex: nextPlayerIndex,
-      phase: nextPhase,
+      phase: nextPhase as FirebaseGame["phase"],
       lastUpdated: Date.now(),
     };
 

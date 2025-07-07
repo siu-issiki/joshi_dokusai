@@ -396,7 +396,7 @@ export function getNextFirebasePlayerIndex(game: FirebaseGame): number {
 /**
  * 次のフェーズを計算
  */
-export function getNextPhase(game: FirebaseGame): string {
+export function getNextPhase(game: FirebaseGame): FirebaseGame['phase'] {
   const currentPhase = game.phase;
   const currentPlayerIndex = game.currentPlayerIndex;
   const playerCount = Object.keys(game.players).length;
