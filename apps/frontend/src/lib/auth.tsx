@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { auth } from './firebase';
 import {
   signInAnonymously,
@@ -8,6 +8,20 @@ import {
   User,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
+
+// 認証コンテキストの型定義
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  signIn: () => Promise<User>;
+  signOut: () => Promise<void>;
+  autoSignIn: () => Promise<void>;
+  isAuthenticated: boolean;
+}
+
+// 認証コンテキスト
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // 匿名認証でサインイン
 export async function signInAnonymous(): Promise<User> {
@@ -44,9 +58,19 @@ export async function signOut(): Promise<void> {
 
 // 認証状態を管理するカスタムフック
 export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+
+// AuthProviderコンポーネント
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasTriedAutoSignIn, setHasTriedAutoSignIn] = useState(false);
 
   useEffect(() => {
     if (!auth) {
@@ -58,13 +82,22 @@ export function useAuth() {
       auth,
       (user) => {
         setUser(user);
-        setLoading(false);
         setError(null);
 
         if (user) {
           console.log('認証状態変更: ログイン済み', user.uid);
+          setLoading(false);
         } else {
           console.log('認証状態変更: 未ログイン');
+          // ユーザーが存在せず、まだ自動サインインを試していない場合に実行
+          if (!hasTriedAutoSignIn) {
+            setHasTriedAutoSignIn(true);
+            // 自動サインインを実行（loadingはtrueのまま維持）
+            autoSignIn();
+          } else {
+            // 自動サインインを既に試行済みの場合のみloadingをfalseに
+            setLoading(false);
+          }
         }
       },
       (error) => {
@@ -75,24 +108,22 @@ export function useAuth() {
     );
 
     return unsubscribe;
-  }, []);
+  }, [hasTriedAutoSignIn]);
 
   // 自動ログイン関数
   const autoSignIn = async () => {
-    if (!user && !loading) {
-      try {
-        setLoading(true);
-        await signInAnonymous();
-      } catch (error) {
-        const message = error instanceof Error ? error.message : '不明なエラー';
-        setError(message);
-      } finally {
-        setLoading(false);
-      }
+    try {
+      // loadingは既にtrueなので、setLoading(true)は不要
+      await signInAnonymous();
+      // 成功時はonAuthStateChangedでloadingがfalseになる
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '不明なエラー';
+      setError(message);
+      setLoading(false);
     }
   };
 
-  return {
+  const contextValue: AuthContextType = {
     user,
     loading,
     error,
@@ -101,6 +132,10 @@ export function useAuth() {
     autoSignIn,
     isAuthenticated: !!user,
   };
+
+  return (
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+  );
 }
 
 // プレイヤー名を管理するカスタムフック
@@ -138,12 +173,6 @@ export function withAuth<P extends object>(
 ): React.ComponentType<P> {
   return function AuthenticatedComponent(props: P) {
     const { user, loading, autoSignIn } = useAuth();
-
-    useEffect(() => {
-      if (!loading && !user) {
-        autoSignIn();
-      }
-    }, [loading, user, autoSignIn]);
 
     if (loading) {
       return (

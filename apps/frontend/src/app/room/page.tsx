@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useRoom } from '@/hooks/useRooms';
 import { useAuth, usePlayerName } from '@/lib/auth';
+import { useGameActions } from '@/hooks/useGameActions';
 import { FirebaseRoomPlayer } from '@/types/firebase';
 
 interface JoinRoomModalProps {
@@ -177,6 +178,17 @@ function RoomPageContent() {
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // ゲームアクション（ゲーム開始用）
+  const { startGame } = useGameActions('');
+
+  // ルーム状態の監視（ゲーム開始時の自動遷移）
+  useEffect(() => {
+    if (room && room.status === 'playing' && room.gameId) {
+      // 他のプレイヤーがゲームを開始した場合、自動的にゲーム画面に遷移
+      router.push(`/game?id=${room.gameId}`);
+    }
+  }, [room, router]);
+
   // 認証チェック
   if (authLoading) {
     return (
@@ -251,8 +263,24 @@ function RoomPageContent() {
   };
 
   const handleStartGame = async () => {
-    // TODO: Phase 2で実装
-    console.log('ゲーム開始（未実装）');
+    setActionLoading(true);
+    try {
+      const result = await startGame(roomId);
+      console.log('ゲーム開始成功:', result);
+
+      // ゲーム画面に遷移
+      if (result && typeof result === 'object' && 'gameId' in result) {
+        router.push(`/game?id=${result.gameId}`);
+      }
+    } catch (error) {
+      console.error('ゲーム開始エラー:', error);
+      // エラーメッセージを表示（必要に応じてtoastやalertを使用）
+      alert(
+        error instanceof Error ? error.message : 'ゲーム開始に失敗しました'
+      );
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   if (loading) {
