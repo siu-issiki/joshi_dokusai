@@ -17,13 +17,22 @@ jest.mock("firebase-functions/logger", () => ({
 }));
 
 // Firebase Admin Database のモック
+interface MockRef {
+  once: jest.Mock;
+  set: jest.Mock;
+  update: jest.Mock;
+  push: jest.Mock;
+  child: jest.Mock;
+  transaction: jest.Mock;
+}
+
 jest.mock("firebase-admin/database", () => {
-  const mockRef: any = {
+  const mockRef: MockRef = {
     once: jest.fn(),
     set: jest.fn(),
     update: jest.fn(),
     push: jest.fn(),
-    child: jest.fn((): any => mockRef),
+    child: jest.fn((): MockRef => mockRef),
     transaction: jest.fn(),
   };
 

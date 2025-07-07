@@ -3,9 +3,22 @@ import * as logger from "firebase-functions/logger";
 
 // テスト対象の関数をインポート
 // 注意: 実際のテストでは、関数を個別にエクスポートして、より細かくテストする必要があります
+interface MockDatabase {
+  ref: jest.Mock;
+}
+
+interface MockRef {
+  once: jest.Mock;
+  set: jest.Mock;
+  update: jest.Mock;
+  push: jest.Mock;
+  child: jest.Mock;
+  transaction: jest.Mock;
+}
+
 describe("Cloud Functions Tests", () => {
-  let mockDatabase: any;
-  let mockRef: any;
+  let mockDatabase: MockDatabase;
+  let mockRef: MockRef;
 
   beforeEach(() => {
     mockDatabase = getDatabase();

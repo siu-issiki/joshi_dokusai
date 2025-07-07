@@ -8,6 +8,10 @@ import * as logger from "firebase-functions/logger";
 
 import {GAME_CONFIG, getNextPhase} from "@joshi-dokusai/shared";
 
+interface DatabaseUpdate {
+  [key: string]: unknown;
+}
+
 /**
  * 独裁フェーズ処理Function（ターン開始時に自動実行）
  */
@@ -57,7 +61,7 @@ export const processDictatorshipPhase = onCall(async (request) => {
     const nextPhase = getNextPhase(game);
 
     // 独裁カードを場に配置し、デッキを更新し、フェーズを進める
-    const updates: any = {
+    const updates: DatabaseUpdate = {
       "gameState/dictatorshipEffects/currentCard": {
         id: drawnCard.id,
         name: drawnCard.name,
@@ -156,7 +160,7 @@ export const nullifyDictatorshipCard = onCall(async (request) => {
     }
 
     // 独裁カードを無効化
-    const updates: any = {
+    const updates: DatabaseUpdate = {
       "gameState/dictatorshipEffects/currentCard/isNullified": true,
       "lastUpdated": Date.now(),
     };
@@ -235,7 +239,7 @@ export const endSubordinateConsultation = onCall(async (request) => {
     const nextPhase = getNextPhase(game);
 
     // フェーズを進める
-    const updates: any = {
+    const updates: DatabaseUpdate = {
       phase: nextPhase,
       lastUpdated: Date.now(),
     };

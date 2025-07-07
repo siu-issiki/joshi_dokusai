@@ -26,7 +26,7 @@ interface GameUpdateData {
   endReason?: string;
   // Firebase nested path updates用
   // 例: "gameState/dictatorshipEffects/currentCard"
-  [key: `gameState/${string}`]: any;
+  [key: `gameState/${string}`]: unknown;
 }
 
 /**
