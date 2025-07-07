@@ -12,7 +12,6 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "test": "turbo test",
-    "test:coverage": "turbo test:coverage",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "type-check": "turbo type-check",
