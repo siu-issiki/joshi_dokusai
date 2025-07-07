@@ -119,11 +119,6 @@ function PlayerCard({ player, isOwner, isCurrentUser }: PlayerCardProps) {
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div
-            className={`w-4 h-4 rounded-full ${
-              player.isReady ? 'bg-green-500' : 'bg-gray-300'
-            }`}
-          />
           <div>
             <h3 className="font-medium text-gray-800">
               {player.name}
@@ -143,15 +138,6 @@ function PlayerCard({ player, isOwner, isCurrentUser }: PlayerCardProps) {
             </p>
           </div>
         </div>
-        <div className="text-right">
-          <span
-            className={`text-sm font-medium ${
-              player.isReady ? 'text-green-600' : 'text-gray-500'
-            }`}
-          >
-            {player.isReady ? '準備完了' : '準備中'}
-          </span>
-        </div>
       </div>
     </div>
   );
@@ -169,7 +155,6 @@ function RoomPageContent() {
     error,
     joinRoom,
     leaveRoom,
-    toggleReady,
     isInRoom,
     isRoomOwner,
     canStartGame,
@@ -246,17 +231,6 @@ function RoomPageContent() {
       router.push('/');
     } catch (error) {
       console.error('ルーム退出エラー:', error);
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleToggleReady = async () => {
-    setActionLoading(true);
-    try {
-      await toggleReady();
-    } catch (error) {
-      console.error('準備状態変更エラー:', error);
     } finally {
       setActionLoading(false);
     }
@@ -355,22 +329,6 @@ function RoomPageContent() {
               </button>
             ) : (
               <>
-                <button
-                  onClick={handleToggleReady}
-                  disabled={actionLoading}
-                  className={`px-6 py-3 rounded-md transition-colors ${
-                    room.players[user?.uid || '']?.isReady
-                      ? 'bg-yellow-600 text-white hover:bg-yellow-700'
-                      : 'bg-green-600 text-white hover:bg-green-700'
-                  }`}
-                >
-                  {actionLoading
-                    ? '変更中...'
-                    : room.players[user?.uid || '']?.isReady
-                      ? '準備解除'
-                      : '準備完了'}
-                </button>
-
                 {isRoomOwner && canStartGame && (
                   <button
                     onClick={handleStartGame}
@@ -394,7 +352,7 @@ function RoomPageContent() {
           {/* ゲーム開始条件の表示 */}
           {isInRoom && isRoomOwner && !canStartGame && (
             <div className="mt-4 text-center text-gray-600">
-              <p>全プレイヤーが準備完了するとゲームを開始できます</p>
+              <p>最小プレイヤー数（4人）に達するとゲームを開始できます</p>
             </div>
           )}
         </div>

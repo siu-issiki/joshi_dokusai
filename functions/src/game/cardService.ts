@@ -11,6 +11,7 @@ import {
   applyCardEffect,
   checkFirebaseGameEnd,
   CardUtils,
+  shuffleArray,
 } from '@joshi-dokusai/shared';
 
 /**
@@ -184,7 +185,7 @@ export const drawCard = onCall(async (request) => {
       }
 
       // 捨札をシャッフルしてデッキに戻す
-      workCardsDeck = workCardsInDiscard.sort(() => Math.random() - 0.5);
+      workCardsDeck = shuffleArray(workCardsInDiscard);
       const remainingDiscard = discardPile.filter((cardId: string) => {
         const card = CardUtils.findById(cardId);
         return card && card.type !== 'work';

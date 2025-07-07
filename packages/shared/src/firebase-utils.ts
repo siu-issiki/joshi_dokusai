@@ -118,9 +118,9 @@ export const FirebasePaths = {
   gameState: (gameId: string) => `games/${gameId}/gameState`,
 
   // プレイヤー手札
-  playerHands: (gameId: string) => `playerHands/${gameId}`,
+  playerHands: (gameId: string) => `games/${gameId}/playerHands`,
   playerHand: (gameId: string, playerId: string) =>
-    `playerHands/${gameId}/${playerId}`,
+    `games/${gameId}/playerHands/${playerId}`,
 
   // プレゼンス
   presence: (playerId: string) => `presence/${playerId}`,
