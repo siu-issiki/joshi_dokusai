@@ -2,41 +2,41 @@
  * ゲーム開始サービス
  */
 
-import { onCall } from 'firebase-functions/v2/https';
-import { getDatabase } from 'firebase-admin/database';
-import * as logger from 'firebase-functions/logger';
+import {onCall} from "firebase-functions/v2/https";
+import {getDatabase} from "firebase-admin/database";
+import * as logger from "firebase-functions/logger";
 
-import { GAME_CONFIG, CardUtils } from '@joshi-dokusai/shared';
+import {GAME_CONFIG, CardUtils} from "@joshi-dokusai/shared";
 
-import { createInitialDeck, drawCardFromDeck } from '../utils/deckUtils';
-import { DICTATORSHIP_CARDS } from '../shared-constants';
+import {createInitialDeck, drawCardFromDeck} from "../utils/deckUtils";
+import {DICTATORSHIP_CARDS} from "../shared-constants";
 
 /**
  * ゲーム開始Function
  */
 export const startGame = onCall(async (request) => {
-  const { roomId } = request.data;
+  const {roomId} = request.data;
   const uid = request.auth?.uid;
 
   if (!uid) {
-    throw new Error('認証が必要です');
+    throw new Error("認証が必要です");
   }
 
-  logger.info('Starting game', { roomId, uid });
+  logger.info("Starting game", {roomId, uid});
 
   const db = getDatabase();
   const roomRef = db.ref(`rooms/${roomId}`);
 
   try {
-    const roomSnapshot = await roomRef.once('value');
+    const roomSnapshot = await roomRef.once("value");
     const room = roomSnapshot.val();
 
     if (!room || room.createdBy !== uid) {
-      throw new Error('ルームが見つからないか、権限がありません');
+      throw new Error("ルームが見つからないか、権限がありません");
     }
 
-    if (room.status !== 'waiting') {
-      throw new Error('ゲームは既に開始されています');
+    if (room.status !== "waiting") {
+      throw new Error("ゲームは既に開始されています");
     }
 
     // プレイヤー数チェック
@@ -51,7 +51,9 @@ export const startGame = onCall(async (request) => {
     }
 
     // ゲームIDを生成
-    const gameId = `game_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+    const gameId = `game_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(2, 11)}`;
 
     // プレイヤーの役割を決定（入室順で最初のプレイヤーが上司）
     const players = (Object.values(room.players) as any[]).sort(
@@ -60,9 +62,9 @@ export const startGame = onCall(async (request) => {
     const gamePlayersData: Record<string, any> = {};
 
     players.forEach((player: any, index: number) => {
-      const role = index === 0 ? 'boss' : 'subordinate';
+      const role = index === 0 ? "boss" : "subordinate";
 
-      logger.info('Processing player:', { player, index, role });
+      logger.info("Processing player:", {player, index, role});
 
       // 必要なプロパティのみを明示的に設定
       gamePlayersData[player.id] = {
@@ -70,23 +72,23 @@ export const startGame = onCall(async (request) => {
         name: String(player.name || `プレイヤー${index + 1}`),
         role: role,
         life:
-          role === 'boss'
-            ? GAME_CONFIG.BOSS_INITIAL_LIFE
-            : GAME_CONFIG.SUBORDINATE_INITIAL_LIFE,
+          role === "boss" ?
+            GAME_CONFIG.BOSS_INITIAL_LIFE :
+            GAME_CONFIG.SUBORDINATE_INITIAL_LIFE,
         maxLife:
-          role === 'boss'
-            ? GAME_CONFIG.BOSS_INITIAL_LIFE
-            : GAME_CONFIG.SUBORDINATE_INITIAL_LIFE,
+          role === "boss" ?
+            GAME_CONFIG.BOSS_INITIAL_LIFE :
+            GAME_CONFIG.SUBORDINATE_INITIAL_LIFE,
         handCount:
-          role === 'boss'
-            ? GAME_CONFIG.BOSS_INITIAL_HAND_SIZE
-            : GAME_CONFIG.SUBORDINATE_INITIAL_HAND_SIZE,
+          role === "boss" ?
+            GAME_CONFIG.BOSS_INITIAL_HAND_SIZE :
+            GAME_CONFIG.SUBORDINATE_INITIAL_HAND_SIZE,
         isConnected: true,
         lastAction: Date.now(),
       };
     });
 
-    logger.info('Final game players data:', { gamePlayersData });
+    logger.info("Final game players data:", {gamePlayersData});
 
     // 初期デッキを作成
     const initialDeck = createInitialDeck();
@@ -105,8 +107,8 @@ export const startGame = onCall(async (request) => {
       id: gameId,
       roomId: roomId,
       createdAt: Date.now(),
-      status: 'playing',
-      phase: 'dictatorship',
+      status: "playing",
+      phase: "dictatorship",
       currentPlayerIndex: 1, // 部下から開始
       turnCount: 1,
       maxTurns: GAME_CONFIG.MAX_TURNS,
@@ -132,16 +134,16 @@ export const startGame = onCall(async (request) => {
     // 実際のデッキからの初期手札配布
     let currentDeck = initialDeck;
     const handPromises = players.map(async (player: any, index: number) => {
-      const role = index === 0 ? 'boss' : 'subordinate';
+      const role = index === 0 ? "boss" : "subordinate";
       const handSize =
-        role === 'boss'
-          ? GAME_CONFIG.BOSS_INITIAL_HAND_SIZE
-          : GAME_CONFIG.SUBORDINATE_INITIAL_HAND_SIZE;
+        role === "boss" ?
+          GAME_CONFIG.BOSS_INITIAL_HAND_SIZE :
+          GAME_CONFIG.SUBORDINATE_INITIAL_HAND_SIZE;
 
       // デッキからカードをドロー
       const drawnCardIds: string[] = [];
       for (let i = 0; i < handSize; i++) {
-        const { card, updatedDeck } = drawCardFromDeck(currentDeck);
+        const {card, updatedDeck} = drawCardFromDeck(currentDeck);
         if (card) {
           drawnCardIds.push(card);
           currentDeck = updatedDeck;
@@ -178,15 +180,15 @@ export const startGame = onCall(async (request) => {
 
     // ルームステータスを更新
     await roomRef.update({
-      status: 'playing',
+      status: "playing",
       gameId: gameId,
     });
 
-    logger.info('Game started successfully', { gameId, roomId });
+    logger.info("Game started successfully", {gameId, roomId});
 
-    return { success: true, gameId };
+    return {success: true, gameId};
   } catch (error) {
-    logger.error('Error starting game', error);
+    logger.error("Error starting game", error);
     throw error;
   }
 });

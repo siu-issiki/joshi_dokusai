@@ -7,7 +7,7 @@ import {
   shuffleArray,
   ALL_WORK_CARDS,
   CardUtils,
-} from '@joshi-dokusai/shared';
+} from "@joshi-dokusai/shared";
 
 /**
  * デッキ管理ユーティリティ
@@ -20,6 +20,7 @@ export interface GameDeck {
 
 /**
  * 初期デッキを作成
+ * @return {GameDeck} 初期デッキ
  */
 export function createInitialDeck(): GameDeck {
   // 勤務カードをシャッフル
@@ -39,6 +40,8 @@ export function createInitialDeck(): GameDeck {
 
 /**
  * デッキからカードをドロー
+ * @param {GameDeck} deck - ゲームデッキ
+ * @return {object} ドローしたカードと更新されたデッキ
  */
 export function drawCardFromDeck(deck: GameDeck): {
   card: string | null;
@@ -48,17 +51,17 @@ export function drawCardFromDeck(deck: GameDeck): {
     // 捨札から勤務カードを回収してシャッフル
     const workCardsInDiscard = deck.discardPile.filter((cardId) => {
       const card = CardUtils.findById(cardId);
-      return card && card.type === 'work';
+      return card && card.type === "work";
     });
 
     if (workCardsInDiscard.length === 0) {
-      return { card: null, updatedDeck: deck }; // カードが尽きた
+      return {card: null, updatedDeck: deck}; // カードが尽きた
     }
 
     const shuffledWorkCards = shuffleArray(workCardsInDiscard);
     const remainingDiscard = deck.discardPile.filter((cardId) => {
       const card = CardUtils.findById(cardId);
-      return card && card.type !== 'work';
+      return card && card.type !== "work";
     });
 
     const updatedDeck = {
@@ -68,16 +71,19 @@ export function drawCardFromDeck(deck: GameDeck): {
     };
 
     const drawnCard = updatedDeck.workCards.pop() || null;
-    return { card: drawnCard, updatedDeck };
+    return {card: drawnCard, updatedDeck};
   }
 
-  const updatedDeck = { ...deck };
+  const updatedDeck = {...deck};
   const drawnCard = updatedDeck.workCards.pop() || null;
-  return { card: drawnCard, updatedDeck };
+  return {card: drawnCard, updatedDeck};
 }
 
 /**
  * カードを捨札に追加
+ * @param {GameDeck} deck - ゲームデッキ
+ * @param {string} cardId - 捨札に追加するカードID
+ * @return {GameDeck} 更新されたデッキ
  */
 export function addToDiscardPile(deck: GameDeck, cardId: string): GameDeck {
   return {
