@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
-import { useAuth } from "@/lib/auth";
-import { useGameActions } from "./useGameActions";
-import { FirebaseGame } from "@joshi-dokusai/shared";
+import { useEffect, useRef } from 'react';
+import { FirebaseGame } from '@joshi-dokusai/shared';
+import { useGameActions } from './useGameActions';
+import { useAuth } from '@/lib/auth';
 
 /**
  * 自動カードドローフック
@@ -29,29 +29,22 @@ export function useAutoCardDraw(game: FirebaseGame | null, gameId: string) {
     const isMyTurn = currentPlayer?.id === user.uid;
 
     // プレイヤーターン（部下ターンまたは上司ターン）かチェック
-    const isPlayerTurn =
-      game.phase === "subordinate_turn" || game.phase === "boss_turn";
+    const isPlayerTurn = game.phase === 'subordinate_turn' || game.phase === 'boss_turn';
 
     // ゲームが進行中かチェック
-    const isGameActive = game.status === "playing";
+    const isGameActive = game.status === 'playing';
 
     // 自動ドロー実行条件
-    if (
-      turnChanged &&
-      isMyTurn &&
-      isPlayerTurn &&
-      isGameActive &&
-      !isDrawingRef.current
-    ) {
+    if (turnChanged && isMyTurn && isPlayerTurn && isGameActive && !isDrawingRef.current) {
       isDrawingRef.current = true;
 
       // 少し遅延を入れてからドロー（UI更新後に実行）
       setTimeout(async () => {
         try {
           await drawCard();
-          console.log("Auto card draw successful for player:", user.uid);
+          console.log('Auto card draw successful for player:', user.uid);
         } catch (error) {
-          console.error("Auto card draw failed:", error);
+          console.error('Auto card draw failed:', error);
           // エラーが発生してもゲームは続行
         } finally {
           isDrawingRef.current = false;

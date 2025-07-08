@@ -1,15 +1,15 @@
-import * as admin from "firebase-admin";
+import * as admin from 'firebase-admin';
 
 // Firebase Admin SDKをテスト用に初期化
 if (!admin.apps.length) {
   admin.initializeApp({
-    projectId: "test-project",
-    databaseURL: "https://test-project-default-rtdb.firebaseio.com/",
+    projectId: 'test-project',
+    databaseURL: 'https://test-project-default-rtdb.firebaseio.com/',
   });
 }
 
 // テスト用のモック設定
-jest.mock("firebase-functions/logger", () => ({
+jest.mock('firebase-functions/logger', () => ({
   info: jest.fn(),
   error: jest.fn(),
   warn: jest.fn(),
@@ -26,7 +26,7 @@ interface MockRef {
   transaction: jest.Mock;
 }
 
-jest.mock("firebase-admin/database", () => {
+jest.mock('firebase-admin/database', () => {
   const mockRef: MockRef = {
     once: jest.fn(),
     set: jest.fn(),

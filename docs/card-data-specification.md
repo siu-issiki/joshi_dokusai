@@ -119,8 +119,8 @@
 ```typescript
 interface WorkCard {
   id: string; // 一意のカードID
-  type: "work"; // カードタイプ
-  category: "attack" | "defense" | "recovery" | "president";
+  type: 'work'; // カードタイプ
+  category: 'attack' | 'defense' | 'recovery' | 'president';
   name: string; // カード名
   description: string; // 効果説明
   isVisible: boolean; // 公開状態
@@ -128,11 +128,11 @@ interface WorkCard {
 
 interface DictatorshipCard {
   id: string; // 一意のカードID
-  type: "dictatorship"; // カードタイプ
-  category: "dictatorship"; // カテゴリ
+  type: 'dictatorship'; // カードタイプ
+  category: 'dictatorship'; // カテゴリ
   name: string; // カード名
   description: string; // 効果説明
-  target: "boss" | "subordinate" | "all"; // 対象
+  target: 'boss' | 'subordinate' | 'all'; // 対象
   isVisible: boolean; // 公開状態（常にtrue）
 }
 ```
@@ -150,8 +150,8 @@ interface DictatorshipCard {
 
 ```typescript
 // カード検索
-CardUtils.findById("attack_001"); // IDでカード取得
-CardUtils.filterByCategory("attack"); // カテゴリでフィルタ
+CardUtils.findById('attack_001'); // IDでカード取得
+CardUtils.filterByCategory('attack'); // カテゴリでフィルタ
 
 // デッキ操作
 CardUtils.createInitialDeck(); // 初期デッキ作成
@@ -204,10 +204,10 @@ CardUtils.getCardTargets(card, role); // カード対象判定
 
 ```typescript
 const TEST_DECK = [
-  CardUtils.findById("attack_001"),
-  CardUtils.findById("defense_001"),
-  CardUtils.findById("recovery_001"),
-  CardUtils.findById("president_001"),
+  CardUtils.findById('attack_001'),
+  CardUtils.findById('defense_001'),
+  CardUtils.findById('recovery_001'),
+  CardUtils.findById('president_001'),
   // ...
 ];
 ```
@@ -215,7 +215,7 @@ const TEST_DECK = [
 ### デバッグ用独裁カード
 
 ```typescript
-const DEBUG_DICTATORSHIP = CardUtils.findById("dict_015"); // 上司独裁
+const DEBUG_DICTATORSHIP = CardUtils.findById('dict_015'); // 上司独裁
 ```
 
 ## 将来の拡張

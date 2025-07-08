@@ -15,15 +15,15 @@ Socket.ioからFirebase Realtime Databaseへの移行実装ガイド。
 
 ```typescript
 // apps/frontend/src/lib/auth.ts
-import { auth } from "./firebase";
-import { signInAnonymously } from "firebase/auth";
+import { auth } from './firebase';
+import { signInAnonymously } from 'firebase/auth';
 
 export async function signInAnonymous() {
   try {
     const result = await signInAnonymously(auth);
     return result.user;
   } catch (error) {
-    console.error("認証エラー:", error);
+    console.error('認証エラー:', error);
     throw error;
   }
 }
@@ -33,24 +33,24 @@ export async function signInAnonymous() {
 
 ```typescript
 // apps/frontend/src/components/RoomManager.tsx
-import { database } from "@/lib/firebase";
-import { ref, push, onValue, off } from "firebase/database";
-import { FirebaseRoom, generateRoomId } from "@joshi-dokusai/shared";
+import { database } from '@/lib/firebase';
+import { ref, push, onValue, off } from 'firebase/database';
+import { FirebaseRoom, generateRoomId } from '@joshi-dokusai/shared';
 
 export function useRooms() {
   const [rooms, setRooms] = useState<FirebaseRoom[]>([]);
 
   useEffect(() => {
-    const roomsRef = ref(database, "rooms");
+    const roomsRef = ref(database, 'rooms');
     const unsubscribe = onValue(roomsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const roomList = Object.values(data) as FirebaseRoom[];
-        setRooms(roomList.filter((room) => room.status === "waiting"));
+        setRooms(roomList.filter((room) => room.status === 'waiting'));
       }
     });
 
-    return () => off(roomsRef, "value", unsubscribe);
+    return () => off(roomsRef, 'value', unsubscribe);
   }, []);
 
   return { rooms };
@@ -65,9 +65,9 @@ export function useRooms() {
 
 ```typescript
 // apps/frontend/src/hooks/useGameState.ts
-import { database } from "@/lib/firebase";
-import { ref, onValue, off } from "firebase/database";
-import { FirebaseGame } from "@joshi-dokusai/shared";
+import { database } from '@/lib/firebase';
+import { ref, onValue, off } from 'firebase/database';
+import { FirebaseGame } from '@joshi-dokusai/shared';
 
 export function useGameState(gameId: string) {
   const [game, setGame] = useState<FirebaseGame | null>(null);
@@ -83,7 +83,7 @@ export function useGameState(gameId: string) {
       setLoading(false);
     });
 
-    return () => off(gameRef, "value", unsubscribe);
+    return () => off(gameRef, 'value', unsubscribe);
   }, [gameId]);
 
   return { game, loading };
@@ -94,9 +94,9 @@ export function useGameState(gameId: string) {
 
 ```typescript
 // apps/frontend/src/hooks/usePlayerHand.ts
-import { database, auth } from "@/lib/firebase";
-import { ref, onValue, off } from "firebase/database";
-import { FirebasePlayerHand } from "@joshi-dokusai/shared";
+import { database, auth } from '@/lib/firebase';
+import { ref, onValue, off } from 'firebase/database';
+import { FirebasePlayerHand } from '@joshi-dokusai/shared';
 
 export function usePlayerHand(gameId: string) {
   const [hand, setHand] = useState<FirebasePlayerHand | null>(null);
@@ -104,16 +104,13 @@ export function usePlayerHand(gameId: string) {
   useEffect(() => {
     if (!gameId || !auth.currentUser) return;
 
-    const handRef = ref(
-      database,
-      `playerHands/${gameId}/${auth.currentUser.uid}`,
-    );
+    const handRef = ref(database, `playerHands/${gameId}/${auth.currentUser.uid}`);
     const unsubscribe = onValue(handRef, (snapshot) => {
       const data = snapshot.val();
       setHand(data);
     });
 
-    return () => off(handRef, "value", unsubscribe);
+    return () => off(handRef, 'value', unsubscribe);
   }, [gameId]);
 
   return { hand };
@@ -128,25 +125,25 @@ export function usePlayerHand(gameId: string) {
 
 ```typescript
 // functions/src/game-functions.ts
-import { onCall } from "firebase-functions/v2/https";
-import { getDatabase } from "firebase-admin/database";
-import { generateGameId, GAME_CONFIG } from "@joshi-dokusai/shared";
+import { onCall } from 'firebase-functions/v2/https';
+import { getDatabase } from 'firebase-admin/database';
+import { generateGameId, GAME_CONFIG } from '@joshi-dokusai/shared';
 
 export const startGame = onCall(async (request) => {
   const { roomId } = request.data;
   const uid = request.auth?.uid;
 
   if (!uid) {
-    throw new Error("認証が必要です");
+    throw new Error('認証が必要です');
   }
 
   const db = getDatabase();
   const roomRef = db.ref(`rooms/${roomId}`);
-  const roomSnapshot = await roomRef.once("value");
+  const roomSnapshot = await roomRef.once('value');
   const room = roomSnapshot.val();
 
   if (!room || room.createdBy !== uid) {
-    throw new Error("ルームが見つからないか、権限がありません");
+    throw new Error('ルームが見つからないか、権限がありません');
   }
 
   // ゲーム初期化
@@ -158,8 +155,8 @@ export const startGame = onCall(async (request) => {
     id: gameId,
     roomId,
     createdAt: Date.now(),
-    status: "playing",
-    phase: "dictatorship",
+    status: 'playing',
+    phase: 'dictatorship',
     currentPlayerIndex: 1, // 部下から開始
     turnCount: 1,
     maxTurns: GAME_CONFIG.MAX_TURNS,
@@ -180,11 +177,8 @@ export const startGame = onCall(async (request) => {
 
   // プレイヤー情報設定
   players.forEach((player, index) => {
-    const role = index === 0 ? "boss" : "subordinate";
-    const maxLife =
-      role === "boss"
-        ? GAME_CONFIG.BOSS_INITIAL_LIFE
-        : GAME_CONFIG.SUBORDINATE_INITIAL_LIFE;
+    const role = index === 0 ? 'boss' : 'subordinate';
+    const maxLife = role === 'boss' ? GAME_CONFIG.BOSS_INITIAL_LIFE : GAME_CONFIG.SUBORDINATE_INITIAL_LIFE;
 
     gameData.players[player.id] = {
       id: player.id,
@@ -192,10 +186,7 @@ export const startGame = onCall(async (request) => {
       role,
       life: maxLife,
       maxLife,
-      handCount:
-        role === "boss"
-          ? GAME_CONFIG.BOSS_INITIAL_HAND_SIZE
-          : GAME_CONFIG.SUBORDINATE_INITIAL_HAND_SIZE,
+      handCount: role === 'boss' ? GAME_CONFIG.BOSS_INITIAL_HAND_SIZE : GAME_CONFIG.SUBORDINATE_INITIAL_HAND_SIZE,
       isConnected: true,
       lastAction: Date.now(),
     };
@@ -204,7 +195,7 @@ export const startGame = onCall(async (request) => {
   // データベース更新
   await db.ref(`games/${gameId}`).set(gameData);
   await db.ref(`rooms/${roomId}/gameId`).set(gameId);
-  await db.ref(`rooms/${roomId}/status`).set("playing");
+  await db.ref(`rooms/${roomId}/status`).set('playing');
 
   return { gameId };
 });
@@ -219,27 +210,27 @@ export const playCard = onCall(async (request) => {
   const uid = request.auth?.uid;
 
   if (!uid) {
-    throw new Error("認証が必要です");
+    throw new Error('認証が必要です');
   }
 
   const db = getDatabase();
 
   // ゲーム状態取得
   const gameRef = db.ref(`games/${gameId}`);
-  const gameSnapshot = await gameRef.once("value");
+  const gameSnapshot = await gameRef.once('value');
   const game = gameSnapshot.val();
 
   if (!game || !game.players[uid]) {
-    throw new Error("ゲームが見つからないか、参加していません");
+    throw new Error('ゲームが見つからないか、参加していません');
   }
 
   // プレイヤー手札取得
   const handRef = db.ref(`playerHands/${gameId}/${uid}`);
-  const handSnapshot = await handRef.once("value");
+  const handSnapshot = await handRef.once('value');
   const hand = handSnapshot.val();
 
   if (!hand || !hand.cards.find((card) => card.id === cardId)) {
-    throw new Error("指定されたカードが手札にありません");
+    throw new Error('指定されたカードが手札にありません');
   }
 
   // ゲームロジック検証
@@ -312,12 +303,12 @@ export const playCard = onCall(async (request) => {
 
 ```typescript
 // functions/src/__tests__/game-logic.test.ts
-import { validateCardPlay, applyCardEffect } from "../game-logic";
+import { validateCardPlay, applyCardEffect } from '../game-logic';
 
-describe("ゲームロジック", () => {
-  test("攻撃カードの効果適用", () => {
+describe('ゲームロジック', () => {
+  test('攻撃カードの効果適用', () => {
     const game = createMockGame();
-    const result = applyCardEffect(game, "player1", "attack_card", "boss");
+    const result = applyCardEffect(game, 'player1', 'attack_card', 'boss');
 
     expect(result.players.boss.life).toBe(6); // 7 - 1
     expect(result.players.player1.life).toBe(3); // 4 - 1 (自傷)
@@ -380,16 +371,16 @@ firebase deploy --only hosting
 ```typescript
 // apps/frontend/src/lib/error-handler.ts
 export function handleFirebaseError(error: any) {
-  console.error("Firebase Error:", error);
+  console.error('Firebase Error:', error);
 
   // ユーザーフレンドリーなエラーメッセージ
   switch (error.code) {
-    case "permission-denied":
-      return "アクセス権限がありません";
-    case "network-request-failed":
-      return "ネットワークエラーが発生しました";
+    case 'permission-denied':
+      return 'アクセス権限がありません';
+    case 'network-request-failed':
+      return 'ネットワークエラーが発生しました';
     default:
-      return "エラーが発生しました。しばらく待ってから再試行してください。";
+      return 'エラーが発生しました。しばらく待ってから再試行してください。';
   }
 }
 ```
@@ -407,9 +398,9 @@ const gameStateRef = ref(database, `games/${gameId}/gameState`);
 ### 2. オフライン対応
 
 ```typescript
-import { goOffline, goOnline } from "firebase/database";
+import { goOffline, goOnline } from 'firebase/database';
 
 // ネットワーク状態に応じてオフライン制御
-window.addEventListener("online", () => goOnline(database));
-window.addEventListener("offline", () => goOffline(database));
+window.addEventListener('online', () => goOnline(database));
+window.addEventListener('offline', () => goOffline(database));
 ```

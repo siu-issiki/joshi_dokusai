@@ -1,28 +1,20 @@
-import {
-  Player,
-  GameState,
-  GAME_CONFIG,
-  VICTORY_CONDITIONS,
-  FirebaseRoom,
-} from "./";
-import { gameRandom, NonDeterministicRandom } from "./random";
+import { Player, GameState, GAME_CONFIG, VICTORY_CONDITIONS, FirebaseRoom } from './';
+import { gameRandom, NonDeterministicRandom } from './random';
 
 // ゲームユーティリティ関数
 
 /**
  * プレイヤーの役割を判定
  */
-export function getPlayerRole(playerIndex: number): "boss" | "subordinate" {
-  return playerIndex === 0 ? "boss" : "subordinate";
+export function getPlayerRole(playerIndex: number): 'boss' | 'subordinate' {
+  return playerIndex === 0 ? 'boss' : 'subordinate';
 }
 
 /**
  * 生存している部下の数を取得
  */
 export function getAliveSubordinatesCount(players: Player[]): number {
-  return players.filter(
-    (player) => player.role === "subordinate" && player.life > 0,
-  ).length;
+  return players.filter((player) => player.role === 'subordinate' && player.life > 0).length;
 }
 
 /**
@@ -30,17 +22,14 @@ export function getAliveSubordinatesCount(players: Player[]): number {
  */
 export function checkBossVictory(players: Player[]): boolean {
   const aliveSubordinates = getAliveSubordinatesCount(players);
-  return (
-    aliveSubordinates <=
-    players.length - VICTORY_CONDITIONS.BOSS_WIN_SUBORDINATES_DOWN
-  );
+  return aliveSubordinates <= players.length - VICTORY_CONDITIONS.BOSS_WIN_SUBORDINATES_DOWN;
 }
 
 /**
  * 部下の勝利条件をチェック
  */
 export function checkSubordinateVictory(gameState: GameState): boolean {
-  const boss = gameState.players.find((p) => p.role === "boss");
+  const boss = gameState.players.find((p) => p.role === 'boss');
   if (!boss) return false;
 
   // 上司のライフが0
@@ -61,14 +50,14 @@ export function checkSubordinateVictory(gameState: GameState): boolean {
  */
 export function checkGameEnd(gameState: GameState): {
   isEnded: boolean;
-  winner?: "boss" | "subordinate";
+  winner?: 'boss' | 'subordinate';
 } {
   if (checkBossVictory(gameState.players)) {
-    return { isEnded: true, winner: "boss" };
+    return { isEnded: true, winner: 'boss' };
   }
 
   if (checkSubordinateVictory(gameState)) {
-    return { isEnded: true, winner: "subordinate" };
+    return { isEnded: true, winner: 'subordinate' };
   }
 
   return { isEnded: false };
@@ -77,10 +66,7 @@ export function checkGameEnd(gameState: GameState): {
 /**
  * 次のプレイヤーのインデックスを取得
  */
-export function getNextPlayerIndex(
-  currentIndex: number,
-  players: Player[],
-): number {
+export function getNextPlayerIndex(currentIndex: number, players: Player[]): number {
   let nextIndex = (currentIndex + 1) % players.length;
 
   // 上司（インデックス0）はスキップして部下のターンのみ
@@ -94,12 +80,9 @@ export function getNextPlayerIndex(
 /**
  * 辞表提出可能かチェック
  */
-export function canSubmitResignation(
-  players: Player[],
-  playerId: string,
-): boolean {
+export function canSubmitResignation(players: Player[], playerId: string): boolean {
   const player = players.find((p) => p.id === playerId);
-  if (!player || player.role === "boss" || player.life <= 0) {
+  if (!player || player.role === 'boss' || player.life <= 0) {
     return false;
   }
 
@@ -110,10 +93,7 @@ export function canSubmitResignation(
 /**
  * 辞表によるダメージ計算
  */
-export function calculateResignationDamage(
-  currentLife: number,
-  maxLife: number = GAME_CONFIG.SUBORDINATE_INITIAL_LIFE,
-): number {
+export function calculateResignationDamage(currentLife: number, maxLife: number = GAME_CONFIG.SUBORDINATE_INITIAL_LIFE): number {
   return maxLife - currentLife;
 }
 
@@ -128,9 +108,7 @@ export function isNoOvertimeDay(turnCount: number): boolean {
  * 独裁カード無効化可能回数を取得
  */
 export function getNullificationLimit(playerCount: number): number {
-  return playerCount === 5
-    ? GAME_CONFIG.NULLIFICATION_LIMIT_4_PLAYERS
-    : GAME_CONFIG.NULLIFICATION_LIMIT_3_PLAYERS;
+  return playerCount === 5 ? GAME_CONFIG.NULLIFICATION_LIMIT_4_PLAYERS : GAME_CONFIG.NULLIFICATION_LIMIT_3_PLAYERS;
 }
 
 /**
@@ -167,7 +145,7 @@ export function generateId(): string {
  * ルームIDを生成
  */
 export function generateRoomId(): string {
-  return "room_" + generateId();
+  return 'room_' + generateId();
 }
 
 /**

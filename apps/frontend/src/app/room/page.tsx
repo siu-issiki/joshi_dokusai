@@ -1,27 +1,22 @@
-"use client";
+'use client';
 
-import { useState, Suspense, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useRoom } from "@/hooks/useRooms";
-import { useAuth, usePlayerName } from "@/lib/auth";
-import { useGameActions } from "@/hooks/useGameActions";
-import { FirebaseRoomPlayer } from "@/types/firebase";
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, Suspense, useEffect } from 'react';
+import { useGameActions } from '@/hooks/useGameActions';
+import { useRoom } from '@/hooks/useRooms';
+import { useAuth, usePlayerName } from '@/lib/auth';
+import { FirebaseRoomPlayer } from '@/types/firebase';
 
 interface JoinRoomModalProps {
   isOpen: boolean;
-  onJoin: (playerName: string, password?: string) => Promise<void>;
+  onJoin: (_playerName: string, _password?: string) => Promise<void>;
   onCancel: () => void;
   isPrivate: boolean;
 }
 
-function JoinRoomModal({
-  isOpen,
-  onJoin,
-  onCancel,
-  isPrivate,
-}: JoinRoomModalProps) {
-  const [playerName, setPlayerName] = useState("");
-  const [password, setPassword] = useState("");
+function JoinRoomModal({ isOpen, onJoin, onCancel, isPrivate }: JoinRoomModalProps) {
+  const [playerName, setPlayerName] = useState('');
+  const [password, setPassword] = useState('');
   const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,7 +28,7 @@ function JoinRoomModal({
     try {
       await onJoin(playerName, password);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "不明なエラー";
+      const message = error instanceof Error ? error.message : '不明なエラー';
       setError(message);
     } finally {
       setIsJoining(false);
@@ -49,9 +44,7 @@ function JoinRoomModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              プレイヤー名
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">プレイヤー名</label>
             <input
               type="text"
               value={playerName}
@@ -65,9 +58,7 @@ function JoinRoomModal({
 
           {isPrivate && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                パスワード
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
               <input
                 type="password"
                 value={password}
@@ -95,7 +86,7 @@ function JoinRoomModal({
               disabled={isJoining}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {isJoining ? "参加中..." : "参加"}
+              {isJoining ? '参加中...' : '参加'}
             </button>
           </div>
         </form>
@@ -112,30 +103,16 @@ interface PlayerCardProps {
 
 function PlayerCard({ player, isOwner, isCurrentUser }: PlayerCardProps) {
   return (
-    <div
-      className={`bg-white rounded-lg p-4 border-2 ${
-        isCurrentUser ? "border-blue-500 bg-blue-50" : "border-gray-200"
-      }`}
-    >
+    <div className={`bg-white rounded-lg p-4 border-2 ${isCurrentUser ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div>
             <h3 className="font-medium text-gray-800">
               {player.name}
-              {isOwner && (
-                <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                  ホスト
-                </span>
-              )}
-              {isCurrentUser && (
-                <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                  あなた
-                </span>
-              )}
+              {isOwner && <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">ホスト</span>}
+              {isCurrentUser && <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">あなた</span>}
             </h3>
-            <p className="text-sm text-gray-600">
-              {new Date(player.joinedAt).toLocaleTimeString()} に参加
-            </p>
+            <p className="text-sm text-gray-600">{new Date(player.joinedAt).toLocaleTimeString()} に参加</p>
           </div>
         </div>
       </div>
@@ -146,29 +123,20 @@ function PlayerCard({ player, isOwner, isCurrentUser }: PlayerCardProps) {
 function RoomPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const roomId = searchParams.get("id") || "";
+  const roomId = searchParams.get('id') || '';
   const { user, loading: authLoading, autoSignIn } = useAuth();
   const { updatePlayerName } = usePlayerName();
-  const {
-    room,
-    loading,
-    error,
-    joinRoom,
-    leaveRoom,
-    isInRoom,
-    isRoomOwner,
-    canStartGame,
-  } = useRoom(roomId);
+  const { room, loading, error, joinRoom, leaveRoom, isInRoom, isRoomOwner, canStartGame } = useRoom(roomId);
 
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
   // ゲームアクション（ゲーム開始用）
-  const { startGame } = useGameActions("");
+  const { startGame } = useGameActions('');
 
   // ルーム状態の監視（ゲーム開始時の自動遷移）
   useEffect(() => {
-    if (room && room.status === "playing" && room.gameId) {
+    if (room && room.status === 'playing' && room.gameId) {
       // 他のプレイヤーがゲームを開始した場合、自動的にゲーム画面に遷移
       router.push(`/game?id=${room.gameId}`);
     }
@@ -188,10 +156,7 @@ function RoomPageContent() {
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">認証に失敗しました</p>
-          <button
-            onClick={autoSignIn}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
+          <button onClick={autoSignIn} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
             再試行
           </button>
         </div>
@@ -204,13 +169,8 @@ function RoomPageContent() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">
-            ルームが見つかりません
-          </h1>
-          <button
-            onClick={() => router.push("/")}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">ルームが見つかりません</h1>
+          <button onClick={() => router.push('/')} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
             ホームに戻る
           </button>
         </div>
@@ -228,9 +188,9 @@ function RoomPageContent() {
     setActionLoading(true);
     try {
       await leaveRoom();
-      router.push("/");
+      router.push('/');
     } catch (error) {
-      console.error("ルーム退出エラー:", error);
+      console.error('ルーム退出エラー:', error);
     } finally {
       setActionLoading(false);
     }
@@ -240,18 +200,16 @@ function RoomPageContent() {
     setActionLoading(true);
     try {
       const result = await startGame(roomId);
-      console.log("ゲーム開始成功:", result);
+      console.log('ゲーム開始成功:', result);
 
       // ゲーム画面に遷移
-      if (result && typeof result === "object" && "gameId" in result) {
+      if (result && typeof result === 'object' && 'gameId' in result) {
         router.push(`/game?id=${result.gameId}`);
       }
     } catch (error) {
-      console.error("ゲーム開始エラー:", error);
+      console.error('ゲーム開始エラー:', error);
       // エラーメッセージを表示（必要に応じてtoastやalertを使用）
-      alert(
-        error instanceof Error ? error.message : "ゲーム開始に失敗しました",
-      );
+      alert(error instanceof Error ? error.message : 'ゲーム開始に失敗しました');
     } finally {
       setActionLoading(false);
     }
@@ -276,36 +234,22 @@ function RoomPageContent() {
             <div>
               <h1 className="text-2xl font-bold text-gray-800 mb-2">
                 {room.name}
-                {room.isPrivate && (
-                  <span className="ml-2 text-yellow-600">🔒</span>
-                )}
+                {room.isPrivate && <span className="ml-2 text-yellow-600">🔒</span>}
               </h1>
               <p className="text-gray-600">
-                {room.currentPlayers}/{room.maxPlayers}人 • 作成者:{" "}
-                {room.createdByName ||
-                  room.players[room.createdBy]?.name ||
-                  "不明"}
+                {room.currentPlayers}/{room.maxPlayers}人 • 作成者: {room.createdByName || room.players[room.createdBy]?.name || '不明'}
               </p>
             </div>
-            <button
-              onClick={() => router.push("/")}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-            >
+            <button onClick={() => router.push('/')} className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
               ← ルーム一覧に戻る
             </button>
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
-              {error}
-            </div>
-          )}
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">{error}</div>}
 
           {/* プレイヤー一覧 */}
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              プレイヤー
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">プレイヤー</h2>
             <div className="grid gap-3 md:grid-cols-2">
               {Object.values(room.players).map((player: FirebaseRoomPlayer) => (
                 <PlayerCard
@@ -343,7 +287,7 @@ function RoomPageContent() {
                   disabled={actionLoading}
                   className="px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
                 >
-                  {actionLoading ? "退出中..." : "ルーム退出"}
+                  {actionLoading ? '退出中...' : 'ルーム退出'}
                 </button>
               </>
             )}
@@ -358,12 +302,7 @@ function RoomPageContent() {
         </div>
       </div>
 
-      <JoinRoomModal
-        isOpen={showJoinModal}
-        onJoin={handleJoinRoom}
-        onCancel={() => setShowJoinModal(false)}
-        isPrivate={room.isPrivate}
-      />
+      <JoinRoomModal isOpen={showJoinModal} onJoin={handleJoinRoom} onCancel={() => setShowJoinModal(false)} isPrivate={room.isPrivate} />
     </div>
   );
 }

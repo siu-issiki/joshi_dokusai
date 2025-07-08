@@ -19,7 +19,7 @@ interface Player {
 
 interface Card {
   id: string;
-  suit: "hearts" | "diamonds" | "clubs" | "spades";
+  suit: 'hearts' | 'diamonds' | 'clubs' | 'spades';
   rank: number; // 1-13 (1=A, 11=J, 12=Q, 13=K)
   isVisible: boolean; // 公開カードかどうか
 }
@@ -28,7 +28,7 @@ interface GameState {
   id: string;
   players: Player[];
   currentPlayerIndex: number;
-  phase: "waiting" | "playing" | "ended";
+  phase: 'waiting' | 'playing' | 'ended';
   turnCount: number;
   lastAction?: GameAction;
   discardPile: Card[];
@@ -36,7 +36,7 @@ interface GameState {
 }
 
 interface GameAction {
-  type: "play-card" | "draw-card" | "pass-turn";
+  type: 'play-card' | 'draw-card' | 'pass-turn';
   playerId: string;
   timestamp: number;
   cardId?: string;
@@ -349,7 +349,7 @@ interface ErrorPayload {
 
 ```typescript
 interface NotificationPayload {
-  type: "info" | "warning" | "success";
+  type: 'info' | 'warning' | 'success';
   message: string;
   duration?: number; // 表示時間（ミリ秒）
 }

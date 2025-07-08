@@ -1,7 +1,7 @@
-import { SeededRandom, gameRandom, NonDeterministicRandom } from "../random";
+import { SeededRandom, gameRandom, NonDeterministicRandom } from '../random';
 
-describe("SeededRandom", () => {
-  test("should produce consistent results with the same seed", () => {
+describe('SeededRandom', () => {
+  test('should produce consistent results with the same seed', () => {
     const random1 = new SeededRandom(12345);
     const random2 = new SeededRandom(12345);
 
@@ -16,7 +16,7 @@ describe("SeededRandom", () => {
     expect(results1).toEqual(results2);
   });
 
-  test("should produce different results with different seeds", () => {
+  test('should produce different results with different seeds', () => {
     const random1 = new SeededRandom(12345);
     const random2 = new SeededRandom(54321);
 
@@ -31,7 +31,7 @@ describe("SeededRandom", () => {
     expect(results1).not.toEqual(results2);
   });
 
-  test("rollDice should return values between 1 and 6", () => {
+  test('rollDice should return values between 1 and 6', () => {
     const random = new SeededRandom(12345);
 
     for (let i = 0; i < 100; i++) {
@@ -42,7 +42,7 @@ describe("SeededRandom", () => {
     }
   });
 
-  test("shuffle should consistently shuffle with same seed", () => {
+  test('shuffle should consistently shuffle with same seed', () => {
     const array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
     const random1 = new SeededRandom(12345);
@@ -56,8 +56,8 @@ describe("SeededRandom", () => {
     expect(shuffled1.sort()).toEqual(array.sort());
   });
 
-  test("pickRandom should consistently pick the same element with same seed", () => {
-    const array = ["a", "b", "c", "d", "e"];
+  test('pickRandom should consistently pick the same element with same seed', () => {
+    const array = ['a', 'b', 'c', 'd', 'e'];
 
     const random1 = new SeededRandom(12345);
     const random2 = new SeededRandom(12345);
@@ -69,7 +69,7 @@ describe("SeededRandom", () => {
     expect(array).toContain(picked1);
   });
 
-  test("nextInt should return values in the specified range", () => {
+  test('nextInt should return values in the specified range', () => {
     const random = new SeededRandom(12345);
 
     for (let i = 0; i < 100; i++) {
@@ -81,8 +81,8 @@ describe("SeededRandom", () => {
   });
 });
 
-describe("NonDeterministicRandom", () => {
-  test("should generate unique game IDs", () => {
+describe('NonDeterministicRandom', () => {
+  test('should generate unique game IDs', () => {
     const id1 = NonDeterministicRandom.generateGameId();
     const id2 = NonDeterministicRandom.generateGameId();
 
@@ -91,7 +91,7 @@ describe("NonDeterministicRandom", () => {
     expect(id2).toMatch(/^game_\d+_[a-z0-9]+$/);
   });
 
-  test("should generate unique player IDs", () => {
+  test('should generate unique player IDs', () => {
     const id1 = NonDeterministicRandom.generatePlayerId();
     const id2 = NonDeterministicRandom.generatePlayerId();
 
@@ -100,23 +100,23 @@ describe("NonDeterministicRandom", () => {
     expect(id2).toMatch(/^player_\d+_[a-z0-9]+$/);
   });
 
-  test("should generate UUID-like strings", () => {
+  test('should generate UUID-like strings', () => {
     const uuid1 = NonDeterministicRandom.generateUUID();
     const uuid2 = NonDeterministicRandom.generateUUID();
 
     expect(uuid1).not.toBe(uuid2);
-    expect(typeof uuid1).toBe("string");
+    expect(typeof uuid1).toBe('string');
     expect(uuid1.length).toBeGreaterThan(10);
   });
 });
 
-describe("gameRandom global instance", () => {
-  test("should be initialized and functional", () => {
+describe('gameRandom global instance', () => {
+  test('should be initialized and functional', () => {
     const originalSeed = gameRandom.getSeed();
 
     // Test basic functionality
     const value = gameRandom.next();
-    expect(typeof value).toBe("number");
+    expect(typeof value).toBe('number');
     expect(value).toBeGreaterThanOrEqual(0);
     expect(value).toBeLessThan(1);
 

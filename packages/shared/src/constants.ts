@@ -38,27 +38,27 @@ export const GAME_CONFIG = {
 // カード名定数
 export const CARD_NAMES = {
   // 勤務カード
-  ATTACK: "攻撃",
-  DEFENSE: "防御",
-  RECOVERY: "回復",
-  PRESIDENT: "社長",
+  ATTACK: '攻撃',
+  DEFENSE: '防御',
+  RECOVERY: '回復',
+  PRESIDENT: '社長',
 
   // 独裁カード
-  SLACKING_SPOT: "「サボり」スポット",
-  MY_ACHIEVEMENT: "俺の手柄",
-  WITHOUT_DRINKING_WATER: "水も飲まずに",
-  MORNING_DRINKING_PARTY: "朝まで飲み会",
-  COLLECTIVE_RESPONSIBILITY: "連帯責任",
-  EMBEZZLEMENT: "横領",
-  WRITTEN_APOLOGY: "始末書",
-  DEPARTMENT_DISAPPEARANCE: "担当部署の消失",
-  PAID_VACATION: "有給休暇",
-  FIELD_RESPONSIBILITY: "現場の責任",
-  THAT_PERSONS_SLIP: "あの人の失言",
-  AGGRESSIVE_ATTITUDE: "交戦的な態度",
-  OCCASIONAL_LUNCH: "たまにはランチ",
-  BREAK_THE_RULES: "ルールは破ろう",
-  BOSS_DICTATORSHIP: "上司独裁",
+  SLACKING_SPOT: '「サボり」スポット',
+  MY_ACHIEVEMENT: '俺の手柄',
+  WITHOUT_DRINKING_WATER: '水も飲まずに',
+  MORNING_DRINKING_PARTY: '朝まで飲み会',
+  COLLECTIVE_RESPONSIBILITY: '連帯責任',
+  EMBEZZLEMENT: '横領',
+  WRITTEN_APOLOGY: '始末書',
+  DEPARTMENT_DISAPPEARANCE: '担当部署の消失',
+  PAID_VACATION: '有給休暇',
+  FIELD_RESPONSIBILITY: '現場の責任',
+  THAT_PERSONS_SLIP: 'あの人の失言',
+  AGGRESSIVE_ATTITUDE: '交戦的な態度',
+  OCCASIONAL_LUNCH: 'たまにはランチ',
+  BREAK_THE_RULES: 'ルールは破ろう',
+  BOSS_DICTATORSHIP: '上司独裁',
 } as const;
 
 // 勝利条件
