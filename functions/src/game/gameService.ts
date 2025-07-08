@@ -37,15 +37,14 @@ export const startGame = onCall(async (request) => {
 
   try {
     const roomSnapshot = await roomRef.once('value');
-    const roomData = roomSnapshot.val();
+    const roomData: FirebaseRoom | null = roomSnapshot.val();
     
     // Validate room data
     if (!roomData || typeof roomData !== 'object') {
       throw new Error('ルームが見つかりません');
     }
     
-    // Use type assertion only once after validation
-    const room = roomData as FirebaseRoom;
+    const room = roomData;
 
     if (!room || room.createdBy !== uid) {
       throw new Error('ルームが見つからないか、権限がありません');
