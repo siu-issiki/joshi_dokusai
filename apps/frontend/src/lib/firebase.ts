@@ -1,11 +1,7 @@
 import { initializeApp, FirebaseApp } from 'firebase/app';
-import { getDatabase, Database } from 'firebase/database';
 import { getAuth, Auth } from 'firebase/auth';
-import {
-  getFunctions,
-  Functions,
-  connectFunctionsEmulator,
-} from 'firebase/functions';
+import { getDatabase, Database } from 'firebase/database';
+import { getFunctions, Functions, connectFunctionsEmulator } from 'firebase/functions';
 
 // Firebase設定
 const firebaseConfig = {
@@ -54,9 +50,7 @@ if (typeof window !== 'undefined') {
           // Functions Emulator
           connectFunctionsEmulator(functions, 'localhost', 5001);
           functionsEmulatorConnected = true;
-          console.log(
-            'Firebase Functions Emulator connected to localhost:5001'
-          );
+          console.log('Firebase Functions Emulator connected to localhost:5001');
         } catch (error) {
           console.warn('Functions Emulator connection failed:', error);
         }

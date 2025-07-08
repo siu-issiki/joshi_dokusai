@@ -7,7 +7,7 @@ interface PlayerHandProps {
   hand: FirebasePlayerHand | null;
   loading: boolean;
   error: string | null;
-  onPlayCard?: (cardId: string, targetPlayerId?: string) => Promise<unknown>;
+  onPlayCard?: (_cardId: string, _targetPlayerId?: string) => Promise<unknown>;
   onPassTurn?: () => Promise<unknown>;
   canPlayCards?: boolean;
   isMyTurn?: boolean;
@@ -117,9 +117,7 @@ export default function PlayerHand({
   };
 
   // 選択されたカードの情報を取得
-  const selectedCard = selectedCardId
-    ? hand?.cards.find((card) => card.id === selectedCardId)
-    : null;
+  const selectedCard = selectedCardId ? hand?.cards.find((card) => card.id === selectedCardId) : null;
 
   // ターゲット選択可能なプレイヤーを取得
   const getTargetablePlayers = () => {
@@ -156,17 +154,11 @@ export default function PlayerHand({
             onClick={() => handleCardClick(card.id)}
             className={`
               p-3 border rounded-lg cursor-pointer transition-all
-              ${
-                selectedCardId === card.id
-                  ? 'border-blue-500 bg-blue-50 shadow-md'
-                  : 'border-gray-200 hover:border-gray-300'
-              }
+              ${selectedCardId === card.id ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-gray-200 hover:border-gray-300'}
               ${!isMyTurn || !canPlayCards ? 'opacity-50 cursor-not-allowed' : ''}
             `}
           >
-            <div className="text-sm font-semibold text-gray-800">
-              {card.name}
-            </div>
+            <div className="text-sm font-semibold text-gray-800">{card.name}</div>
             <div className="text-xs text-gray-600 mt-1">{card.description}</div>
             <div className="text-xs text-blue-600 mt-1">
               {card.type} - {card.category}
@@ -181,65 +173,48 @@ export default function PlayerHand({
           {selectedCard && (
             <>
               {/* 攻撃カードで複数ターゲットがある場合のみ選択UI表示 */}
-              {selectedCard.category === 'attack' &&
-                getTargetablePlayers().length > 1 && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-semibold mb-2">
-                      攻撃対象を選択:
-                    </h4>
-                    <div className="grid grid-cols-1 gap-2">
-                      {getTargetablePlayers().map((player) => (
-                        <button
-                          key={player.id}
-                          onClick={() => setTargetPlayer(player.id)}
-                          className={`p-2 text-left border rounded ${
-                            targetPlayer === player.id
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          <div className="text-sm font-medium">
-                            {player.name}
-                          </div>
-                          <div className="text-xs text-gray-600">
-                            {player.role === 'boss' ? '上司' : '部下'} - ライフ:{' '}
-                            {player.life}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
+              {selectedCard.category === 'attack' && getTargetablePlayers().length > 1 && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold mb-2">攻撃対象を選択:</h4>
+                  <div className="grid grid-cols-1 gap-2">
+                    {getTargetablePlayers().map((player) => (
+                      <button
+                        key={player.id}
+                        onClick={() => setTargetPlayer(player.id)}
+                        className={`p-2 text-left border rounded ${
+                          targetPlayer === player.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="text-sm font-medium">{player.name}</div>
+                        <div className="text-xs text-gray-600">
+                          {player.role === 'boss' ? '上司' : '部下'} - ライフ: {player.life}
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                )}
+                </div>
+              )}
 
               {/* 攻撃カードで単一ターゲットの場合は自動選択の表示 */}
-              {selectedCard.category === 'attack' &&
-                getTargetablePlayers().length === 1 && (
-                  <div className="mb-4 p-2 bg-gray-50 rounded border">
-                    <h4 className="text-sm font-semibold mb-1">攻撃対象:</h4>
-                    <div className="text-sm text-gray-700">
-                      {getTargetablePlayers()[0].name} (
-                      {getTargetablePlayers()[0].role === 'boss'
-                        ? '上司'
-                        : '部下'}
-                      )
-                    </div>
+              {selectedCard.category === 'attack' && getTargetablePlayers().length === 1 && (
+                <div className="mb-4 p-2 bg-gray-50 rounded border">
+                  <h4 className="text-sm font-semibold mb-1">攻撃対象:</h4>
+                  <div className="text-sm text-gray-700">
+                    {getTargetablePlayers()[0].name} ({getTargetablePlayers()[0].role === 'boss' ? '上司' : '部下'})
                   </div>
-                )}
+                </div>
+              )}
 
               {/* 回復カードの場合は常に選択UI表示 */}
               {selectedCard.category === 'recovery' && (
                 <div className="mb-4">
-                  <h4 className="text-sm font-semibold mb-2">
-                    回復対象を選択:
-                  </h4>
+                  <h4 className="text-sm font-semibold mb-2">回復対象を選択:</h4>
                   <div className="grid grid-cols-1 gap-2">
                     {/* 自分も選択可能 */}
                     <button
                       onClick={() => setTargetPlayer(currentPlayerId || '')}
                       className={`p-2 text-left border rounded ${
-                        targetPlayer === currentPlayerId
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                        targetPlayer === currentPlayerId ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
                       <div className="text-sm font-medium">自分</div>
@@ -249,15 +224,12 @@ export default function PlayerHand({
                         key={player.id}
                         onClick={() => setTargetPlayer(player.id)}
                         className={`p-2 text-left border rounded ${
-                          targetPlayer === player.id
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
+                          targetPlayer === player.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
                         <div className="text-sm font-medium">{player.name}</div>
                         <div className="text-xs text-gray-600">
-                          {player.role === 'boss' ? '上司' : '部下'} - ライフ:{' '}
-                          {player.life}
+                          {player.role === 'boss' ? '上司' : '部下'} - ライフ: {player.life}
                         </div>
                       </button>
                     ))}
@@ -277,11 +249,7 @@ export default function PlayerHand({
         </div>
       )}
 
-      {!isMyTurn && (
-        <div className="text-center text-gray-500 text-sm">
-          あなたのターンではありません
-        </div>
-      )}
+      {!isMyTurn && <div className="text-center text-gray-500 text-sm">あなたのターンではありません</div>}
     </div>
   );
 }

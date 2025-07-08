@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { database, auth } from '@/lib/firebase';
 import { ref, onValue } from 'firebase/database';
+import { useState, useEffect } from 'react';
 import { FirebasePlayerHand, FirebasePaths } from '@joshi-dokusai/shared';
+import { database, auth } from '@/lib/firebase';
 
 /**
  * プレイヤー手札管理フック
@@ -18,10 +18,7 @@ export function usePlayerHand(gameId: string) {
       return;
     }
 
-    const handRef = ref(
-      database,
-      FirebasePaths.playerHand(gameId, auth.currentUser.uid)
-    );
+    const handRef = ref(database, FirebasePaths.playerHand(gameId, auth.currentUser.uid));
 
     const unsubscribe = onValue(
       handRef,
@@ -31,10 +28,7 @@ export function usePlayerHand(gameId: string) {
           console.log('usePlayerHand Debug:', {
             gameId,
             playerId: auth?.currentUser?.uid,
-            path: FirebasePaths.playerHand(
-              gameId,
-              auth?.currentUser?.uid || ''
-            ),
+            path: FirebasePaths.playerHand(gameId, auth?.currentUser?.uid || ''),
             data,
             exists: snapshot.exists(),
           });

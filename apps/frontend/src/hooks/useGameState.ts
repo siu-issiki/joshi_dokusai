@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { database } from '@/lib/firebase';
 import { ref, onValue } from 'firebase/database';
+import { useState, useEffect } from 'react';
 import { FirebaseGame, FirebasePaths } from '@joshi-dokusai/shared';
+import { database } from '@/lib/firebase';
 
 /**
  * ゲーム状態管理フック

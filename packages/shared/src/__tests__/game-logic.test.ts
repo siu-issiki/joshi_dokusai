@@ -9,9 +9,7 @@ import {
 import { FirebaseGame } from '../types';
 
 // テスト用のモックゲームデータ
-const createMockGame = (
-  overrides: Partial<FirebaseGame> = {}
-): FirebaseGame => {
+const createMockGame = (overrides: Partial<FirebaseGame> = {}): FirebaseGame => {
   const defaultGame: FirebaseGame = {
     id: 'test-game',
     roomId: 'test-room',
@@ -112,24 +110,14 @@ describe('Game Logic Tests', () => {
 
     it('should validate attack card with target', () => {
       const game = createMockGame();
-      const validation = validateCardPlay(
-        game,
-        'sub-1',
-        'attack_001',
-        'boss-1'
-      );
+      const validation = validateCardPlay(game, 'sub-1', 'attack_001', 'boss-1');
 
       expect(validation.isValid).toBe(true);
     });
 
     it('should reject play when not player turn', () => {
       const game = createMockGame();
-      const validation = validateCardPlay(
-        game,
-        'sub-2',
-        'attack_001',
-        'boss-1'
-      );
+      const validation = validateCardPlay(game, 'sub-2', 'attack_001', 'boss-1');
 
       expect(validation.isValid).toBe(false);
       expect(validation.error).toContain('ターンではありません');

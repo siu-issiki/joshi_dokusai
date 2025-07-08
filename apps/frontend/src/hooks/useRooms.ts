@@ -1,27 +1,27 @@
+import { ref, onValue, off, set, remove, runTransaction } from 'firebase/database';
 import { useState, useEffect } from 'react';
-import { database } from '@/lib/firebase';
-import {
-  ref,
-  onValue,
-  off,
-  set,
-  remove,
-  runTransaction,
-} from 'firebase/database';
-import {
-  FirebaseRoom,
-  FirebaseRoomPlayer,
-  generateRoomId,
-  FirebasePaths,
-  isRoomFull,
-  canStartGame,
-} from '@joshi-dokusai/shared';
+import { FirebaseRoom, FirebaseRoomPlayer, generateRoomId, FirebasePaths, isRoomFull, canStartGame } from '@joshi-dokusai/shared';
 import { useAuth } from '@/lib/auth';
+import { database } from '@/lib/firebase';
 
 // Firebaseから取得される生データの型（playersがundefinedの可能性がある）
 type FirebaseRoomRaw = Omit<FirebaseRoom, 'players'> & {
   players?: Record<string, FirebaseRoomPlayer>;
 };
+
+// 型ガード関数
+function isFirebaseRoomRaw(value: unknown): value is FirebaseRoomRaw {
+  if (!value || typeof value !== 'object') return false;
+  if (!('id' in value) || typeof value.id !== 'string') return false;
+  if (!('name' in value) || typeof value.name !== 'string') return false;
+  if (!('createdBy' in value) || typeof value.createdBy !== 'string') return false;
+  if (!('createdAt' in value) || typeof value.createdAt !== 'number') return false;
+  if (!('status' in value) || typeof value.status !== 'string') return false;
+  if (!('maxPlayers' in value) || typeof value.maxPlayers !== 'number') return false;
+  if (!('currentPlayers' in value) || typeof value.currentPlayers !== 'number') return false;
+  if (!('isPrivate' in value) || typeof value.isPrivate !== 'boolean') return false;
+  return true;
+}
 
 // データ正規化関数：playersが常に存在することを保証
 function normalizeRoom(room: FirebaseRoomRaw): FirebaseRoom {
@@ -49,17 +49,21 @@ export function useRooms() {
       roomsRef,
       (snapshot) => {
         try {
-          const data = snapshot.val() as Record<string, FirebaseRoomRaw> | null;
-          if (data) {
-            const roomList = Object.values(data).map(normalizeRoom);
-            // 待機中のルームのみフィルタ
-            const waitingRooms = roomList.filter(
-              (room) => room.status === 'waiting'
-            );
-            setRooms(waitingRooms);
-          } else {
+          const data = snapshot.val();
+          if (!data || typeof data !== 'object') {
             setRooms([]);
+            setError(null);
+            return;
           }
+          const roomList: FirebaseRoom[] = [];
+          for (const [_, value] of Object.entries(data)) {
+            if (value && typeof value === 'object' && isFirebaseRoomRaw(value)) {
+              roomList.push(normalizeRoom(value));
+            }
+          }
+            // 待機中のルームのみフィルタ
+            const waitingRooms = roomList.filter((room) => room.status === 'waiting');
+            setRooms(waitingRooms);
           setError(null);
         } catch (err) {
           console.error('ルーム一覧取得エラー:', err);
@@ -203,7 +207,12 @@ export function useRoom(roomId: string) {
       roomRef,
       (snapshot) => {
         try {
-          const data = snapshot.val() as FirebaseRoomRaw | null;
+          const data = snapshot.val();
+          if (!data || typeof data !== 'object') {
+            setRoom(null);
+            setError(null);
+            return;
+          }
           setRoom(data ? normalizeRoom(data) : null);
           setError(null);
         } catch (err) {
@@ -223,14 +232,9 @@ export function useRoom(roomId: string) {
     return () => off(roomRef, 'value', unsubscribe);
   }, [roomId, user]);
 
-  const joinRoom = async (
-    playerName: string,
-    password?: string
-  ): Promise<void> => {
+  const joinRoom = async (playerName: string, password?: string): Promise<void> => {
     if (!user || !room || !database) {
-      throw new Error(
-        'ユーザー、ルーム、またはデータベース接続が見つかりません'
-      );
+      throw new Error('ユーザー、ルーム、またはデータベース接続が見つかりません');
     }
 
     if (!playerName.trim()) {
@@ -258,20 +262,14 @@ export function useRoom(roomId: string) {
       };
 
       // プレイヤー情報を追加
-      await set(
-        ref(database, FirebasePaths.roomPlayer(roomId, user.uid)),
-        playerData
-      );
+      await set(ref(database, FirebasePaths.roomPlayer(roomId, user.uid)), playerData);
 
       // プレイヤー数を原子的に更新（トランザクション使用）
-      await runTransaction(
-        ref(database, `${FirebasePaths.room(roomId)}/currentPlayers`),
-        (currentCount) => {
-          // currentCountがnullの場合は0として扱う
-          const count = currentCount ?? 0;
-          return count + 1;
-        }
-      );
+      await runTransaction(ref(database, `${FirebasePaths.room(roomId)}/currentPlayers`), (currentCount) => {
+        // currentCountがnullの場合は0として扱う
+        const count = currentCount ?? 0;
+        return count + 1;
+      });
 
       // ローカルストレージにプレイヤー名を保存
       localStorage.setItem('playerName', playerName.trim());
@@ -286,9 +284,7 @@ export function useRoom(roomId: string) {
 
   const leaveRoom = async (): Promise<void> => {
     if (!user || !room || !database) {
-      throw new Error(
-        'ユーザー、ルーム、またはデータベース接続が見つかりません'
-      );
+      throw new Error('ユーザー、ルーム、またはデータベース接続が見つかりません');
     }
 
     if (!room.players[user.uid]) {
@@ -307,15 +303,12 @@ export function useRoom(roomId: string) {
       await remove(ref(database, FirebasePaths.roomPlayer(roomId, user.uid)));
 
       // プレイヤー数を原子的に更新（トランザクション使用）
-      await runTransaction(
-        ref(database, `${FirebasePaths.room(roomId)}/currentPlayers`),
-        (currentCount) => {
-          // currentCountがnullの場合は0として扱う
-          const count = currentCount ?? 0;
-          // 0未満にならないように制限
-          return Math.max(0, count - 1);
-        }
-      );
+      await runTransaction(ref(database, `${FirebasePaths.room(roomId)}/currentPlayers`), (currentCount) => {
+        // currentCountがnullの場合は0として扱う
+        const count = currentCount ?? 0;
+        // 0未満にならないように制限
+        return Math.max(0, count - 1);
+      });
 
       console.log('ルーム退出成功:', roomId);
     } catch (error) {
@@ -334,12 +327,7 @@ export function useRoom(roomId: string) {
     // ヘルパー関数
     isInRoom: !!(room && user && room.players[user.uid]),
     isRoomOwner: !!(room && user && room.createdBy === user.uid),
-    canStartGame: !!(
-      room &&
-      user &&
-      room.createdBy === user.uid &&
-      canStartGame(room)
-    ),
+    canStartGame: !!(room && user && room.createdBy === user.uid && canStartGame(room)),
     playerCount: room?.currentPlayers || 0,
     maxPlayers: room?.maxPlayers || 5,
   };

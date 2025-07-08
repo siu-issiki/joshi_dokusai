@@ -63,18 +63,13 @@ export function checkGameVictory(game: FirebaseGame): {
 /**
  * 次のプレイヤーのインデックスを取得（部下のみ）
  */
-export function getNextSubordinateIndex(
-  currentIndex: number,
-  players: Record<string, FirebaseGamePlayer>
-): number {
+export function getNextSubordinateIndex(currentIndex: number, players: Record<string, FirebaseGamePlayer>): number {
   const playerArray = Object.values(players);
   const subordinates = playerArray.filter((p) => p.role === 'subordinate');
 
   if (subordinates.length === 0) return -1;
 
-  const currentSubordinateIndex = subordinates.findIndex(
-    (_, index) => index === currentIndex
-  );
+  const currentSubordinateIndex = subordinates.findIndex((_, index) => index === currentIndex);
   const nextIndex = (currentSubordinateIndex + 1) % subordinates.length;
 
   return nextIndex;
@@ -83,18 +78,13 @@ export function getNextSubordinateIndex(
 /**
  * Firebase用辞表提出可能かチェック
  */
-export function canSubmitResignationFirebase(
-  playerId: string,
-  players: Record<string, FirebaseGamePlayer>
-): boolean {
+export function canSubmitResignationFirebase(playerId: string, players: Record<string, FirebaseGamePlayer>): boolean {
   const player = players[playerId];
   if (!player || player.role !== 'subordinate' || player.life <= 0) {
     return false;
   }
 
-  const aliveSubordinates = Object.values(players).filter(
-    (p) => p.role === 'subordinate' && p.life > 0
-  );
+  const aliveSubordinates = Object.values(players).filter((p) => p.role === 'subordinate' && p.life > 0);
 
   return aliveSubordinates.length <= 3;
 }
@@ -107,21 +97,18 @@ export const FirebasePaths = {
   rooms: () => 'rooms',
   room: (roomId: string) => `rooms/${roomId}`,
   roomPlayers: (roomId: string) => `rooms/${roomId}/players`,
-  roomPlayer: (roomId: string, playerId: string) =>
-    `rooms/${roomId}/players/${playerId}`,
+  roomPlayer: (roomId: string, playerId: string) => `rooms/${roomId}/players/${playerId}`,
 
   // ゲーム関連
   games: () => 'games',
   game: (gameId: string) => `games/${gameId}`,
   gamePlayers: (gameId: string) => `games/${gameId}/players`,
-  gamePlayer: (gameId: string, playerId: string) =>
-    `games/${gameId}/players/${playerId}`,
+  gamePlayer: (gameId: string, playerId: string) => `games/${gameId}/players/${playerId}`,
   gameState: (gameId: string) => `games/${gameId}/gameState`,
 
   // プレイヤー手札
   playerHands: (gameId: string) => `games/${gameId}/playerHands`,
-  playerHand: (gameId: string, playerId: string) =>
-    `games/${gameId}/playerHands/${playerId}`,
+  playerHand: (gameId: string, playerId: string) => `games/${gameId}/playerHands/${playerId}`,
 
   // プレゼンス
   presence: (playerId: string) => `presence/${playerId}`,
@@ -133,12 +120,23 @@ export const FirebasePaths = {
 /**
  * Firebase エラーハンドリング
  */
-export function handleFirebaseError(error: any): {
+interface ErrorLike {
+  code?: unknown;
+  message?: unknown;
+}
+
+function isErrorLike(error: unknown): error is ErrorLike {
+  return error !== null && typeof error === 'object';
+}
+
+export function handleFirebaseError(error: unknown): {
   code: string;
   message: string;
 } {
-  if (error?.code) {
-    switch (error.code) {
+  if (isErrorLike(error) && error.code !== undefined) {
+    const code = typeof error.code === 'string' ? error.code : 'UNKNOWN_ERROR';
+    const message = typeof error.message === 'string' ? error.message : undefined;
+    switch (code) {
       case 'PERMISSION_DENIED':
         return {
           code: 'PERMISSION_DENIED',
@@ -151,8 +149,8 @@ export function handleFirebaseError(error: any): {
         };
       default:
         return {
-          code: error.code,
-          message: error.message || '不明なエラーが発生しました',
+          code: code,
+          message: message || '不明なエラーが発生しました',
         };
     }
   }
@@ -170,6 +168,5 @@ export const TimestampUtils = {
   now: () => Date.now(),
   fromDate: (date: Date) => date.getTime(),
   toDate: (timestamp: number) => new Date(timestamp),
-  isExpired: (timestamp: number, expiryMs: number) =>
-    Date.now() - timestamp > expiryMs,
+  isExpired: (timestamp: number, expiryMs: number) => Date.now() - timestamp > expiryMs,
 } as const;

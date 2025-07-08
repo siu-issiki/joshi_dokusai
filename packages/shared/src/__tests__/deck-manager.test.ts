@@ -1,5 +1,5 @@
-import { DeckManager, DeckUtils } from '../deck-manager';
 import { ALL_WORK_CARDS, DICTATORSHIP_CARDS } from '../card-data';
+import { DeckManager, DeckUtils } from '../deck-manager';
 
 describe('DeckManager Tests', () => {
   let deckManager: DeckManager;
@@ -34,9 +34,7 @@ describe('DeckManager Tests', () => {
       const newState = deckManager.getDeckState();
 
       // デッキ数は変わらない
-      expect(newState.dictatorshipDeckCount).toBe(
-        originalState.dictatorshipDeckCount
-      );
+      expect(newState.dictatorshipDeckCount).toBe(originalState.dictatorshipDeckCount);
     });
   });
 
@@ -182,9 +180,7 @@ describe('DeckManager Tests', () => {
       const newState = newManager.getDeckState();
 
       expect(newState.workDeckCount).toBe(originalState.workDeckCount);
-      expect(newState.dictatorshipDeckCount).toBe(
-        originalState.dictatorshipDeckCount
-      );
+      expect(newState.dictatorshipDeckCount).toBe(originalState.dictatorshipDeckCount);
       expect(newState.discardPileCount).toBe(originalState.discardPileCount);
     });
   });

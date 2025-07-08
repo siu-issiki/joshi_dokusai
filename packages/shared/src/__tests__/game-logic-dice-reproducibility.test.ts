@@ -73,12 +73,7 @@ describe('Game Logic Dice Roll Reproducibility', () => {
     // Reset seed and test again
     gameRandom.setSeed(12345);
 
-    const result2 = applyCardEffect(
-      game,
-      'subordinate1',
-      'recovery_001',
-      'subordinate1'
-    );
+    const result2 = applyCardEffect(game, 'subordinate1', 'recovery_001', 'subordinate1');
 
     // Both results should be identical with the same seed
     expect(result1.success).toBe(result2.success);
@@ -91,21 +86,11 @@ describe('Game Logic Dice Roll Reproducibility', () => {
 
     // Use one seed
     gameRandom.setSeed(12345);
-    const result1 = applyCardEffect(
-      game,
-      'subordinate1',
-      'recovery_001',
-      'subordinate1'
-    );
+    const result1 = applyCardEffect(game, 'subordinate1', 'recovery_001', 'subordinate1');
 
     // Use a different seed
     gameRandom.setSeed(54321);
-    const result2 = applyCardEffect(
-      game,
-      'subordinate1',
-      'recovery_001',
-      'subordinate1'
-    );
+    const result2 = applyCardEffect(game, 'subordinate1', 'recovery_001', 'subordinate1');
 
     // With different seeds, we might get different results
     // (though both should be valid outcomes)
@@ -129,12 +114,7 @@ describe('Game Logic Dice Roll Reproducibility', () => {
     // Reset seed and test the card effect
     gameRandom.setSeed(12345);
 
-    const result = applyCardEffect(
-      game,
-      'subordinate1',
-      'recovery_001',
-      'subordinate1'
-    );
+    const result = applyCardEffect(game, 'subordinate1', 'recovery_001', 'subordinate1');
 
     // We can predict the outcome based on the dice roll
     if (firstRoll % 2 === 0) {

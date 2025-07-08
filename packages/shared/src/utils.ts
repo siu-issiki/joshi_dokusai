@@ -1,10 +1,4 @@
-import {
-  Player,
-  GameState,
-  GAME_CONFIG,
-  VICTORY_CONDITIONS,
-  FirebaseRoom,
-} from './';
+import { Player, GameState, GAME_CONFIG, VICTORY_CONDITIONS, FirebaseRoom } from './';
 import { gameRandom, NonDeterministicRandom } from './random';
 
 // ゲームユーティリティ関数
@@ -20,9 +14,7 @@ export function getPlayerRole(playerIndex: number): 'boss' | 'subordinate' {
  * 生存している部下の数を取得
  */
 export function getAliveSubordinatesCount(players: Player[]): number {
-  return players.filter(
-    (player) => player.role === 'subordinate' && player.life > 0
-  ).length;
+  return players.filter((player) => player.role === 'subordinate' && player.life > 0).length;
 }
 
 /**
@@ -30,10 +22,7 @@ export function getAliveSubordinatesCount(players: Player[]): number {
  */
 export function checkBossVictory(players: Player[]): boolean {
   const aliveSubordinates = getAliveSubordinatesCount(players);
-  return (
-    aliveSubordinates <=
-    players.length - VICTORY_CONDITIONS.BOSS_WIN_SUBORDINATES_DOWN
-  );
+  return aliveSubordinates <= players.length - VICTORY_CONDITIONS.BOSS_WIN_SUBORDINATES_DOWN;
 }
 
 /**
@@ -77,10 +66,7 @@ export function checkGameEnd(gameState: GameState): {
 /**
  * 次のプレイヤーのインデックスを取得
  */
-export function getNextPlayerIndex(
-  currentIndex: number,
-  players: Player[]
-): number {
+export function getNextPlayerIndex(currentIndex: number, players: Player[]): number {
   let nextIndex = (currentIndex + 1) % players.length;
 
   // 上司（インデックス0）はスキップして部下のターンのみ
@@ -94,10 +80,7 @@ export function getNextPlayerIndex(
 /**
  * 辞表提出可能かチェック
  */
-export function canSubmitResignation(
-  players: Player[],
-  playerId: string
-): boolean {
+export function canSubmitResignation(players: Player[], playerId: string): boolean {
   const player = players.find((p) => p.id === playerId);
   if (!player || player.role === 'boss' || player.life <= 0) {
     return false;
@@ -110,10 +93,7 @@ export function canSubmitResignation(
 /**
  * 辞表によるダメージ計算
  */
-export function calculateResignationDamage(
-  currentLife: number,
-  maxLife: number = GAME_CONFIG.SUBORDINATE_INITIAL_LIFE
-): number {
+export function calculateResignationDamage(currentLife: number, maxLife: number = GAME_CONFIG.SUBORDINATE_INITIAL_LIFE): number {
   return maxLife - currentLife;
 }
 
@@ -128,9 +108,7 @@ export function isNoOvertimeDay(turnCount: number): boolean {
  * 独裁カード無効化可能回数を取得
  */
 export function getNullificationLimit(playerCount: number): number {
-  return playerCount === 5
-    ? GAME_CONFIG.NULLIFICATION_LIMIT_4_PLAYERS
-    : GAME_CONFIG.NULLIFICATION_LIMIT_3_PLAYERS;
+  return playerCount === 5 ? GAME_CONFIG.NULLIFICATION_LIMIT_4_PLAYERS : GAME_CONFIG.NULLIFICATION_LIMIT_3_PLAYERS;
 }
 
 /**

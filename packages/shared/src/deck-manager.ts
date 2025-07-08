@@ -1,7 +1,7 @@
-import { Card, WorkCard, DictatorshipCard } from './types';
 import { ALL_WORK_CARDS, DICTATORSHIP_CARDS, CardUtils } from './card-data';
-import { shuffleArray } from './utils';
 import { gameRandom } from './random';
+import { Card, WorkCard, DictatorshipCard } from './types';
+import { shuffleArray } from './utils';
 
 /**
  * デッキ管理クラス
@@ -35,17 +35,13 @@ export class DeckManager {
   drawWorkCard(): WorkCard | null {
     if (this.workDeck.length === 0) {
       // 捨札から勤務カードを回収してシャッフル
-      const workCardsInDiscard = this.discardPile.filter(
-        (card) => card.type === 'work'
-      ) as WorkCard[];
+      const workCardsInDiscard = this.discardPile.filter((card): card is WorkCard => card.type === 'work');
       if (workCardsInDiscard.length === 0) {
         return null; // カードが尽きた
       }
 
       this.workDeck = shuffleArray(workCardsInDiscard);
-      this.discardPile = this.discardPile.filter(
-        (card) => card.type !== 'work'
-      );
+      this.discardPile = this.discardPile.filter((card) => card.type !== 'work');
     }
 
     return this.workDeck.pop() || null;
@@ -158,26 +154,20 @@ export class DeckManager {
   /**
    * シリアライズされた状態からデッキを復元
    */
-  static deserialize(serializedData: {
-    workDeck: string[];
-    dictatorshipDeck: string[];
-    discardPile: string[];
-  }): DeckManager {
+  static deserialize(serializedData: { workDeck: string[]; dictatorshipDeck: string[]; discardPile: string[] }): DeckManager {
     const manager = new DeckManager();
 
     manager.workDeck = serializedData.workDeck
       .map((id) => CardUtils.findById(id))
-      .filter((card) => card && card.type === 'work') as WorkCard[];
+      .filter((card): card is WorkCard => card !== undefined && card.type === 'work');
 
     manager.dictatorshipDeck = serializedData.dictatorshipDeck
       .map((id) => CardUtils.findById(id))
-      .filter(
-        (card) => card && card.type === 'dictatorship'
-      ) as DictatorshipCard[];
+      .filter((card): card is DictatorshipCard => card !== undefined && card.type === 'dictatorship');
 
     manager.discardPile = serializedData.discardPile
       .map((id) => CardUtils.findById(id))
-      .filter((card) => card !== undefined) as Card[];
+      .filter((card): card is WorkCard | DictatorshipCard => card !== undefined);
 
     return manager;
   }
@@ -219,7 +209,7 @@ export const DeckUtils = {
    * ゲーム開始時のデッキ状態を作成
    */
   createInitialGameDeck(playerIds: string[]): {
-    deckState: any;
+    deckState: ReturnType<DeckManager['serialize']>;
     hands: { [playerId: string]: WorkCard[] };
   } {
     const manager = DeckUtils.createShuffledDeck();
@@ -234,7 +224,7 @@ export const DeckUtils = {
     });
 
     return {
-      deckState: manager.getDeckState(),
+      deckState: manager.serialize(),
       hands,
     };
   },

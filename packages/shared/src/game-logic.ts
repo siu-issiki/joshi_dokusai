@@ -1,7 +1,7 @@
-import { FirebaseGame, FirebaseGamePlayer } from './types';
-import { GAME_CONFIG, VICTORY_CONDITIONS } from './constants';
 import { CardUtils } from './card-data';
+import { GAME_CONFIG, VICTORY_CONDITIONS } from './constants';
 import { gameRandom } from './random';
+import { FirebaseGame, FirebaseGamePlayer } from './types';
 
 /**
  * ゲームロジック関連のユーティリティ関数
@@ -17,12 +17,7 @@ export interface CardPlayValidation {
 /**
  * カードプレイの妥当性を検証
  */
-export function validateCardPlay(
-  game: FirebaseGame,
-  playerId: string,
-  cardId: string,
-  targetPlayerId?: string
-): CardPlayValidation {
+export function validateCardPlay(game: FirebaseGame, playerId: string, cardId: string, targetPlayerId?: string): CardPlayValidation {
   const player = game.players[playerId];
   if (!player) {
     return { isValid: false, error: 'プレイヤーが見つかりません' };
@@ -77,9 +72,7 @@ export function validateCardPlay(
 /**
  * 現在のプレイヤーを取得
  */
-export function getCurrentPlayer(
-  game: FirebaseGame
-): FirebaseGamePlayer | null {
+export function getCurrentPlayer(game: FirebaseGame): FirebaseGamePlayer | null {
   // Use stored playerOrder for consistent indexing instead of Object.keys()
   const playerIds = game.playerOrder || Object.keys(game.players);
   const currentPlayerId = playerIds[game.currentPlayerIndex];
@@ -92,17 +85,12 @@ export function getCurrentPlayer(
 export interface CardEffectResult {
   success: boolean;
   playerUpdates: Record<string, Partial<FirebaseGamePlayer>>;
-  gameStateUpdates: any;
+  gameStateUpdates: Partial<FirebaseGame>;
   logMessage: string;
   error?: string;
 }
 
-export function applyCardEffect(
-  game: FirebaseGame,
-  playerId: string,
-  cardId: string,
-  targetPlayerId?: string
-): CardEffectResult {
+export function applyCardEffect(game: FirebaseGame, playerId: string, cardId: string, targetPlayerId?: string): CardEffectResult {
   const card = CardUtils.findById(cardId);
   const player = game.players[playerId];
 
@@ -143,11 +131,7 @@ export function applyCardEffect(
 /**
  * 攻撃カード効果適用
  */
-function applyAttackCard(
-  game: FirebaseGame,
-  player: FirebaseGamePlayer,
-  targetPlayerId?: string
-): CardEffectResult {
+function applyAttackCard(game: FirebaseGame, player: FirebaseGamePlayer, targetPlayerId?: string): CardEffectResult {
   if (!targetPlayerId) {
     return {
       success: false,
@@ -204,10 +188,7 @@ function applyAttackCard(
 /**
  * 防御カード効果適用
  */
-function applyDefenseCard(
-  game: FirebaseGame,
-  player: FirebaseGamePlayer
-): CardEffectResult {
+function applyDefenseCard(game: FirebaseGame, player: FirebaseGamePlayer): CardEffectResult {
   // 防御カードは場に出すか、直接使用でダメージ軽減
   // 今回は簡単な実装として、次のダメージを1軽減する効果を付与
 
@@ -215,9 +196,12 @@ function applyDefenseCard(
     success: true,
     playerUpdates: {},
     gameStateUpdates: {
-      defenseEffects: {
-        ...(game.gameState.defenseEffects || {}),
-        [player.id]: (game.gameState.defenseEffects?.[player.id] || 0) + 1,
+      gameState: {
+        ...game.gameState,
+        defenseEffects: {
+          ...(game.gameState.defenseEffects || {}),
+          [player.id]: (game.gameState.defenseEffects?.[player.id] || 0) + 1,
+        },
       },
     },
     logMessage: `${player.name}が防御カードを使用しました（次のダメージを1軽減）`,
@@ -227,11 +211,7 @@ function applyDefenseCard(
 /**
  * 回復カード効果適用
  */
-function applyRecoveryCard(
-  game: FirebaseGame,
-  player: FirebaseGamePlayer,
-  targetPlayerId?: string
-): CardEffectResult {
+function applyRecoveryCard(game: FirebaseGame, player: FirebaseGamePlayer, targetPlayerId?: string): CardEffectResult {
   const targetId = targetPlayerId || player.id;
   const targetPlayer = game.players[targetId];
 
@@ -298,10 +278,7 @@ function applyRecoveryCard(
 /**
  * 社長カード効果適用
  */
-function applyPresidentCard(
-  game: FirebaseGame,
-  player: FirebaseGamePlayer
-): CardEffectResult {
+function applyPresidentCard(game: FirebaseGame, player: FirebaseGamePlayer): CardEffectResult {
   // 社長カードは場に配置される
   // 既に場に社長カードがある場合は使用不可
   if (game.gameState.presidentCard) {
@@ -329,11 +306,14 @@ function applyPresidentCard(
     success: true,
     playerUpdates: {},
     gameStateUpdates: {
-      presidentCard: {
-        card: presidentCard,
-        owner: player.role,
-        turnsRemaining: GAME_CONFIG.PRESIDENT_CARD_DURATION,
-        placedAt: Date.now(),
+      gameState: {
+        ...game.gameState,
+        presidentCard: {
+          card: presidentCard,
+          owner: player.role,
+          turnsRemaining: GAME_CONFIG.PRESIDENT_CARD_DURATION,
+          placedAt: Date.now(),
+        },
       },
     },
     logMessage: `${player.name}が社長カードを場に配置しました`,
@@ -365,9 +345,7 @@ export function checkFirebaseGameEnd(game: FirebaseGame): GameEndCheck {
 
   // 部下3人以上がライフ0の場合、上司勝利
   const downSubordinates = subordinatePlayers.filter((p) => p.life <= 0);
-  if (
-    downSubordinates.length >= VICTORY_CONDITIONS.BOSS_WIN_SUBORDINATES_DOWN
-  ) {
+  if (downSubordinates.length >= VICTORY_CONDITIONS.BOSS_WIN_SUBORDINATES_DOWN) {
     return {
       isGameEnd: true,
       winner: 'boss',

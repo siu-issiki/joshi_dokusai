@@ -1,13 +1,8 @@
 'use client';
 
+import { signInAnonymously, onAuthStateChanged, User, signOut as firebaseSignOut } from 'firebase/auth';
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { auth } from './firebase';
-import {
-  signInAnonymously,
-  onAuthStateChanged,
-  User,
-  signOut as firebaseSignOut,
-} from 'firebase/auth';
 
 // 認証コンテキストの型定義
 interface AuthContextType {
@@ -133,9 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: !!user,
   };
 
-  return (
-    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
 
 // プレイヤー名を管理するカスタムフック
@@ -168,9 +161,7 @@ export function usePlayerName() {
 }
 
 // 認証が必要なコンポーネントをラップするHOC
-export function withAuth<P extends object>(
-  Component: React.ComponentType<P>
-): React.ComponentType<P> {
+export function withAuth<P extends object>(Component: React.ComponentType<P>): React.ComponentType<P> {
   return function AuthenticatedComponent(props: P) {
     const { user, loading, autoSignIn } = useAuth();
 
@@ -190,10 +181,7 @@ export function withAuth<P extends object>(
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <p className="text-red-600 mb-4">認証に失敗しました</p>
-            <button
-              onClick={autoSignIn}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
+            <button onClick={autoSignIn} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
               再試行
             </button>
           </div>

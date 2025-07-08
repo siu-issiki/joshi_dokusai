@@ -8,6 +8,7 @@
 ## データベース構造
 
 ### 全体構造
+
 ```
 joshi-dokusai-game/
 ├── rooms/                    # ゲームルーム管理
@@ -20,6 +21,7 @@ joshi-dokusai-game/
 ## 詳細設計
 
 ### 1. rooms/ - ルーム管理
+
 ```json
 {
   "rooms": {
@@ -49,11 +51,13 @@ joshi-dokusai-game/
 ```
 
 **フィールド説明：**
+
 - `status`: "waiting" | "playing" | "finished"
 - `gameId`: ゲーム開始時に生成されるゲームID
 - `players`: ルーム内のプレイヤー一覧
 
 ### 2. games/ - ゲーム状態
+
 ```json
 {
   "games": {
@@ -79,7 +83,7 @@ joshi-dokusai-game/
           "lastAction": 1704067300000
         },
         "user_456": {
-          "id": "user_456", 
+          "id": "user_456",
           "name": "部下A",
           "role": "subordinate",
           "life": 2,
@@ -104,7 +108,7 @@ joshi-dokusai-game/
         "presidentCard": {
           "card": {
             "id": "card_007",
-            "type": "work", 
+            "type": "work",
             "category": "president",
             "name": "社長"
           },
@@ -143,6 +147,7 @@ joshi-dokusai-game/
 ```
 
 ### 3. players/ - プレイヤー個人情報
+
 ```json
 {
   "players": {
@@ -167,6 +172,7 @@ joshi-dokusai-game/
 ```
 
 ### 4. playerHands/ - プレイヤー手札（プライベート）
+
 ```json
 {
   "playerHands": {
@@ -181,7 +187,7 @@ joshi-dokusai-game/
             "description": "部下：自身-1ライフで上司に1ダメージ"
           },
           {
-            "id": "card_102", 
+            "id": "card_102",
             "type": "work",
             "category": "defense",
             "name": "防御",
@@ -196,6 +202,7 @@ joshi-dokusai-game/
 ```
 
 ### 5. presence/ - オンライン状態
+
 ```json
 {
   "presence": {
@@ -210,6 +217,7 @@ joshi-dokusai-game/
 ```
 
 ### 6. gameHistory/ - ゲーム履歴
+
 ```json
 {
   "gameHistory": {
@@ -239,12 +247,14 @@ joshi-dokusai-game/
 ## セキュリティルール設計
 
 ### 基本方針
+
 1. **認証必須**: 全てのデータアクセスに認証が必要
 2. **プレイヤー制限**: 自分が参加しているゲーム/ルームのみアクセス可能
 3. **手札保護**: 自分の手札のみ読み取り可能
 4. **ゲーム整合性**: Cloud Functionsによる検証
 
 ### ルール例
+
 ```json
 {
   "rules": {
@@ -275,6 +285,7 @@ joshi-dokusai-game/
 ## データフロー
 
 ### 1. ルーム作成・参加
+
 ```
 1. Client → rooms/{roomId} 作成
 2. Other Clients → rooms/ 監視
@@ -283,6 +294,7 @@ joshi-dokusai-game/
 ```
 
 ### 2. ゲーム開始
+
 ```
 1. Room Owner → Cloud Function: startGame
 2. Function → games/{gameId} 作成
@@ -292,6 +304,7 @@ joshi-dokusai-game/
 ```
 
 ### 3. ターン進行
+
 ```
 1. Client → Cloud Function: playCard
 2. Function → ゲーム状態検証
@@ -303,31 +316,37 @@ joshi-dokusai-game/
 ## パフォーマンス考慮事項
 
 ### 1. データ分割
+
 - 手札は別ノードで管理（プライバシー保護）
 - 履歴は別ノードで管理（パフォーマンス向上）
 
 ### 2. インデックス設計
+
 - rooms: status, createdAt
 - games: status, createdAt
 - gameHistory: endedAt, winner
 
 ### 3. リアルタイム監視
+
 - 必要な部分のみ監視
 - 不要になったら監視解除
 
 ## 実装優先度
 
 ### Phase 1: 基本機能
+
 - rooms/ 構造
 - games/ 基本構造
 - playerHands/ 構造
 
-### Phase 2: 拡張機能  
+### Phase 2: 拡張機能
+
 - presence/ 監視
 - gameHistory/ 保存
 - 統計情報
 
 ### Phase 3: 最適化
+
 - セキュリティルール強化
 - パフォーマンス最適化
 - エラーハンドリング強化

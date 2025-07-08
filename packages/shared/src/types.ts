@@ -51,12 +51,7 @@ export interface GameState {
 }
 
 export interface GameAction {
-  type:
-    | 'play-card'
-    | 'draw-card'
-    | 'pass-turn'
-    | 'resign'
-    | 'nullify-dictatorship';
+  type: 'play-card' | 'draw-card' | 'pass-turn' | 'resign' | 'nullify-dictatorship';
   playerId: string;
   timestamp: number;
   cardId?: string;
@@ -104,12 +99,7 @@ export interface FirebaseGame {
   roomId: string;
   createdAt: number;
   status: 'playing' | 'ended';
-  phase:
-    | 'dictatorship'
-    | 'subordinate_consultation'
-    | 'subordinate_turn'
-    | 'boss_turn'
-    | 'turn_end';
+  phase: 'dictatorship' | 'subordinate_consultation' | 'subordinate_turn' | 'boss_turn' | 'turn_end';
   currentPlayerIndex: number;
   turnCount: number;
   maxTurns: number;
@@ -199,11 +189,7 @@ export interface FirebaseGameHistory {
   }>;
   finalState: {
     turnCount: number;
-    endReason:
-      | 'boss_defeated'
-      | 'subordinates_defeated'
-      | 'turn_limit'
-      | 'resignation';
+    endReason: 'boss_defeated' | 'subordinates_defeated' | 'turn_limit' | 'resignation';
   };
 }
 

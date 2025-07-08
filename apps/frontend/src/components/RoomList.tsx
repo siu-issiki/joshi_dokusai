@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRooms } from '@/hooks/useRooms';
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { FirebaseRoom, FirebaseRoomPlayer } from '@joshi-dokusai/shared';
+import { useRooms } from '@/hooks/useRooms';
 
 interface RoomCardProps {
   room: FirebaseRoom;
-  onJoin: (roomId: string) => void;
+  onJoin: (_roomId: string) => void;
 }
 
 function RoomCard({ room, onJoin }: RoomCardProps) {
@@ -26,13 +26,8 @@ function RoomCard({ room, onJoin }: RoomCardProps) {
     <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-1">
-            {room.name}
-          </h3>
-          <p className="text-sm text-gray-600">
-            作成者:{' '}
-            {room.createdByName || room.players[room.createdBy]?.name || '不明'}
-          </p>
+          <h3 className="text-lg font-semibold text-gray-800 mb-1">{room.name}</h3>
+          <p className="text-sm text-gray-600">作成者: {room.createdByName || room.players[room.createdBy]?.name || '不明'}</p>
         </div>
         {room.isPrivate && (
           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
@@ -46,20 +41,14 @@ function RoomCard({ room, onJoin }: RoomCardProps) {
           <span className="text-sm text-gray-600">
             👥 {room.currentPlayers}/{room.maxPlayers}人
           </span>
-          <span className="text-sm text-gray-600">
-            ⏰ {new Date(room.createdAt).toLocaleTimeString()}
-          </span>
+          <span className="text-sm text-gray-600">⏰ {new Date(room.createdAt).toLocaleTimeString()}</span>
         </div>
       </div>
 
       <div className="flex justify-between items-center">
         <div className="flex space-x-2">
           {Object.values(room.players).map((player: FirebaseRoomPlayer) => (
-            <div
-              key={player.id}
-              className="w-3 h-3 rounded-full bg-blue-500"
-              title={player.name}
-            />
+            <div key={player.id} className="w-3 h-3 rounded-full bg-blue-500" title={player.name} />
           ))}
         </div>
 
@@ -72,11 +61,7 @@ function RoomCard({ room, onJoin }: RoomCardProps) {
               : 'bg-blue-600 text-white hover:bg-blue-700'
           }`}
         >
-          {isJoining
-            ? '参加中...'
-            : room.currentPlayers >= room.maxPlayers
-              ? '満員'
-              : '参加'}
+          {isJoining ? '参加中...' : room.currentPlayers >= room.maxPlayers ? '満員' : '参加'}
         </button>
       </div>
     </div>
@@ -86,20 +71,10 @@ function RoomCard({ room, onJoin }: RoomCardProps) {
 interface CreateRoomModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreateRoom: (
-    name: string,
-    maxPlayers: number,
-    isPrivate: boolean,
-    playerName: string,
-    password?: string
-  ) => Promise<void>;
+  onCreateRoom: (_name: string, _maxPlayers: number, _isPrivate: boolean, _playerName: string, _password?: string) => Promise<void>;
 }
 
-function CreateRoomModal({
-  isOpen,
-  onClose,
-  onCreateRoom,
-}: CreateRoomModalProps) {
+function CreateRoomModal({ isOpen, onClose, onCreateRoom }: CreateRoomModalProps) {
   const [roomName, setRoomName] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [maxPlayers, setMaxPlayers] = useState(5);
@@ -149,9 +124,7 @@ function CreateRoomModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              ルーム名
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">ルーム名</label>
             <input
               type="text"
               value={roomName}
@@ -164,9 +137,7 @@ function CreateRoomModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              あなたの名前
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">あなたの名前</label>
             <input
               type="text"
               value={playerName}
@@ -179,9 +150,7 @@ function CreateRoomModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              最大プレイヤー数
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">最大プレイヤー数</label>
             <select
               value={maxPlayers}
               onChange={(e) => setMaxPlayers(Number(e.target.value))}
@@ -200,19 +169,14 @@ function CreateRoomModal({
               onChange={(e) => setIsPrivate(e.target.checked)}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <label
-              htmlFor="isPrivate"
-              className="ml-2 block text-sm text-gray-700"
-            >
+            <label htmlFor="isPrivate" className="ml-2 block text-sm text-gray-700">
               プライベートルーム
             </label>
           </div>
 
           {isPrivate && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                パスワード
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
               <input
                 type="password"
                 value={password}
@@ -259,20 +223,8 @@ export default function RoomList() {
     router.push(`/room?id=${roomId}`);
   };
 
-  const handleCreateRoom = async (
-    name: string,
-    maxPlayers: number,
-    isPrivate: boolean,
-    playerName: string,
-    password?: string
-  ) => {
-    const roomId = await createRoom(
-      name,
-      maxPlayers,
-      isPrivate,
-      playerName,
-      password
-    );
+  const handleCreateRoom = async (name: string, maxPlayers: number, isPrivate: boolean, playerName: string, password?: string) => {
+    const roomId = await createRoom(name, maxPlayers, isPrivate, playerName, password);
     router.push(`/room?id=${roomId}`);
   };
 
@@ -296,17 +248,11 @@ export default function RoomList() {
         </button>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
-      )}
+      {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
 
       {rooms.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg mb-4">
-            利用可能なルームがありません
-          </p>
+          <p className="text-gray-500 text-lg mb-4">利用可能なルームがありません</p>
           <button
             onClick={() => setIsCreateModalOpen(true)}
             className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
@@ -322,11 +268,7 @@ export default function RoomList() {
         </div>
       )}
 
-      <CreateRoomModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreateRoom={handleCreateRoom}
-      />
+      <CreateRoomModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onCreateRoom={handleCreateRoom} />
     </div>
   );
 }

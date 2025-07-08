@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { httpsCallable } from 'firebase/functions';
+import { useState } from 'react';
 import { functions } from '@/lib/firebase';
 
 /**
@@ -23,8 +23,7 @@ export function useGameActions(gameId: string) {
       const result = await startGameFunction({ roomId });
       return result.data;
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'ゲーム開始に失敗しました';
+      const errorMessage = error instanceof Error ? error.message : 'ゲーム開始に失敗しました';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -49,8 +48,7 @@ export function useGameActions(gameId: string) {
       });
       return result.data;
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'カードの使用に失敗しました';
+      const errorMessage = error instanceof Error ? error.message : 'カードの使用に失敗しました';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -71,8 +69,7 @@ export function useGameActions(gameId: string) {
       const result = await drawCardFunction({ gameId });
       return result.data;
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'カードのドローに失敗しました';
+      const errorMessage = error instanceof Error ? error.message : 'カードのドローに失敗しました';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -93,8 +90,7 @@ export function useGameActions(gameId: string) {
       const result = await passTurnFunction({ gameId });
       return result.data;
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'ターンパスに失敗しました';
+      const errorMessage = error instanceof Error ? error.message : 'ターンパスに失敗しました';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -111,17 +107,11 @@ export function useGameActions(gameId: string) {
     setError(null);
 
     try {
-      const processDictatorshipPhaseFunction = httpsCallable(
-        functions,
-        'processDictatorshipPhase'
-      );
+      const processDictatorshipPhaseFunction = httpsCallable(functions, 'processDictatorshipPhase');
       const result = await processDictatorshipPhaseFunction({ gameId });
       return result.data;
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : '独裁フェーズ処理に失敗しました';
+      const errorMessage = error instanceof Error ? error.message : '独裁フェーズ処理に失敗しました';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -138,17 +128,11 @@ export function useGameActions(gameId: string) {
     setError(null);
 
     try {
-      const nullifyDictatorshipCardFunction = httpsCallable(
-        functions,
-        'nullifyDictatorshipCard'
-      );
+      const nullifyDictatorshipCardFunction = httpsCallable(functions, 'nullifyDictatorshipCard');
       const result = await nullifyDictatorshipCardFunction({ gameId });
       return result.data;
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : '独裁カード無効化に失敗しました';
+      const errorMessage = error instanceof Error ? error.message : '独裁カード無効化に失敗しました';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -165,15 +149,11 @@ export function useGameActions(gameId: string) {
     setError(null);
 
     try {
-      const endSubordinateConsultationFunction = httpsCallable(
-        functions,
-        'endSubordinateConsultation'
-      );
+      const endSubordinateConsultationFunction = httpsCallable(functions, 'endSubordinateConsultation');
       const result = await endSubordinateConsultationFunction({ gameId });
       return result.data;
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : '部下相談の終了に失敗しました';
+      const errorMessage = error instanceof Error ? error.message : '部下相談の終了に失敗しました';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {

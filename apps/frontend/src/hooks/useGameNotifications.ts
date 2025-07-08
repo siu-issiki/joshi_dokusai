@@ -11,12 +11,7 @@ function generateNotificationId(): string {
 
 interface GameNotification {
   id: string;
-  type:
-    | 'turn-change'
-    | 'life-gain'
-    | 'life-loss'
-    | 'card-played'
-    | 'game-event';
+  type: 'turn-change' | 'life-gain' | 'life-loss' | 'card-played' | 'game-event';
   message: string;
   timestamp: number;
   playerId?: string;
@@ -42,9 +37,7 @@ export function useGameNotifications(gameId: string) {
 
     // ターン変更通知
     if (game.currentPlayerIndex !== prevGame.currentPlayerIndex) {
-      const currentPlayer = Object.values(game.players)[
-        game.currentPlayerIndex
-      ];
+      const currentPlayer = Object.values(game.players)[game.currentPlayerIndex];
       if (currentPlayer) {
         addNotification({
           type: 'turn-change',
@@ -103,9 +96,7 @@ export function useGameNotifications(gameId: string) {
     };
   }, []);
 
-  const addNotification = (
-    notification: Omit<GameNotification, 'id' | 'timestamp'>
-  ) => {
+  const addNotification = (notification: Omit<GameNotification, 'id' | 'timestamp'>) => {
     const newNotification: GameNotification = {
       ...notification,
       id: generateNotificationId(),
@@ -116,13 +107,9 @@ export function useGameNotifications(gameId: string) {
 
     // 5秒後に自動削除
     const timeoutId = setTimeout(() => {
-      setNotifications((prev) =>
-        prev.filter((n) => n.id !== newNotification.id)
-      );
+      setNotifications((prev) => prev.filter((n) => n.id !== newNotification.id));
       // タイムアウト完了後、配列から削除
-      timeoutIdsRef.current = timeoutIdsRef.current.filter(
-        (id) => id !== timeoutId
-      );
+      timeoutIdsRef.current = timeoutIdsRef.current.filter((id) => id !== timeoutId);
     }, 5000);
 
     // タイムアウトIDを保存
