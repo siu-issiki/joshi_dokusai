@@ -6,7 +6,7 @@ import { getDatabase } from 'firebase-admin/database';
 import * as logger from 'firebase-functions/logger';
 import { onCall } from 'firebase-functions/v2/https';
 
-import { GAME_CONFIG, CardUtils, type FirebaseRoomPlayer, type FirebaseGamePlayer } from '@joshi-dokusai/shared';
+import { GAME_CONFIG, CardUtils, type FirebaseRoom, type FirebaseRoomPlayer, type FirebaseGamePlayer } from '@joshi-dokusai/shared';
 
 import { DICTATORSHIP_CARDS } from '../shared-constants';
 import { createInitialDeck, drawCardFromDeck } from '../utils/deckUtils';
@@ -37,7 +37,15 @@ export const startGame = onCall(async (request) => {
 
   try {
     const roomSnapshot = await roomRef.once('value');
-    const room = roomSnapshot.val();
+    const roomData = roomSnapshot.val();
+    
+    // Validate room data
+    if (!roomData || typeof roomData !== 'object') {
+      throw new Error('ルームが見つかりません');
+    }
+    
+    // Use type assertion only once after validation
+    const room = roomData as FirebaseRoom;
 
     if (!room || room.createdBy !== uid) {
       throw new Error('ルームが見つからないか、権限がありません');
