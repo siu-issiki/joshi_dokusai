@@ -21,10 +21,13 @@ jobs:
           fetch-depth: 0
       
       - name: Claude Code Review
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@beta
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          instruction: |
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          direct_prompt: "Review this PR and provide feedback"
+          use_sticky_comment: true
+          custom_instructions: |
             このPRをレビューしてください。以下の点に注目してレビューを行ってください：
             
             1. コードの品質とベストプラクティス
@@ -35,3 +38,8 @@ jobs:
             6. テストカバレッジ
             
             レビューは日本語で行い、具体的な改善提案を含めてください。
+            
+            特に以下のファイル拡張子に注目してください：
+            - .ts, .tsx: TypeScriptファイル
+            - .js, .jsx: JavaScriptファイル
+            - .yml, .yaml: 設定ファイル
