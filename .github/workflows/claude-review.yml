@@ -1,0 +1,37 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    name: Claude Code Review
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Claude Code Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          instruction: |
+            このPRをレビューしてください。以下の点に注目してレビューを行ってください：
+            
+            1. コードの品質とベストプラクティス
+            2. セキュリティ上の懸念事項
+            3. パフォーマンスの問題
+            4. TypeScriptの型安全性
+            5. エラーハンドリング
+            6. テストカバレッジ
+            
+            レビューは日本語で行い、具体的な改善提案を含めてください。
