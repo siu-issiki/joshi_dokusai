@@ -196,9 +196,12 @@ function applyDefenseCard(game: FirebaseGame, player: FirebaseGamePlayer): CardE
     success: true,
     playerUpdates: {},
     gameStateUpdates: {
-      defenseEffects: {
-        ...(game.gameState.defenseEffects || {}),
-        [player.id]: (game.gameState.defenseEffects?.[player.id] || 0) + 1,
+      gameState: {
+        ...game.gameState,
+        defenseEffects: {
+          ...(game.gameState.defenseEffects || {}),
+          [player.id]: (game.gameState.defenseEffects?.[player.id] || 0) + 1,
+        },
       },
     },
     logMessage: `${player.name}が防御カードを使用しました（次のダメージを1軽減）`,
@@ -303,11 +306,14 @@ function applyPresidentCard(game: FirebaseGame, player: FirebaseGamePlayer): Car
     success: true,
     playerUpdates: {},
     gameStateUpdates: {
-      presidentCard: {
-        card: presidentCard,
-        owner: player.role,
-        turnsRemaining: GAME_CONFIG.PRESIDENT_CARD_DURATION,
-        placedAt: Date.now(),
+      gameState: {
+        ...game.gameState,
+        presidentCard: {
+          card: presidentCard,
+          owner: player.role,
+          turnsRemaining: GAME_CONFIG.PRESIDENT_CARD_DURATION,
+          placedAt: Date.now(),
+        },
       },
     },
     logMessage: `${player.name}が社長カードを場に配置しました`,

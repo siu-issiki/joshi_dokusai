@@ -165,7 +165,9 @@ export class DeckManager {
       .map((id) => CardUtils.findById(id))
       .filter((card): card is DictatorshipCard => card !== undefined && card.type === 'dictatorship');
 
-    manager.discardPile = serializedData.discardPile.map((id) => CardUtils.findById(id)).filter((card): card is Card => card !== undefined);
+    manager.discardPile = serializedData.discardPile
+      .map((id) => CardUtils.findById(id))
+      .filter((card): card is WorkCard | DictatorshipCard => card !== undefined);
 
     return manager;
   }
@@ -222,7 +224,7 @@ export const DeckUtils = {
     });
 
     return {
-      deckState: manager.getDeckState(),
+      deckState: manager.serialize(),
       hands,
     };
   },
