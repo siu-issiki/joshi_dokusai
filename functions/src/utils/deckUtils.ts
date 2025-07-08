@@ -55,7 +55,7 @@ export function drawCardFromDeck(deck: GameDeck): {
     });
 
     if (workCardsInDiscard.length === 0) {
-      return {card: null, updatedDeck: deck}; // カードが尽きた
+      return { card: null, updatedDeck: deck }; // カードが尽きた
     }
 
     const shuffledWorkCards = shuffleArray(workCardsInDiscard);
@@ -71,12 +71,12 @@ export function drawCardFromDeck(deck: GameDeck): {
     };
 
     const drawnCard = updatedDeck.workCards.pop() || null;
-    return {card: drawnCard, updatedDeck};
+    return { card: drawnCard, updatedDeck };
   }
 
-  const updatedDeck = {...deck};
+  const updatedDeck = { ...deck };
   const drawnCard = updatedDeck.workCards.pop() || null;
-  return {card: drawnCard, updatedDeck};
+  return { card: drawnCard, updatedDeck };
 }
 
 /**

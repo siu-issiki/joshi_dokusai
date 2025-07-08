@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { database, auth } from '@/lib/firebase';
-import { ref, onValue } from 'firebase/database';
-import { FirebasePlayerHand, FirebasePaths } from '@joshi-dokusai/shared';
+import { useState, useEffect } from "react";
+import { database, auth } from "@/lib/firebase";
+import { ref, onValue } from "firebase/database";
+import { FirebasePlayerHand, FirebasePaths } from "@joshi-dokusai/shared";
 
 /**
  * プレイヤー手札管理フック
@@ -20,7 +20,7 @@ export function usePlayerHand(gameId: string) {
 
     const handRef = ref(
       database,
-      FirebasePaths.playerHand(gameId, auth.currentUser.uid)
+      FirebasePaths.playerHand(gameId, auth.currentUser.uid),
     );
 
     const unsubscribe = onValue(
@@ -28,12 +28,12 @@ export function usePlayerHand(gameId: string) {
       (snapshot) => {
         try {
           const data = snapshot.val();
-          console.log('usePlayerHand Debug:', {
+          console.log("usePlayerHand Debug:", {
             gameId,
             playerId: auth?.currentUser?.uid,
             path: FirebasePaths.playerHand(
               gameId,
-              auth?.currentUser?.uid || ''
+              auth?.currentUser?.uid || "",
             ),
             data,
             exists: snapshot.exists(),
@@ -42,16 +42,16 @@ export function usePlayerHand(gameId: string) {
           setLoading(false);
           setError(null);
         } catch (err) {
-          console.error('Player hand parsing error:', err);
-          setError('手札情報の解析に失敗しました');
+          console.error("Player hand parsing error:", err);
+          setError("手札情報の解析に失敗しました");
           setLoading(false);
         }
       },
       (error) => {
-        console.error('Player hand error:', error);
-        setError('手札情報の取得に失敗しました');
+        console.error("Player hand error:", error);
+        setError("手札情報の取得に失敗しました");
         setLoading(false);
-      }
+      },
     );
 
     return () => {

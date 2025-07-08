@@ -11,7 +11,7 @@ The codebase has been refactored to use a seedable random number generator inste
 A Linear Congruential Generator (LCG) that produces reproducible pseudo-random sequences:
 
 ```typescript
-import { SeededRandom } from '@joshi-dokusai/shared';
+import { SeededRandom } from "@joshi-dokusai/shared";
 
 const random = new SeededRandom(12345); // Seeded for reproducibility
 const diceRoll = random.rollDice(); // Always produces the same result with same seed
@@ -29,7 +29,7 @@ const diceRoll = random.rollDice(); // Always produces the same result with same
 ### 2. Global Game Random Instance
 
 ```typescript
-import { gameRandom } from '@joshi-dokusai/shared';
+import { gameRandom } from "@joshi-dokusai/shared";
 
 // Use for all game logic that requires randomness
 const result = gameRandom.rollDice();
@@ -40,7 +40,7 @@ const result = gameRandom.rollDice();
 For ID generation and other non-game-logic operations:
 
 ```typescript
-import { NonDeterministicRandom } from '@joshi-dokusai/shared';
+import { NonDeterministicRandom } from "@joshi-dokusai/shared";
 
 const gameId = NonDeterministicRandom.generateGameId();
 const playerId = NonDeterministicRandom.generatePlayerId();
@@ -93,7 +93,7 @@ The following files were updated to use the new random system:
 Always use the seeded random generator:
 
 ```typescript
-import { gameRandom } from '@joshi-dokusai/shared';
+import { gameRandom } from "@joshi-dokusai/shared";
 
 // ✅ Good - Deterministic and testable
 const diceResult = gameRandom.rollDice();
@@ -108,7 +108,7 @@ const diceResult = Math.floor(Math.random() * 6) + 1;
 Use non-deterministic utilities:
 
 ```typescript
-import { NonDeterministicRandom } from '@joshi-dokusai/shared';
+import { NonDeterministicRandom } from "@joshi-dokusai/shared";
 
 // ✅ Good - Unique IDs
 const id = NonDeterministicRandom.generateGameId();

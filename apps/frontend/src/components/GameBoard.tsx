@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useGameState } from '@/hooks/useGameState';
-import { usePlayerHand } from '@/hooks/usePlayerHand';
-import { useGameActions } from '@/hooks/useGameActions';
-import { useAutoCardDraw } from '@/hooks/useAutoCardDraw';
-import { useAuth } from '@/lib/auth';
-import PlayerHand from './PlayerHand';
+import React from "react";
+import { useGameState } from "@/hooks/useGameState";
+import { usePlayerHand } from "@/hooks/usePlayerHand";
+import { useGameActions } from "@/hooks/useGameActions";
+import { useAutoCardDraw } from "@/hooks/useAutoCardDraw";
+import { useAuth } from "@/lib/auth";
+import PlayerHand from "./PlayerHand";
 
 interface GameBoardProps {
   gameId: string;
@@ -60,7 +60,7 @@ export default function GameBoard({ gameId }: GameBoardProps) {
 
   // プレイヤーデータを取得（player.idがuser.uidと一致するものを探す）
   const currentPlayer = Object.values(game.players).find(
-    (player) => (player as { id: string }).id === user.uid
+    (player) => (player as { id: string }).id === user.uid,
   );
 
   const isMyTurn =
@@ -69,14 +69,14 @@ export default function GameBoard({ gameId }: GameBoardProps) {
   return (
     <div className="min-h-screen bg-green-100 p-4">
       {/* ゲーム終了時のオーバーレイ */}
-      {game.status === 'ended' && (
+      {game.status === "ended" && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
             <h2 className="text-3xl font-bold mb-4">
-              {game.winner === 'boss' ? '上司の勝利！' : '部下の勝利！'}
+              {game.winner === "boss" ? "上司の勝利！" : "部下の勝利！"}
             </h2>
             <p className="text-lg text-gray-600 mb-6">
-              {game.endReason || 'ゲームが終了しました'}
+              {game.endReason || "ゲームが終了しました"}
             </p>
             <div className="space-y-2">
               <button
@@ -104,14 +104,14 @@ export default function GameBoard({ gameId }: GameBoardProps) {
             <p className="text-gray-600">
               ターン {game.turnCount} / フェーズ: {game.phase}
             </p>
-            {game.status === 'ended' && (
+            {game.status === "ended" && (
               <p className="text-red-600 font-semibold">ゲーム終了</p>
             )}
           </div>
           <div className="text-right">
             <p className="text-lg font-semibold">
               {currentPlayer?.name} (
-              {currentPlayer?.role === 'boss' ? '上司' : '部下'})
+              {currentPlayer?.role === "boss" ? "上司" : "部下"})
             </p>
             <p className="text-red-600">ライフ: {currentPlayer?.life}</p>
           </div>
@@ -139,7 +139,7 @@ export default function GameBoard({ gameId }: GameBoardProps) {
                   {typedPlayer.name}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  {typedPlayer.role === 'boss' ? '上司' : '部下'}
+                  {typedPlayer.role === "boss" ? "上司" : "部下"}
                 </p>
                 <p className="text-red-600">ライフ: {typedPlayer.life}</p>
                 <p className="text-blue-600">
@@ -157,31 +157,31 @@ export default function GameBoard({ gameId }: GameBoardProps) {
           <h2 className="text-xl font-bold mb-4">ゲームフィールド</h2>
 
           {/* 独裁フェーズ処理ボタン（上司のみ） */}
-          {game.phase === 'dictatorship' &&
+          {game.phase === "dictatorship" &&
             !game.gameState?.dictatorshipEffects?.currentCard &&
-            game.status === 'playing' && (
+            game.status === "playing" && (
               <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <h3 className="font-semibold text-blue-800 mb-2">
                   独裁フェーズ
                 </h3>
                 <p className="text-blue-700 text-sm mb-3">
-                  {currentPlayer?.role === 'boss'
-                    ? '独裁カードの山札から1枚引いて場に配置します'
-                    : '上司が独裁カードを引くのを待っています...'}
+                  {currentPlayer?.role === "boss"
+                    ? "独裁カードの山札から1枚引いて場に配置します"
+                    : "上司が独裁カードを引くのを待っています..."}
                 </p>
-                {currentPlayer?.role === 'boss' ? (
+                {currentPlayer?.role === "boss" ? (
                   <button
                     onClick={async () => {
                       try {
                         await processDictatorshipPhase();
                       } catch (error) {
-                        console.error('独裁フェーズ処理エラー:', error);
+                        console.error("独裁フェーズ処理エラー:", error);
                       }
                     }}
                     disabled={actionLoading}
                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
                   >
-                    {actionLoading ? '処理中...' : '独裁カードを引く'}
+                    {actionLoading ? "処理中..." : "独裁カードを引く"}
                   </button>
                 ) : (
                   <div className="text-gray-500 text-sm">
@@ -201,7 +201,7 @@ export default function GameBoard({ gameId }: GameBoardProps) {
                     {game.gameState.dictatorshipEffects.currentCard.name}
                   </p>
                   <p className="text-sm text-red-600">
-                    対象:{' '}
+                    対象:{" "}
                     {game.gameState.dictatorshipEffects.currentCard.target}
                   </p>
                   {game.gameState.dictatorshipEffects.currentCard
@@ -211,22 +211,22 @@ export default function GameBoard({ gameId }: GameBoardProps) {
                 </div>
 
                 {/* 無効化ボタン（部下のみ） */}
-                {currentPlayer?.role === 'subordinate' &&
+                {currentPlayer?.role === "subordinate" &&
                   !game.gameState.dictatorshipEffects.currentCard.isNullified &&
-                  (game.phase === 'subordinate_consultation' ||
-                    game.status === 'playing') && (
+                  (game.phase === "subordinate_consultation" ||
+                    game.status === "playing") && (
                     <button
                       onClick={async () => {
                         try {
                           await nullifyDictatorshipCard();
                         } catch (error) {
-                          console.error('独裁カード無効化エラー:', error);
+                          console.error("独裁カード無効化エラー:", error);
                         }
                       }}
                       disabled={actionLoading}
                       className="bg-yellow-600 text-white px-3 py-1 rounded text-sm hover:bg-yellow-700 transition-colors disabled:opacity-50"
                     >
-                      {actionLoading ? '処理中...' : '無効化'}
+                      {actionLoading ? "処理中..." : "無効化"}
                     </button>
                   )}
               </div>
@@ -234,30 +234,30 @@ export default function GameBoard({ gameId }: GameBoardProps) {
           )}
 
           {/* 部下相談フェーズの処理 */}
-          {game.phase === 'subordinate_consultation' &&
-            game.status === 'playing' && (
+          {game.phase === "subordinate_consultation" &&
+            game.status === "playing" && (
               <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <h3 className="font-semibold text-green-800 mb-2">
                   部下相談フェーズ
                 </h3>
                 <p className="text-green-700 text-sm mb-3">
-                  {currentPlayer?.role === 'subordinate'
-                    ? '独裁カードを無効化するか相談して決定してください。決定後は「相談終了」ボタンを押してください。'
-                    : '部下が独裁カードについて相談中です...'}
+                  {currentPlayer?.role === "subordinate"
+                    ? "独裁カードを無効化するか相談して決定してください。決定後は「相談終了」ボタンを押してください。"
+                    : "部下が独裁カードについて相談中です..."}
                 </p>
-                {currentPlayer?.role === 'subordinate' && (
+                {currentPlayer?.role === "subordinate" && (
                   <button
                     onClick={async () => {
                       try {
                         await endSubordinateConsultation();
                       } catch (error) {
-                        console.error('部下相談終了エラー:', error);
+                        console.error("部下相談終了エラー:", error);
                       }
                     }}
                     disabled={actionLoading}
                     className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors disabled:opacity-50"
                   >
-                    {actionLoading ? '処理中...' : '相談終了'}
+                    {actionLoading ? "処理中..." : "相談終了"}
                   </button>
                 )}
               </div>
@@ -281,11 +281,11 @@ export default function GameBoard({ gameId }: GameBoardProps) {
 
           {/* ターン表示 */}
           <div className="text-center p-4">
-            {game.phase === 'dictatorship' ? (
+            {game.phase === "dictatorship" ? (
               <p className="text-lg font-bold text-red-600">
                 独裁フェーズ - 上司の独裁カード処理中
               </p>
-            ) : game.phase === 'subordinate_consultation' ? (
+            ) : game.phase === "subordinate_consultation" ? (
               <p className="text-lg font-bold text-orange-600">
                 部下相談フェーズ - 独裁カードの無効化を決定中
               </p>
@@ -318,13 +318,13 @@ export default function GameBoard({ gameId }: GameBoardProps) {
                   .map((entry, index) => (
                     <div key={index} className="text-sm text-gray-600">
                       <span className="font-medium">
-                        {entry.action?.type === 'play-card' &&
-                          '🃏 カードプレイ'}
-                        {entry.action?.type === 'pass-turn' && '⏭️ ターンパス'}
-                        {entry.action?.type === 'draw-dictatorship' &&
-                          '👑 独裁カード引く'}
-                        {entry.action?.type === 'nullify-dictatorship' &&
-                          '❌ 独裁カード無効化'}
+                        {entry.action?.type === "play-card" &&
+                          "🃏 カードプレイ"}
+                        {entry.action?.type === "pass-turn" && "⏭️ ターンパス"}
+                        {entry.action?.type === "draw-dictatorship" &&
+                          "👑 独裁カード引く"}
+                        {entry.action?.type === "nullify-dictatorship" &&
+                          "❌ 独裁カード無効化"}
                       </span>
                       {entry.action.effectMessage && (
                         <p className="text-xs text-blue-600 mt-1">
@@ -351,7 +351,7 @@ export default function GameBoard({ gameId }: GameBoardProps) {
             error={handError}
             onPlayCard={playCard}
             onPassTurn={passTurn}
-            canPlayCards={isMyTurn && game.phase !== 'dictatorship'}
+            canPlayCards={isMyTurn && game.phase !== "dictatorship"}
             isMyTurn={isMyTurn}
             players={Object.values(game.players).map((player) => ({
               id: player.id,
@@ -366,8 +366,8 @@ export default function GameBoard({ gameId }: GameBoardProps) {
 
       {/* アクションボタン */}
       {isMyTurn &&
-        game.phase !== 'dictatorship' &&
-        game.phase !== 'subordinate_consultation' && (
+        game.phase !== "dictatorship" &&
+        game.phase !== "subordinate_consultation" && (
           <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2">
             <div className="flex gap-2 bg-white rounded-lg p-2 shadow-lg">
               <button
@@ -375,22 +375,22 @@ export default function GameBoard({ gameId }: GameBoardProps) {
                 disabled={actionLoading}
                 className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50"
               >
-                {actionLoading ? 'パス中...' : 'ターンパス'}
+                {actionLoading ? "パス中..." : "ターンパス"}
               </button>
             </div>
           </div>
         )}
 
       {/* 独裁フェーズ中の状態表示 */}
-      {(game.phase === 'dictatorship' ||
-        game.phase === 'subordinate_consultation') &&
-        currentPlayer?.role !== 'boss' && (
+      {(game.phase === "dictatorship" ||
+        game.phase === "subordinate_consultation") &&
+        currentPlayer?.role !== "boss" && (
           <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2">
             <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded-lg shadow-lg">
               <p className="text-sm font-medium">
-                {game.phase === 'dictatorship'
-                  ? '独裁フェーズ中 - 上司の操作をお待ちください'
-                  : '部下相談フェーズ - 独裁カードの無効化を決定してください'}
+                {game.phase === "dictatorship"
+                  ? "独裁フェーズ中 - 上司の操作をお待ちください"
+                  : "部下相談フェーズ - 独裁カードの無効化を決定してください"}
               </p>
             </div>
           </div>

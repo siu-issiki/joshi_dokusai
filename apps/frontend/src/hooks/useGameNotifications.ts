@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { FirebaseGame } from '@joshi-dokusai/shared';
-import { useGameState } from './useGameState';
+import { useState, useEffect, useRef } from "react";
+import { FirebaseGame } from "@joshi-dokusai/shared";
+import { useGameState } from "./useGameState";
 
 /**
  * Generate a unique notification ID
@@ -12,11 +12,11 @@ function generateNotificationId(): string {
 interface GameNotification {
   id: string;
   type:
-    | 'turn-change'
-    | 'life-gain'
-    | 'life-loss'
-    | 'card-played'
-    | 'game-event';
+    | "turn-change"
+    | "life-gain"
+    | "life-loss"
+    | "card-played"
+    | "game-event";
   message: string;
   timestamp: number;
   playerId?: string;
@@ -47,7 +47,7 @@ export function useGameNotifications(gameId: string) {
       ];
       if (currentPlayer) {
         addNotification({
-          type: 'turn-change',
+          type: "turn-change",
           message: `${currentPlayer.name}のターンです`,
           playerId: currentPlayer.id,
         });
@@ -57,15 +57,15 @@ export function useGameNotifications(gameId: string) {
     // フェーズ変更通知
     if (game.phase !== prevGame.phase) {
       const phaseNames = {
-        dictatorship: '独裁フェーズ',
-        subordinate_consultation: '部下相談フェーズ',
-        subordinate_turn: '部下ターン',
-        boss_turn: '上司ターン',
-        turn_end: 'ターン終了',
+        dictatorship: "独裁フェーズ",
+        subordinate_consultation: "部下相談フェーズ",
+        subordinate_turn: "部下ターン",
+        boss_turn: "上司ターン",
+        turn_end: "ターン終了",
       };
 
       addNotification({
-        type: 'game-event',
+        type: "game-event",
         message: `${phaseNames[game.phase] || game.phase}に移行しました`,
       });
     }
@@ -76,8 +76,8 @@ export function useGameNotifications(gameId: string) {
       if (prevPlayer && player.life !== prevPlayer.life) {
         const change = player.life - prevPlayer.life;
         addNotification({
-          type: change > 0 ? 'life-gain' : 'life-loss',
-          message: `${player.name}のライフが${Math.abs(change)}${change > 0 ? '回復' : 'ダメージ'}しました`,
+          type: change > 0 ? "life-gain" : "life-loss",
+          message: `${player.name}のライフが${Math.abs(change)}${change > 0 ? "回復" : "ダメージ"}しました`,
           playerId: player.id,
         });
       }
@@ -86,7 +86,7 @@ export function useGameNotifications(gameId: string) {
     // ターン数変更通知
     if (game.turnCount !== prevGame.turnCount) {
       addNotification({
-        type: 'game-event',
+        type: "game-event",
         message: `ターン${game.turnCount}が開始されました`,
       });
     }
@@ -104,7 +104,7 @@ export function useGameNotifications(gameId: string) {
   }, []);
 
   const addNotification = (
-    notification: Omit<GameNotification, 'id' | 'timestamp'>
+    notification: Omit<GameNotification, "id" | "timestamp">,
   ) => {
     const newNotification: GameNotification = {
       ...notification,
@@ -117,11 +117,11 @@ export function useGameNotifications(gameId: string) {
     // 5秒後に自動削除
     const timeoutId = setTimeout(() => {
       setNotifications((prev) =>
-        prev.filter((n) => n.id !== newNotification.id)
+        prev.filter((n) => n.id !== newNotification.id),
       );
       // タイムアウト完了後、配列から削除
       timeoutIdsRef.current = timeoutIdsRef.current.filter(
-        (id) => id !== timeoutId
+        (id) => id !== timeoutId,
       );
     }, 5000);
 

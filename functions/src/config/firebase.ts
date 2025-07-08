@@ -2,8 +2,8 @@
  * Firebase Admin設定
  */
 
-import {setGlobalOptions} from "firebase-functions";
-import {initializeApp} from "firebase-admin/app";
+import { setGlobalOptions } from "firebase-functions";
+import { initializeApp } from "firebase-admin/app";
 
 // Firebase Admin初期化
 initializeApp();

@@ -1,7 +1,7 @@
-import { FirebaseGame, FirebaseGamePlayer } from './types';
-import { GAME_CONFIG, VICTORY_CONDITIONS } from './constants';
-import { CardUtils } from './card-data';
-import { gameRandom } from './random';
+import { FirebaseGame, FirebaseGamePlayer } from "./types";
+import { GAME_CONFIG, VICTORY_CONDITIONS } from "./constants";
+import { CardUtils } from "./card-data";
+import { gameRandom } from "./random";
 
 /**
  * ゲームロジック関連のユーティリティ関数
@@ -21,30 +21,30 @@ export function validateCardPlay(
   game: FirebaseGame,
   playerId: string,
   cardId: string,
-  targetPlayerId?: string
+  targetPlayerId?: string,
 ): CardPlayValidation {
   const player = game.players[playerId];
   if (!player) {
-    return { isValid: false, error: 'プレイヤーが見つかりません' };
+    return { isValid: false, error: "プレイヤーが見つかりません" };
   }
 
   // プレイヤーのターンかチェック
   const currentPlayer = getCurrentPlayer(game);
   if (!currentPlayer || currentPlayer.id !== playerId) {
-    return { isValid: false, error: 'あなたのターンではありません' };
+    return { isValid: false, error: "あなたのターンではありません" };
   }
 
   // カードの存在確認
   const card = CardUtils.findById(cardId);
   if (!card) {
-    return { isValid: false, error: 'カードが見つかりません' };
+    return { isValid: false, error: "カードが見つかりません" };
   }
 
   // 攻撃カードの場合、ターゲットが必要
-  if (card.category === 'attack' && !targetPlayerId) {
+  if (card.category === "attack" && !targetPlayerId) {
     return {
       isValid: false,
-      error: 'ターゲットを選択してください',
+      error: "ターゲットを選択してください",
       requiredTarget: true,
     };
   }
@@ -53,20 +53,20 @@ export function validateCardPlay(
   if (targetPlayerId) {
     const targetPlayer = game.players[targetPlayerId];
     if (!targetPlayer) {
-      return { isValid: false, error: 'ターゲットプレイヤーが見つかりません' };
+      return { isValid: false, error: "ターゲットプレイヤーが見つかりません" };
     }
 
     // 攻撃カードの場合、敵対陣営のみターゲット可能
-    if (card.category === 'attack') {
+    if (card.category === "attack") {
       if (player.role === targetPlayer.role) {
-        return { isValid: false, error: '同じ陣営は攻撃できません' };
+        return { isValid: false, error: "同じ陣営は攻撃できません" };
       }
     }
 
     // 回復カードの場合、同じ陣営のみターゲット可能
-    if (card.category === 'recovery' && targetPlayerId !== playerId) {
+    if (card.category === "recovery" && targetPlayerId !== playerId) {
       if (player.role !== targetPlayer.role) {
-        return { isValid: false, error: '敵対陣営は回復できません' };
+        return { isValid: false, error: "敵対陣営は回復できません" };
       }
     }
   }
@@ -78,7 +78,7 @@ export function validateCardPlay(
  * 現在のプレイヤーを取得
  */
 export function getCurrentPlayer(
-  game: FirebaseGame
+  game: FirebaseGame,
 ): FirebaseGamePlayer | null {
   // Use stored playerOrder for consistent indexing instead of Object.keys()
   const playerIds = game.playerOrder || Object.keys(game.players);
@@ -101,7 +101,7 @@ export function applyCardEffect(
   game: FirebaseGame,
   playerId: string,
   cardId: string,
-  targetPlayerId?: string
+  targetPlayerId?: string,
 ): CardEffectResult {
   const card = CardUtils.findById(cardId);
   const player = game.players[playerId];
@@ -111,22 +111,22 @@ export function applyCardEffect(
       success: false,
       playerUpdates: {},
       gameStateUpdates: {},
-      logMessage: '',
-      error: 'カードまたはプレイヤーが見つかりません',
+      logMessage: "",
+      error: "カードまたはプレイヤーが見つかりません",
     };
   }
 
   switch (card.category) {
-    case 'attack':
+    case "attack":
       return applyAttackCard(game, player, targetPlayerId);
 
-    case 'defense':
+    case "defense":
       return applyDefenseCard(game, player);
 
-    case 'recovery':
+    case "recovery":
       return applyRecoveryCard(game, player, targetPlayerId);
 
-    case 'president':
+    case "president":
       return applyPresidentCard(game, player);
 
     default:
@@ -134,8 +134,8 @@ export function applyCardEffect(
         success: false,
         playerUpdates: {},
         gameStateUpdates: {},
-        logMessage: '',
-        error: '未対応のカードタイプです',
+        logMessage: "",
+        error: "未対応のカードタイプです",
       };
   }
 }
@@ -146,15 +146,15 @@ export function applyCardEffect(
 function applyAttackCard(
   game: FirebaseGame,
   player: FirebaseGamePlayer,
-  targetPlayerId?: string
+  targetPlayerId?: string,
 ): CardEffectResult {
   if (!targetPlayerId) {
     return {
       success: false,
       playerUpdates: {},
       gameStateUpdates: {},
-      logMessage: '',
-      error: 'ターゲットが指定されていません',
+      logMessage: "",
+      error: "ターゲットが指定されていません",
     };
   }
 
@@ -164,14 +164,14 @@ function applyAttackCard(
       success: false,
       playerUpdates: {},
       gameStateUpdates: {},
-      logMessage: '',
-      error: 'ターゲットプレイヤーが見つかりません',
+      logMessage: "",
+      error: "ターゲットプレイヤーが見つかりません",
     };
   }
 
   const playerUpdates: Record<string, Partial<FirebaseGamePlayer>> = {};
 
-  if (player.role === 'subordinate') {
+  if (player.role === "subordinate") {
     // 部下：自身のライフを-1して上司に1ダメージ
     playerUpdates[player.id] = {
       life: Math.max(0, player.life - 1),
@@ -206,7 +206,7 @@ function applyAttackCard(
  */
 function applyDefenseCard(
   game: FirebaseGame,
-  player: FirebaseGamePlayer
+  player: FirebaseGamePlayer,
 ): CardEffectResult {
   // 防御カードは場に出すか、直接使用でダメージ軽減
   // 今回は簡単な実装として、次のダメージを1軽減する効果を付与
@@ -230,7 +230,7 @@ function applyDefenseCard(
 function applyRecoveryCard(
   game: FirebaseGame,
   player: FirebaseGamePlayer,
-  targetPlayerId?: string
+  targetPlayerId?: string,
 ): CardEffectResult {
   const targetId = targetPlayerId || player.id;
   const targetPlayer = game.players[targetId];
@@ -240,14 +240,14 @@ function applyRecoveryCard(
       success: false,
       playerUpdates: {},
       gameStateUpdates: {},
-      logMessage: '',
-      error: 'ターゲットプレイヤーが見つかりません',
+      logMessage: "",
+      error: "ターゲットプレイヤーが見つかりません",
     };
   }
 
   const playerUpdates: Record<string, Partial<FirebaseGamePlayer>> = {};
 
-  if (player.role === 'subordinate') {
+  if (player.role === "subordinate") {
     // 部下：部下陣営1人のライフ1回復、またはライフ0時にサイコロ偶数で復活
     if (targetPlayer.life === 0) {
       // 復活判定（サイコロ）
@@ -300,7 +300,7 @@ function applyRecoveryCard(
  */
 function applyPresidentCard(
   game: FirebaseGame,
-  player: FirebaseGamePlayer
+  player: FirebaseGamePlayer,
 ): CardEffectResult {
   // 社長カードは場に配置される
   // 既に場に社長カードがある場合は使用不可
@@ -309,19 +309,19 @@ function applyPresidentCard(
       success: false,
       playerUpdates: {},
       gameStateUpdates: {},
-      logMessage: '',
-      error: '場に既に社長カードが配置されています',
+      logMessage: "",
+      error: "場に既に社長カードが配置されています",
     };
   }
 
-  const presidentCard = CardUtils.findById('president_001'); // 仮のID
+  const presidentCard = CardUtils.findById("president_001"); // 仮のID
   if (!presidentCard) {
     return {
       success: false,
       playerUpdates: {},
       gameStateUpdates: {},
-      logMessage: '',
-      error: '社長カードが見つかりません',
+      logMessage: "",
+      error: "社長カードが見つかりません",
     };
   }
 
@@ -345,21 +345,21 @@ function applyPresidentCard(
  */
 export interface GameEndCheck {
   isGameEnd: boolean;
-  winner?: 'boss' | 'subordinate';
+  winner?: "boss" | "subordinate";
   reason?: string;
 }
 
 export function checkFirebaseGameEnd(game: FirebaseGame): GameEndCheck {
   const players = Object.values(game.players);
-  const bossPlayer = players.find((p) => p.role === 'boss');
-  const subordinatePlayers = players.filter((p) => p.role === 'subordinate');
+  const bossPlayer = players.find((p) => p.role === "boss");
+  const subordinatePlayers = players.filter((p) => p.role === "subordinate");
 
   // 上司のライフが0の場合、部下勝利
   if (bossPlayer && bossPlayer.life <= 0) {
     return {
       isGameEnd: true,
-      winner: 'subordinate',
-      reason: '上司のライフが0になりました',
+      winner: "subordinate",
+      reason: "上司のライフが0になりました",
     };
   }
 
@@ -370,8 +370,8 @@ export function checkFirebaseGameEnd(game: FirebaseGame): GameEndCheck {
   ) {
     return {
       isGameEnd: true,
-      winner: 'boss',
-      reason: '部下3人以上がライフ0になりました',
+      winner: "boss",
+      reason: "部下3人以上がライフ0になりました",
     };
   }
 
@@ -379,8 +379,8 @@ export function checkFirebaseGameEnd(game: FirebaseGame): GameEndCheck {
   if (game.turnCount >= VICTORY_CONDITIONS.SUBORDINATE_WIN_TURNS) {
     return {
       isGameEnd: true,
-      winner: 'subordinate',
-      reason: '5ターンが経過しました',
+      winner: "subordinate",
+      reason: "5ターンが経過しました",
     };
   }
 
@@ -398,36 +398,36 @@ export function getNextFirebasePlayerIndex(game: FirebaseGame): number {
 /**
  * 次のフェーズを計算
  */
-export function getNextPhase(game: FirebaseGame): FirebaseGame['phase'] {
+export function getNextPhase(game: FirebaseGame): FirebaseGame["phase"] {
   const currentPhase = game.phase;
 
   switch (currentPhase) {
-    case 'dictatorship':
-      return 'subordinate_consultation';
+    case "dictatorship":
+      return "subordinate_consultation";
 
-    case 'subordinate_consultation':
-      return 'subordinate_turn';
+    case "subordinate_consultation":
+      return "subordinate_turn";
 
-    case 'subordinate_turn': {
+    case "subordinate_turn": {
       // 次のプレイヤーの役割をチェックして上司ターンかどうか判定
       const nextPlayerIndex = getNextFirebasePlayerIndex(game);
       const playerIds = game.playerOrder || Object.keys(game.players);
       const nextPlayerId = playerIds[nextPlayerIndex];
       const nextPlayer = nextPlayerId ? game.players[nextPlayerId] : null;
 
-      if (nextPlayer && nextPlayer.role === 'boss') {
-        return 'boss_turn';
+      if (nextPlayer && nextPlayer.role === "boss") {
+        return "boss_turn";
       }
-      return 'subordinate_turn';
+      return "subordinate_turn";
     }
 
-    case 'boss_turn':
-      return 'turn_end';
+    case "boss_turn":
+      return "turn_end";
 
-    case 'turn_end':
-      return 'dictatorship';
+    case "turn_end":
+      return "dictatorship";
 
     default:
-      return 'dictatorship';
+      return "dictatorship";
   }
 }

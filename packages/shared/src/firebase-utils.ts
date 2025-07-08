@@ -1,5 +1,5 @@
-import { FirebaseGame, FirebaseGamePlayer, GAME_CONFIG } from './';
-import { NonDeterministicRandom } from './random';
+import { FirebaseGame, FirebaseGamePlayer, GAME_CONFIG } from "./";
+import { NonDeterministicRandom } from "./random";
 
 // Firebase Realtime Database用ユーティリティ関数
 
@@ -22,19 +22,19 @@ export function generatePlayerId(): string {
  */
 export function checkGameVictory(game: FirebaseGame): {
   isGameOver: boolean;
-  winner?: 'boss' | 'subordinate';
+  winner?: "boss" | "subordinate";
   reason?: string;
 } {
   const players = Object.values(game.players);
-  const boss = players.find((p) => p.role === 'boss');
-  const subordinates = players.filter((p) => p.role === 'subordinate');
+  const boss = players.find((p) => p.role === "boss");
+  const subordinates = players.filter((p) => p.role === "subordinate");
 
   // 上司のライフが0
   if (boss && boss.life <= 0) {
     return {
       isGameOver: true,
-      winner: 'subordinate',
-      reason: 'boss_defeated',
+      winner: "subordinate",
+      reason: "boss_defeated",
     };
   }
 
@@ -43,8 +43,8 @@ export function checkGameVictory(game: FirebaseGame): {
   if (deadSubordinates.length >= 3) {
     return {
       isGameOver: true,
-      winner: 'boss',
-      reason: 'subordinates_defeated',
+      winner: "boss",
+      reason: "subordinates_defeated",
     };
   }
 
@@ -52,8 +52,8 @@ export function checkGameVictory(game: FirebaseGame): {
   if (game.turnCount >= GAME_CONFIG.MAX_TURNS) {
     return {
       isGameOver: true,
-      winner: 'subordinate',
-      reason: 'turn_limit',
+      winner: "subordinate",
+      reason: "turn_limit",
     };
   }
 
@@ -65,15 +65,15 @@ export function checkGameVictory(game: FirebaseGame): {
  */
 export function getNextSubordinateIndex(
   currentIndex: number,
-  players: Record<string, FirebaseGamePlayer>
+  players: Record<string, FirebaseGamePlayer>,
 ): number {
   const playerArray = Object.values(players);
-  const subordinates = playerArray.filter((p) => p.role === 'subordinate');
+  const subordinates = playerArray.filter((p) => p.role === "subordinate");
 
   if (subordinates.length === 0) return -1;
 
   const currentSubordinateIndex = subordinates.findIndex(
-    (_, index) => index === currentIndex
+    (_, index) => index === currentIndex,
   );
   const nextIndex = (currentSubordinateIndex + 1) % subordinates.length;
 
@@ -85,15 +85,15 @@ export function getNextSubordinateIndex(
  */
 export function canSubmitResignationFirebase(
   playerId: string,
-  players: Record<string, FirebaseGamePlayer>
+  players: Record<string, FirebaseGamePlayer>,
 ): boolean {
   const player = players[playerId];
-  if (!player || player.role !== 'subordinate' || player.life <= 0) {
+  if (!player || player.role !== "subordinate" || player.life <= 0) {
     return false;
   }
 
   const aliveSubordinates = Object.values(players).filter(
-    (p) => p.role === 'subordinate' && p.life > 0
+    (p) => p.role === "subordinate" && p.life > 0,
   );
 
   return aliveSubordinates.length <= 3;
@@ -104,14 +104,14 @@ export function canSubmitResignationFirebase(
  */
 export const FirebasePaths = {
   // ルーム関連
-  rooms: () => 'rooms',
+  rooms: () => "rooms",
   room: (roomId: string) => `rooms/${roomId}`,
   roomPlayers: (roomId: string) => `rooms/${roomId}/players`,
   roomPlayer: (roomId: string, playerId: string) =>
     `rooms/${roomId}/players/${playerId}`,
 
   // ゲーム関連
-  games: () => 'games',
+  games: () => "games",
   game: (gameId: string) => `games/${gameId}`,
   gamePlayers: (gameId: string) => `games/${gameId}/players`,
   gamePlayer: (gameId: string, playerId: string) =>
@@ -139,27 +139,27 @@ export function handleFirebaseError(error: any): {
 } {
   if (error?.code) {
     switch (error.code) {
-      case 'PERMISSION_DENIED':
+      case "PERMISSION_DENIED":
         return {
-          code: 'PERMISSION_DENIED',
-          message: 'アクセス権限がありません',
+          code: "PERMISSION_DENIED",
+          message: "アクセス権限がありません",
         };
-      case 'NETWORK_ERROR':
+      case "NETWORK_ERROR":
         return {
-          code: 'NETWORK_ERROR',
-          message: 'ネットワークエラーが発生しました',
+          code: "NETWORK_ERROR",
+          message: "ネットワークエラーが発生しました",
         };
       default:
         return {
           code: error.code,
-          message: error.message || '不明なエラーが発生しました',
+          message: error.message || "不明なエラーが発生しました",
         };
     }
   }
 
   return {
-    code: 'UNKNOWN_ERROR',
-    message: 'エラーが発生しました',
+    code: "UNKNOWN_ERROR",
+    message: "エラーが発生しました",
   };
 }
 

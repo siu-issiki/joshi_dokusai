@@ -2,11 +2,11 @@
  * 独裁カードサービス
  */
 
-import {onCall} from "firebase-functions/v2/https";
-import {getDatabase} from "firebase-admin/database";
+import { onCall } from "firebase-functions/v2/https";
+import { getDatabase } from "firebase-admin/database";
 import * as logger from "firebase-functions/logger";
 
-import {GAME_CONFIG, getNextPhase} from "@joshi-dokusai/shared";
+import { GAME_CONFIG, getNextPhase } from "@joshi-dokusai/shared";
 
 interface DatabaseUpdate {
   [key: string]: unknown;
@@ -16,14 +16,14 @@ interface DatabaseUpdate {
  * 独裁フェーズ処理Function（ターン開始時に自動実行）
  */
 export const processDictatorshipPhase = onCall(async (request) => {
-  const {gameId} = request.data;
+  const { gameId } = request.data;
   const uid = request.auth?.uid;
 
   if (!uid) {
     throw new Error("認証が必要です");
   }
 
-  logger.info("Processing dictatorship phase", {gameId, uid});
+  logger.info("Processing dictatorship phase", { gameId, uid });
 
   const db = getDatabase();
 
@@ -69,8 +69,8 @@ export const processDictatorshipPhase = onCall(async (request) => {
         isNullified: false,
       },
       "gameState/dictatorshipDeck": remainingDeck,
-      "phase": nextPhase, // フェーズを自動的に進める
-      "lastUpdated": Date.now(),
+      phase: nextPhase, // フェーズを自動的に進める
+      lastUpdated: Date.now(),
     };
 
     await gameRef.update(updates);
@@ -98,7 +98,7 @@ export const processDictatorshipPhase = onCall(async (request) => {
       nextPhase,
     });
 
-    return {success: true, card: drawnCard, nextPhase};
+    return { success: true, card: drawnCard, nextPhase };
   } catch (error) {
     logger.error("Error processing dictatorship phase", error);
     throw error;
@@ -109,14 +109,14 @@ export const processDictatorshipPhase = onCall(async (request) => {
  * 独裁カード無効化Function
  */
 export const nullifyDictatorshipCard = onCall(async (request) => {
-  const {gameId} = request.data;
+  const { gameId } = request.data;
   const uid = request.auth?.uid;
 
   if (!uid) {
     throw new Error("認証が必要です");
   }
 
-  logger.info("Nullifying dictatorship card", {gameId, uid});
+  logger.info("Nullifying dictatorship card", { gameId, uid });
 
   const db = getDatabase();
 
@@ -146,14 +146,14 @@ export const nullifyDictatorshipCard = onCall(async (request) => {
     const nullificationsUsed =
       game.gameState.dictatorshipEffects.nullificationsUsed;
     const maxNullifications =
-      playerCount === 5 ?
-        GAME_CONFIG.NULLIFICATION_LIMIT_4_PLAYERS :
-        GAME_CONFIG.NULLIFICATION_LIMIT_3_PLAYERS;
+      playerCount === 5
+        ? GAME_CONFIG.NULLIFICATION_LIMIT_4_PLAYERS
+        : GAME_CONFIG.NULLIFICATION_LIMIT_3_PLAYERS;
 
     const currentNullifications =
-      playerCount === 5 ?
-        nullificationsUsed.boss4Players :
-        nullificationsUsed.boss3Players;
+      playerCount === 5
+        ? nullificationsUsed.boss4Players
+        : nullificationsUsed.boss3Players;
 
     if (currentNullifications >= maxNullifications) {
       throw new Error("無効化回数の上限に達しています");
@@ -162,7 +162,7 @@ export const nullifyDictatorshipCard = onCall(async (request) => {
     // 独裁カードを無効化
     const updates: DatabaseUpdate = {
       "gameState/dictatorshipEffects/currentCard/isNullified": true,
-      "lastUpdated": Date.now(),
+      lastUpdated: Date.now(),
     };
 
     // 無効化回数を増加
@@ -190,9 +190,9 @@ export const nullifyDictatorshipCard = onCall(async (request) => {
 
     await gameRef.child("turnHistory").push(turnAction);
 
-    logger.info("Dictatorship card nullified successfully", {gameId, uid});
+    logger.info("Dictatorship card nullified successfully", { gameId, uid });
 
-    return {success: true};
+    return { success: true };
   } catch (error) {
     logger.error("Error nullifying dictatorship card", error);
     throw error;
@@ -203,14 +203,14 @@ export const nullifyDictatorshipCard = onCall(async (request) => {
  * 部下相談フェーズ終了Function（部下相談が終了した時に呼ばれる）
  */
 export const endSubordinateConsultation = onCall(async (request) => {
-  const {gameId} = request.data;
+  const { gameId } = request.data;
   const uid = request.auth?.uid;
 
   if (!uid) {
     throw new Error("認証が必要です");
   }
 
-  logger.info("Ending subordinate consultation", {gameId, uid});
+  logger.info("Ending subordinate consultation", { gameId, uid });
 
   const db = getDatabase();
 
@@ -266,7 +266,7 @@ export const endSubordinateConsultation = onCall(async (request) => {
       nextPhase,
     });
 
-    return {success: true, nextPhase};
+    return { success: true, nextPhase };
   } catch (error) {
     logger.error("Error ending subordinate consultation", error);
     throw error;

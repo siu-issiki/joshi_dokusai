@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import GameBoard from '@/components/GameBoard';
-import { useAuth } from '@/lib/auth';
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import GameBoard from "@/components/GameBoard";
+import { useAuth } from "@/lib/auth";
 
 function GamePageContent() {
   const searchParams = useSearchParams();
-  const gameId = searchParams.get('id') || '';
+  const gameId = searchParams.get("id") || "";
   const { user, loading: authLoading, autoSignIn } = useAuth();
 
   // 認証チェック

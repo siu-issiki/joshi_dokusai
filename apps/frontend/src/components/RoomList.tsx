@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRooms } from '@/hooks/useRooms';
-import { useRouter } from 'next/navigation';
-import { FirebaseRoom, FirebaseRoomPlayer } from '@joshi-dokusai/shared';
+import { useState, useEffect } from "react";
+import { useRooms } from "@/hooks/useRooms";
+import { useRouter } from "next/navigation";
+import { FirebaseRoom, FirebaseRoomPlayer } from "@joshi-dokusai/shared";
 
 interface RoomCardProps {
   room: FirebaseRoom;
@@ -30,8 +30,8 @@ function RoomCard({ room, onJoin }: RoomCardProps) {
             {room.name}
           </h3>
           <p className="text-sm text-gray-600">
-            作成者:{' '}
-            {room.createdByName || room.players[room.createdBy]?.name || '不明'}
+            作成者:{" "}
+            {room.createdByName || room.players[room.createdBy]?.name || "不明"}
           </p>
         </div>
         {room.isPrivate && (
@@ -68,15 +68,15 @@ function RoomCard({ room, onJoin }: RoomCardProps) {
           disabled={isJoining || room.currentPlayers >= room.maxPlayers}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
             room.currentPlayers >= room.maxPlayers
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700'
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700"
           }`}
         >
           {isJoining
-            ? '参加中...'
+            ? "参加中..."
             : room.currentPlayers >= room.maxPlayers
-              ? '満員'
-              : '参加'}
+              ? "満員"
+              : "参加"}
         </button>
       </div>
     </div>
@@ -91,7 +91,7 @@ interface CreateRoomModalProps {
     maxPlayers: number,
     isPrivate: boolean,
     playerName: string,
-    password?: string
+    password?: string,
   ) => Promise<void>;
 }
 
@@ -100,18 +100,18 @@ function CreateRoomModal({
   onClose,
   onCreateRoom,
 }: CreateRoomModalProps) {
-  const [roomName, setRoomName] = useState('');
-  const [playerName, setPlayerName] = useState('');
+  const [roomName, setRoomName] = useState("");
+  const [playerName, setPlayerName] = useState("");
   const [maxPlayers, setMaxPlayers] = useState(5);
   const [isPrivate, setIsPrivate] = useState(false);
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // プレイヤー名の初期値設定
   useEffect(() => {
     if (isOpen) {
-      const savedName = localStorage.getItem('playerName');
+      const savedName = localStorage.getItem("playerName");
       if (savedName) {
         setPlayerName(savedName);
       }
@@ -126,14 +126,14 @@ function CreateRoomModal({
     try {
       await onCreateRoom(roomName, maxPlayers, isPrivate, playerName, password);
       // 成功時はモーダルを閉じる
-      setRoomName('');
-      setPlayerName('');
-      setPassword('');
+      setRoomName("");
+      setPlayerName("");
+      setPassword("");
       setIsPrivate(false);
       setMaxPlayers(5);
       onClose();
     } catch (error) {
-      const message = error instanceof Error ? error.message : '不明なエラー';
+      const message = error instanceof Error ? error.message : "不明なエラー";
       setError(message);
     } finally {
       setIsCreating(false);
@@ -241,7 +241,7 @@ function CreateRoomModal({
               disabled={isCreating}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {isCreating ? '作成中...' : '作成'}
+              {isCreating ? "作成中..." : "作成"}
             </button>
           </div>
         </form>
@@ -264,14 +264,14 @@ export default function RoomList() {
     maxPlayers: number,
     isPrivate: boolean,
     playerName: string,
-    password?: string
+    password?: string,
   ) => {
     const roomId = await createRoom(
       name,
       maxPlayers,
       isPrivate,
       playerName,
-      password
+      password,
     );
     router.push(`/room?id=${roomId}`);
   };

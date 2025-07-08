@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import RoomList from '@/components/RoomList';
-import { useAuth } from '@/lib/auth';
+import RoomList from "@/components/RoomList";
+import { useAuth } from "@/lib/auth";
 
 export default function Home() {
   const { user, loading, autoSignIn } = useAuth();

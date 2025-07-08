@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, createContext, useContext } from 'react';
-import { auth } from './firebase';
+import React, { useState, useEffect, createContext, useContext } from "react";
+import { auth } from "./firebase";
 import {
   signInAnonymously,
   onAuthStateChanged,
   User,
   signOut as firebaseSignOut,
-} from 'firebase/auth';
+} from "firebase/auth";
 
 // 認証コンテキストの型定義
 interface AuthContextType {
@@ -26,16 +26,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // 匿名認証でサインイン
 export async function signInAnonymous(): Promise<User> {
   if (!auth) {
-    throw new Error('Firebase認証が初期化されていません');
+    throw new Error("Firebase認証が初期化されていません");
   }
 
   try {
     const result = await signInAnonymously(auth);
-    console.log('匿名認証成功:', result.user.uid);
+    console.log("匿名認証成功:", result.user.uid);
     return result.user;
   } catch (error) {
-    console.error('認証エラー:', error);
-    const message = error instanceof Error ? error.message : '不明なエラー';
+    console.error("認証エラー:", error);
+    const message = error instanceof Error ? error.message : "不明なエラー";
     throw new Error(`認証に失敗しました: ${message}`);
   }
 }
@@ -43,15 +43,15 @@ export async function signInAnonymous(): Promise<User> {
 // サインアウト
 export async function signOut(): Promise<void> {
   if (!auth) {
-    throw new Error('Firebase認証が初期化されていません');
+    throw new Error("Firebase認証が初期化されていません");
   }
 
   try {
     await firebaseSignOut(auth);
-    console.log('サインアウト成功');
+    console.log("サインアウト成功");
   } catch (error) {
-    console.error('サインアウトエラー:', error);
-    const message = error instanceof Error ? error.message : '不明なエラー';
+    console.error("サインアウトエラー:", error);
+    const message = error instanceof Error ? error.message : "不明なエラー";
     throw new Error(`サインアウトに失敗しました: ${message}`);
   }
 }
@@ -60,7 +60,7 @@ export async function signOut(): Promise<void> {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
@@ -85,10 +85,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setError(null);
 
         if (user) {
-          console.log('認証状態変更: ログイン済み', user.uid);
+          console.log("認証状態変更: ログイン済み", user.uid);
           setLoading(false);
         } else {
-          console.log('認証状態変更: 未ログイン');
+          console.log("認証状態変更: 未ログイン");
           // ユーザーが存在せず、まだ自動サインインを試していない場合に実行
           if (!hasTriedAutoSignIn) {
             setHasTriedAutoSignIn(true);
@@ -101,10 +101,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       },
       (error) => {
-        console.error('認証状態監視エラー:', error);
-        setError('認証状態の監視でエラーが発生しました');
+        console.error("認証状態監視エラー:", error);
+        setError("認証状態の監視でエラーが発生しました");
         setLoading(false);
-      }
+      },
     );
 
     return unsubscribe;
@@ -117,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await signInAnonymous();
       // 成功時はonAuthStateChangedでloadingがfalseになる
     } catch (error) {
-      const message = error instanceof Error ? error.message : '不明なエラー';
+      const message = error instanceof Error ? error.message : "不明なエラー";
       setError(message);
       setLoading(false);
     }
@@ -140,25 +140,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 // プレイヤー名を管理するカスタムフック
 export function usePlayerName() {
-  const [playerName, setPlayerName] = useState<string>('');
+  const [playerName, setPlayerName] = useState<string>("");
   const { user } = useAuth();
 
   useEffect(() => {
     // ローカルストレージからプレイヤー名を復元
-    const savedName = localStorage.getItem('playerName');
+    const savedName = localStorage.getItem("playerName");
     if (savedName) {
       setPlayerName(savedName);
     } else if (user) {
       // デフォルト名を設定
       const defaultName = `プレイヤー${user.uid.slice(-4)}`;
       setPlayerName(defaultName);
-      localStorage.setItem('playerName', defaultName);
+      localStorage.setItem("playerName", defaultName);
     }
   }, [user]);
 
   const updatePlayerName = (name: string) => {
     setPlayerName(name);
-    localStorage.setItem('playerName', name);
+    localStorage.setItem("playerName", name);
   };
 
   return {
@@ -169,7 +169,7 @@ export function usePlayerName() {
 
 // 認証が必要なコンポーネントをラップするHOC
 export function withAuth<P extends object>(
-  Component: React.ComponentType<P>
+  Component: React.ComponentType<P>,
 ): React.ComponentType<P> {
   return function AuthenticatedComponent(props: P) {
     const { user, loading, autoSignIn } = useAuth();

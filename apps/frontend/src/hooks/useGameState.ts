@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { database } from '@/lib/firebase';
-import { ref, onValue } from 'firebase/database';
-import { FirebaseGame, FirebasePaths } from '@joshi-dokusai/shared';
+import { useState, useEffect } from "react";
+import { database } from "@/lib/firebase";
+import { ref, onValue } from "firebase/database";
+import { FirebaseGame, FirebasePaths } from "@joshi-dokusai/shared";
 
 /**
  * ゲーム状態管理フック
@@ -29,16 +29,16 @@ export function useGameState(gameId: string) {
           setLoading(false);
           setError(null);
         } catch (err) {
-          console.error('Game state parsing error:', err);
-          setError('ゲーム状態の解析に失敗しました');
+          console.error("Game state parsing error:", err);
+          setError("ゲーム状態の解析に失敗しました");
           setLoading(false);
         }
       },
       (error) => {
-        console.error('Game state error:', error);
-        setError('ゲーム状態の取得に失敗しました');
+        console.error("Game state error:", error);
+        setError("ゲーム状態の取得に失敗しました");
         setLoading(false);
-      }
+      },
     );
 
     return () => {

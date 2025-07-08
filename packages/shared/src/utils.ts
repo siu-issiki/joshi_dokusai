@@ -4,16 +4,16 @@ import {
   GAME_CONFIG,
   VICTORY_CONDITIONS,
   FirebaseRoom,
-} from './';
-import { gameRandom, NonDeterministicRandom } from './random';
+} from "./";
+import { gameRandom, NonDeterministicRandom } from "./random";
 
 // ゲームユーティリティ関数
 
 /**
  * プレイヤーの役割を判定
  */
-export function getPlayerRole(playerIndex: number): 'boss' | 'subordinate' {
-  return playerIndex === 0 ? 'boss' : 'subordinate';
+export function getPlayerRole(playerIndex: number): "boss" | "subordinate" {
+  return playerIndex === 0 ? "boss" : "subordinate";
 }
 
 /**
@@ -21,7 +21,7 @@ export function getPlayerRole(playerIndex: number): 'boss' | 'subordinate' {
  */
 export function getAliveSubordinatesCount(players: Player[]): number {
   return players.filter(
-    (player) => player.role === 'subordinate' && player.life > 0
+    (player) => player.role === "subordinate" && player.life > 0,
   ).length;
 }
 
@@ -40,7 +40,7 @@ export function checkBossVictory(players: Player[]): boolean {
  * 部下の勝利条件をチェック
  */
 export function checkSubordinateVictory(gameState: GameState): boolean {
-  const boss = gameState.players.find((p) => p.role === 'boss');
+  const boss = gameState.players.find((p) => p.role === "boss");
   if (!boss) return false;
 
   // 上司のライフが0
@@ -61,14 +61,14 @@ export function checkSubordinateVictory(gameState: GameState): boolean {
  */
 export function checkGameEnd(gameState: GameState): {
   isEnded: boolean;
-  winner?: 'boss' | 'subordinate';
+  winner?: "boss" | "subordinate";
 } {
   if (checkBossVictory(gameState.players)) {
-    return { isEnded: true, winner: 'boss' };
+    return { isEnded: true, winner: "boss" };
   }
 
   if (checkSubordinateVictory(gameState)) {
-    return { isEnded: true, winner: 'subordinate' };
+    return { isEnded: true, winner: "subordinate" };
   }
 
   return { isEnded: false };
@@ -79,7 +79,7 @@ export function checkGameEnd(gameState: GameState): {
  */
 export function getNextPlayerIndex(
   currentIndex: number,
-  players: Player[]
+  players: Player[],
 ): number {
   let nextIndex = (currentIndex + 1) % players.length;
 
@@ -96,10 +96,10 @@ export function getNextPlayerIndex(
  */
 export function canSubmitResignation(
   players: Player[],
-  playerId: string
+  playerId: string,
 ): boolean {
   const player = players.find((p) => p.id === playerId);
-  if (!player || player.role === 'boss' || player.life <= 0) {
+  if (!player || player.role === "boss" || player.life <= 0) {
     return false;
   }
 
@@ -112,7 +112,7 @@ export function canSubmitResignation(
  */
 export function calculateResignationDamage(
   currentLife: number,
-  maxLife: number = GAME_CONFIG.SUBORDINATE_INITIAL_LIFE
+  maxLife: number = GAME_CONFIG.SUBORDINATE_INITIAL_LIFE,
 ): number {
   return maxLife - currentLife;
 }
@@ -167,7 +167,7 @@ export function generateId(): string {
  * ルームIDを生成
  */
 export function generateRoomId(): string {
-  return 'room_' + generateId();
+  return "room_" + generateId();
 }
 
 /**

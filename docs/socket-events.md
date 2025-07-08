@@ -19,7 +19,7 @@ interface Player {
 
 interface Card {
   id: string;
-  suit: 'hearts' | 'diamonds' | 'clubs' | 'spades';
+  suit: "hearts" | "diamonds" | "clubs" | "spades";
   rank: number; // 1-13 (1=A, 11=J, 12=Q, 13=K)
   isVisible: boolean; // 公開カードかどうか
 }
@@ -28,7 +28,7 @@ interface GameState {
   id: string;
   players: Player[];
   currentPlayerIndex: number;
-  phase: 'waiting' | 'playing' | 'ended';
+  phase: "waiting" | "playing" | "ended";
   turnCount: number;
   lastAction?: GameAction;
   discardPile: Card[];
@@ -36,7 +36,7 @@ interface GameState {
 }
 
 interface GameAction {
-  type: 'play-card' | 'draw-card' | 'pass-turn';
+  type: "play-card" | "draw-card" | "pass-turn";
   playerId: string;
   timestamp: number;
   cardId?: string;
@@ -57,9 +57,11 @@ interface Room {
 ### 1. ルーム関連
 
 #### `create-room`
+
 新しいゲームルームを作成する。
 
 **Payload:**
+
 ```typescript
 interface CreateRoomPayload {
   roomName: string;
@@ -72,9 +74,11 @@ interface CreateRoomPayload {
 **Response:** `room-created` または `error`
 
 #### `join-room`
+
 既存のルームに参加する。
 
 **Payload:**
+
 ```typescript
 interface JoinRoomPayload {
   roomId: string;
@@ -86,6 +90,7 @@ interface JoinRoomPayload {
 **Response:** `room-joined` または `error`
 
 #### `leave-room`
+
 現在のルームから退出する。
 
 **Payload:** なし
@@ -93,6 +98,7 @@ interface JoinRoomPayload {
 **Response:** `room-left`
 
 #### `get-rooms`
+
 利用可能なルーム一覧を取得する。
 
 **Payload:** なし
@@ -102,9 +108,11 @@ interface JoinRoomPayload {
 ### 2. ゲーム準備
 
 #### `player-ready`
+
 ゲーム開始の準備完了を通知する。
 
 **Payload:**
+
 ```typescript
 interface PlayerReadyPayload {
   isReady: boolean;
@@ -114,6 +122,7 @@ interface PlayerReadyPayload {
 **Response:** `player-ready-updated`
 
 #### `start-game`
+
 ゲームを開始する（ルーム作成者のみ）。
 
 **Payload:** なし
@@ -123,9 +132,11 @@ interface PlayerReadyPayload {
 ### 3. ゲームアクション
 
 #### `play-card`
+
 カードをプレイする。
 
 **Payload:**
+
 ```typescript
 interface PlayCardPayload {
   cardId: string;
@@ -136,6 +147,7 @@ interface PlayCardPayload {
 **Response:** `action-result`
 
 #### `draw-card`
+
 デッキからカードを引く。
 
 **Payload:** なし
@@ -143,6 +155,7 @@ interface PlayCardPayload {
 **Response:** `action-result`
 
 #### `pass-turn`
+
 ターンをパスする。
 
 **Payload:** なし
@@ -154,9 +167,11 @@ interface PlayCardPayload {
 ### 1. ルーム関連
 
 #### `room-created`
+
 ルーム作成完了通知。
 
 **Payload:**
+
 ```typescript
 interface RoomCreatedPayload {
   room: Room;
@@ -165,9 +180,11 @@ interface RoomCreatedPayload {
 ```
 
 #### `room-joined`
+
 ルーム参加完了通知。
 
 **Payload:**
+
 ```typescript
 interface RoomJoinedPayload {
   room: Room;
@@ -177,14 +194,17 @@ interface RoomJoinedPayload {
 ```
 
 #### `room-left`
+
 ルーム退出完了通知。
 
 **Payload:** なし
 
 #### `rooms-list`
+
 利用可能なルーム一覧。
 
 **Payload:**
+
 ```typescript
 interface RoomsListPayload {
   rooms: Room[];
@@ -192,9 +212,11 @@ interface RoomsListPayload {
 ```
 
 #### `player-joined`
+
 他のプレイヤーがルームに参加した通知。
 
 **Payload:**
+
 ```typescript
 interface PlayerJoinedPayload {
   player: Player;
@@ -203,9 +225,11 @@ interface PlayerJoinedPayload {
 ```
 
 #### `player-left`
+
 プレイヤーがルームから退出した通知。
 
 **Payload:**
+
 ```typescript
 interface PlayerLeftPayload {
   playerId: string;
@@ -216,9 +240,11 @@ interface PlayerLeftPayload {
 ### 2. ゲーム状態
 
 #### `game-started`
+
 ゲーム開始通知。
 
 **Payload:**
+
 ```typescript
 interface GameStartedPayload {
   gameState: GameState;
@@ -227,9 +253,11 @@ interface GameStartedPayload {
 ```
 
 #### `game-state-updated`
+
 ゲーム状態更新通知。
 
 **Payload:**
+
 ```typescript
 interface GameStateUpdatedPayload {
   gameState: GameState;
@@ -239,9 +267,11 @@ interface GameStateUpdatedPayload {
 ```
 
 #### `game-ended`
+
 ゲーム終了通知。
 
 **Payload:**
+
 ```typescript
 interface GameEndedPayload {
   winner: Player;
@@ -251,9 +281,11 @@ interface GameEndedPayload {
 ```
 
 #### `player-ready-updated`
+
 プレイヤーの準備状態更新通知。
 
 **Payload:**
+
 ```typescript
 interface PlayerReadyUpdatedPayload {
   playerId: string;
@@ -265,9 +297,11 @@ interface PlayerReadyUpdatedPayload {
 ### 3. アクション結果
 
 #### `action-result`
+
 プレイヤーアクションの結果通知。
 
 **Payload:**
+
 ```typescript
 interface ActionResultPayload {
   success: boolean;
@@ -278,9 +312,11 @@ interface ActionResultPayload {
 ```
 
 #### `turn-changed`
+
 ターン変更通知。
 
 **Payload:**
+
 ```typescript
 interface TurnChangedPayload {
   currentPlayerId: string;
@@ -292,9 +328,11 @@ interface TurnChangedPayload {
 ### 4. エラー・通知
 
 #### `error`
+
 エラー通知。
 
 **Payload:**
+
 ```typescript
 interface ErrorPayload {
   code: string;
@@ -304,21 +342,25 @@ interface ErrorPayload {
 ```
 
 #### `notification`
+
 一般的な通知。
 
 **Payload:**
+
 ```typescript
 interface NotificationPayload {
-  type: 'info' | 'warning' | 'success';
+  type: "info" | "warning" | "success";
   message: string;
   duration?: number; // 表示時間（ミリ秒）
 }
 ```
 
 #### `player-disconnected`
+
 プレイヤー切断通知。
 
 **Payload:**
+
 ```typescript
 interface PlayerDisconnectedPayload {
   playerId: string;
@@ -327,9 +369,11 @@ interface PlayerDisconnectedPayload {
 ```
 
 #### `player-reconnected`
+
 プレイヤー再接続通知。
 
 **Payload:**
+
 ```typescript
 interface PlayerReconnectedPayload {
   playerId: string;
@@ -340,12 +384,14 @@ interface PlayerReconnectedPayload {
 ## エラーコード
 
 ### ルーム関連
+
 - `ROOM_NOT_FOUND`: ルームが見つからない
 - `ROOM_FULL`: ルームが満員
 - `INVALID_PASSWORD`: パスワードが間違っている
 - `ALREADY_IN_ROOM`: 既にルームに参加している
 
 ### ゲーム関連
+
 - `GAME_NOT_STARTED`: ゲームが開始されていない
 - `NOT_YOUR_TURN`: 自分のターンではない
 - `INVALID_CARD`: 無効なカード
@@ -353,6 +399,7 @@ interface PlayerReconnectedPayload {
 - `INVALID_ACTION`: 無効なアクション
 
 ### 接続関連
+
 - `CONNECTION_ERROR`: 接続エラー
 - `AUTHENTICATION_FAILED`: 認証失敗
 - `RATE_LIMIT_EXCEEDED`: レート制限超過
@@ -360,6 +407,7 @@ interface PlayerReconnectedPayload {
 ## 通信フロー例
 
 ### ゲーム開始までの流れ
+
 ```
 1. Client A → create-room
 2. Server → room-created (to Client A)
@@ -375,6 +423,7 @@ interface PlayerReconnectedPayload {
 ```
 
 ### カードプレイの流れ
+
 ```
 1. Client A → play-card
 2. Server → Validate action

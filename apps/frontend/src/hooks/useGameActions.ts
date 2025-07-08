@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '@/lib/firebase';
+import { useState } from "react";
+import { httpsCallable } from "firebase/functions";
+import { functions } from "@/lib/firebase";
 
 /**
  * ゲームアクションフック
@@ -12,19 +12,19 @@ export function useGameActions(gameId: string) {
 
   const startGame = async (roomId: string) => {
     if (!functions) {
-      throw new Error('Firebase Functions が初期化されていません');
+      throw new Error("Firebase Functions が初期化されていません");
     }
 
     setLoading(true);
     setError(null);
 
     try {
-      const startGameFunction = httpsCallable(functions, 'startGame');
+      const startGameFunction = httpsCallable(functions, "startGame");
       const result = await startGameFunction({ roomId });
       return result.data;
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : 'ゲーム開始に失敗しました';
+        error instanceof Error ? error.message : "ゲーム開始に失敗しました";
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -34,14 +34,14 @@ export function useGameActions(gameId: string) {
 
   const playCard = async (cardId: string, targetPlayerId?: string) => {
     if (!functions) {
-      throw new Error('Firebase Functions が初期化されていません');
+      throw new Error("Firebase Functions が初期化されていません");
     }
 
     setLoading(true);
     setError(null);
 
     try {
-      const playCardFunction = httpsCallable(functions, 'playCard');
+      const playCardFunction = httpsCallable(functions, "playCard");
       const result = await playCardFunction({
         gameId,
         cardId,
@@ -50,7 +50,7 @@ export function useGameActions(gameId: string) {
       return result.data;
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : 'カードの使用に失敗しました';
+        error instanceof Error ? error.message : "カードの使用に失敗しました";
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -60,19 +60,19 @@ export function useGameActions(gameId: string) {
 
   const drawCard = async () => {
     if (!functions) {
-      throw new Error('Firebase Functions が初期化されていません');
+      throw new Error("Firebase Functions が初期化されていません");
     }
 
     setLoading(true);
     setError(null);
 
     try {
-      const drawCardFunction = httpsCallable(functions, 'drawCard');
+      const drawCardFunction = httpsCallable(functions, "drawCard");
       const result = await drawCardFunction({ gameId });
       return result.data;
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : 'カードのドローに失敗しました';
+        error instanceof Error ? error.message : "カードのドローに失敗しました";
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -82,19 +82,19 @@ export function useGameActions(gameId: string) {
 
   const passTurn = async () => {
     if (!functions) {
-      throw new Error('Firebase Functions が初期化されていません');
+      throw new Error("Firebase Functions が初期化されていません");
     }
 
     setLoading(true);
     setError(null);
 
     try {
-      const passTurnFunction = httpsCallable(functions, 'passTurn');
+      const passTurnFunction = httpsCallable(functions, "passTurn");
       const result = await passTurnFunction({ gameId });
       return result.data;
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : 'ターンパスに失敗しました';
+        error instanceof Error ? error.message : "ターンパスに失敗しました";
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -104,7 +104,7 @@ export function useGameActions(gameId: string) {
 
   const processDictatorshipPhase = async () => {
     if (!functions) {
-      throw new Error('Firebase Functions が初期化されていません');
+      throw new Error("Firebase Functions が初期化されていません");
     }
 
     setLoading(true);
@@ -113,7 +113,7 @@ export function useGameActions(gameId: string) {
     try {
       const processDictatorshipPhaseFunction = httpsCallable(
         functions,
-        'processDictatorshipPhase'
+        "processDictatorshipPhase",
       );
       const result = await processDictatorshipPhaseFunction({ gameId });
       return result.data;
@@ -121,7 +121,7 @@ export function useGameActions(gameId: string) {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : '独裁フェーズ処理に失敗しました';
+          : "独裁フェーズ処理に失敗しました";
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -131,7 +131,7 @@ export function useGameActions(gameId: string) {
 
   const nullifyDictatorshipCard = async () => {
     if (!functions) {
-      throw new Error('Firebase Functions が初期化されていません');
+      throw new Error("Firebase Functions が初期化されていません");
     }
 
     setLoading(true);
@@ -140,7 +140,7 @@ export function useGameActions(gameId: string) {
     try {
       const nullifyDictatorshipCardFunction = httpsCallable(
         functions,
-        'nullifyDictatorshipCard'
+        "nullifyDictatorshipCard",
       );
       const result = await nullifyDictatorshipCardFunction({ gameId });
       return result.data;
@@ -148,7 +148,7 @@ export function useGameActions(gameId: string) {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : '独裁カード無効化に失敗しました';
+          : "独裁カード無効化に失敗しました";
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -158,7 +158,7 @@ export function useGameActions(gameId: string) {
 
   const endSubordinateConsultation = async () => {
     if (!functions) {
-      throw new Error('Firebase Functions が初期化されていません');
+      throw new Error("Firebase Functions が初期化されていません");
     }
 
     setLoading(true);
@@ -167,13 +167,13 @@ export function useGameActions(gameId: string) {
     try {
       const endSubordinateConsultationFunction = httpsCallable(
         functions,
-        'endSubordinateConsultation'
+        "endSubordinateConsultation",
       );
       const result = await endSubordinateConsultationFunction({ gameId });
       return result.data;
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : '部下相談の終了に失敗しました';
+        error instanceof Error ? error.message : "部下相談の終了に失敗しました";
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {

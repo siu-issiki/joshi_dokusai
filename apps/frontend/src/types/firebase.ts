@@ -6,6 +6,6 @@ export type {
   FirebaseGame,
   FirebaseGamePlayer,
   FirebasePlayerHand,
-} from '@joshi-dokusai/shared';
+} from "@joshi-dokusai/shared";
 
-export { FirebasePaths, GAME_CONFIG } from '@joshi-dokusai/shared';
+export { FirebasePaths, GAME_CONFIG } from "@joshi-dokusai/shared";
