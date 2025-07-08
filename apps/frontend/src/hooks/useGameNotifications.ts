@@ -2,6 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { FirebaseGame } from '@joshi-dokusai/shared';
 import { useGameState } from './useGameState';
 
+/**
+ * Generate a unique notification ID
+ */
+function generateNotificationId(): string {
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+}
+
 interface GameNotification {
   id: string;
   type:
@@ -101,7 +108,7 @@ export function useGameNotifications(gameId: string) {
   ) => {
     const newNotification: GameNotification = {
       ...notification,
-      id: `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+      id: generateNotificationId(),
       timestamp: Date.now(),
     };
 

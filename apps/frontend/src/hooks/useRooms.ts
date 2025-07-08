@@ -14,7 +14,7 @@ import {
   generateRoomId,
   FirebasePaths,
   isRoomFull,
-  areAllPlayersReady,
+  canStartGame,
 } from '@joshi-dokusai/shared';
 import { useAuth } from '@/lib/auth';
 
@@ -82,6 +82,7 @@ export function useRooms() {
     roomName: string,
     maxPlayers: number,
     isPrivate: boolean = false,
+    playerName: string,
     password?: string
   ): Promise<string> => {
     if (!user || !database) {
@@ -100,18 +101,23 @@ export function useRooms() {
       throw new Error('プライベートルームにはパスワードが必要です');
     }
 
+    if (!playerName.trim()) {
+      throw new Error('プレイヤー名を入力してください');
+    }
+
     try {
       const roomId = generateRoomId();
       const now = Date.now();
+      const trimmedPlayerName = playerName.trim();
 
-      const creatorName =
-        localStorage.getItem('playerName') || `プレイヤー${user.uid.slice(-4)}`;
+      // プレイヤー名をローカルストレージに保存
+      localStorage.setItem('playerName', trimmedPlayerName);
 
       const roomData: FirebaseRoom = {
         id: roomId,
         name: roomName.trim(),
         createdBy: user.uid,
-        createdByName: creatorName,
+        createdByName: trimmedPlayerName,
         createdAt: now,
         maxPlayers,
         currentPlayers: 1,
@@ -120,8 +126,8 @@ export function useRooms() {
         players: {
           [user.uid]: {
             id: user.uid,
-            name: creatorName,
-            isReady: false,
+            name: trimmedPlayerName,
+            isReady: true,
             joinedAt: now,
           },
         },
@@ -247,7 +253,7 @@ export function useRoom(roomId: string) {
       const playerData = {
         id: user.uid,
         name: playerName.trim(),
-        isReady: false,
+        isReady: true,
         joinedAt: Date.now(),
       };
 
@@ -319,39 +325,12 @@ export function useRoom(roomId: string) {
     }
   };
 
-  const toggleReady = async (): Promise<void> => {
-    if (!user || !room || !database) {
-      throw new Error(
-        'ユーザー、ルーム、またはデータベース接続が見つかりません'
-      );
-    }
-
-    const currentPlayer = room.players[user.uid];
-    if (!currentPlayer) {
-      throw new Error('このルームに参加していません');
-    }
-
-    try {
-      await set(
-        ref(database, `${FirebasePaths.roomPlayer(roomId, user.uid)}/isReady`),
-        !currentPlayer.isReady
-      );
-
-      console.log('準備状態変更成功:', !currentPlayer.isReady);
-    } catch (error) {
-      console.error('準備状態変更エラー:', error);
-      const message = error instanceof Error ? error.message : '不明なエラー';
-      throw new Error(`準備状態の変更に失敗しました: ${message}`);
-    }
-  };
-
   return {
     room,
     loading,
     error,
     joinRoom,
     leaveRoom,
-    toggleReady,
     // ヘルパー関数
     isInRoom: !!(room && user && room.players[user.uid]),
     isRoomOwner: !!(room && user && room.createdBy === user.uid),
@@ -359,7 +338,7 @@ export function useRoom(roomId: string) {
       room &&
       user &&
       room.createdBy === user.uid &&
-      areAllPlayersReady(room)
+      canStartGame(room)
     ),
     playerCount: room?.currentPlayers || 0,
     maxPlayers: room?.maxPlayers || 5,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRooms } from '@/hooks/useRooms';
 import { useRouter } from 'next/navigation';
 import { FirebaseRoom, FirebaseRoomPlayer } from '@joshi-dokusai/shared';
@@ -57,10 +57,8 @@ function RoomCard({ room, onJoin }: RoomCardProps) {
           {Object.values(room.players).map((player: FirebaseRoomPlayer) => (
             <div
               key={player.id}
-              className={`w-3 h-3 rounded-full ${
-                player.isReady ? 'bg-green-500' : 'bg-gray-300'
-              }`}
-              title={`${player.name} ${player.isReady ? '(準備完了)' : '(準備中)'}`}
+              className="w-3 h-3 rounded-full bg-blue-500"
+              title={player.name}
             />
           ))}
         </div>
@@ -92,6 +90,7 @@ interface CreateRoomModalProps {
     name: string,
     maxPlayers: number,
     isPrivate: boolean,
+    playerName: string,
     password?: string
   ) => Promise<void>;
 }
@@ -102,11 +101,22 @@ function CreateRoomModal({
   onCreateRoom,
 }: CreateRoomModalProps) {
   const [roomName, setRoomName] = useState('');
+  const [playerName, setPlayerName] = useState('');
   const [maxPlayers, setMaxPlayers] = useState(5);
   const [isPrivate, setIsPrivate] = useState(false);
   const [password, setPassword] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // プレイヤー名の初期値設定
+  useEffect(() => {
+    if (isOpen) {
+      const savedName = localStorage.getItem('playerName');
+      if (savedName) {
+        setPlayerName(savedName);
+      }
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,9 +124,10 @@ function CreateRoomModal({
     setIsCreating(true);
 
     try {
-      await onCreateRoom(roomName, maxPlayers, isPrivate, password);
+      await onCreateRoom(roomName, maxPlayers, isPrivate, playerName, password);
       // 成功時はモーダルを閉じる
       setRoomName('');
+      setPlayerName('');
       setPassword('');
       setIsPrivate(false);
       setMaxPlayers(5);
@@ -149,6 +160,21 @@ function CreateRoomModal({
               placeholder="ルーム名を入力"
               required
               maxLength={50}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              あなたの名前
+            </label>
+            <input
+              type="text"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="プレイヤー名を入力"
+              required
+              maxLength={20}
             />
           </div>
 
@@ -237,9 +263,16 @@ export default function RoomList() {
     name: string,
     maxPlayers: number,
     isPrivate: boolean,
+    playerName: string,
     password?: string
   ) => {
-    const roomId = await createRoom(name, maxPlayers, isPrivate, password);
+    const roomId = await createRoom(
+      name,
+      maxPlayers,
+      isPrivate,
+      playerName,
+      password
+    );
     router.push(`/room?id=${roomId}`);
   };
 

@@ -1,7 +1,11 @@
 import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getDatabase, Database } from 'firebase/database';
 import { getAuth, Auth } from 'firebase/auth';
-import { getFunctions, Functions } from 'firebase/functions';
+import {
+  getFunctions,
+  Functions,
+  connectFunctionsEmulator,
+} from 'firebase/functions';
 
 // Firebase設定
 const firebaseConfig = {
@@ -20,6 +24,9 @@ let auth: Auth | null = null;
 let database: Database | null = null;
 let functions: Functions | null = null;
 
+// エミュレーター接続状態を追跡
+let functionsEmulatorConnected = false;
+
 if (typeof window !== 'undefined') {
   // デバッグ用：環境変数の確認
   console.log('Firebase Config Debug:', {
@@ -30,6 +37,7 @@ if (typeof window !== 'undefined') {
     storageBucket: firebaseConfig.storageBucket,
     messagingSenderId: firebaseConfig.messagingSenderId,
     appId: firebaseConfig.appId ? '設定済み' : '未設定',
+    nodeEnv: process.env.NODE_ENV,
   });
 
   if (firebaseConfig.projectId) {
@@ -37,7 +45,23 @@ if (typeof window !== 'undefined') {
       app = initializeApp(firebaseConfig);
       auth = getAuth(app);
       database = getDatabase(app);
-      functions = getFunctions(app);
+      functions = getFunctions(app, 'asia-northeast1');
+
+      // エミュレーターに接続（開発環境かつ環境変数で有効化されている場合）
+      const useEmulator = process.env.NEXT_PUBLIC_USE_EMULATOR === 'true';
+      if (useEmulator && !functionsEmulatorConnected) {
+        try {
+          // Functions Emulator
+          connectFunctionsEmulator(functions, 'localhost', 5001);
+          functionsEmulatorConnected = true;
+          console.log(
+            'Firebase Functions Emulator connected to localhost:5001'
+          );
+        } catch (error) {
+          console.warn('Functions Emulator connection failed:', error);
+        }
+      }
+
       console.log('Firebase初期化成功');
     } catch (error) {
       console.error('Firebase初期化エラー:', error);

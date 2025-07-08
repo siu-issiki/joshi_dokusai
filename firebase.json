@@ -16,8 +16,14 @@
   "functions": [
     {
       "source": "functions",
-      "runtime": "nodejs18",
-      "codebase": "default"
+      "runtime": "nodejs20",
+      "codebase": "default",
+      "predeploy": [
+        "bash ./scripts/functions-predeploy.sh"
+      ],
+      "postdeploy": [
+        "bash ./scripts/functions-postdeploy.sh"
+      ]
     }
   ],
   "database": {

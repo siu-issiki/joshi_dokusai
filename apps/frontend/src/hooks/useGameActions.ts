@@ -102,11 +102,93 @@ export function useGameActions(gameId: string) {
     }
   };
 
+  const processDictatorshipPhase = async () => {
+    if (!functions) {
+      throw new Error('Firebase Functions が初期化されていません');
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const processDictatorshipPhaseFunction = httpsCallable(
+        functions,
+        'processDictatorshipPhase'
+      );
+      const result = await processDictatorshipPhaseFunction({ gameId });
+      return result.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : '独裁フェーズ処理に失敗しました';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const nullifyDictatorshipCard = async () => {
+    if (!functions) {
+      throw new Error('Firebase Functions が初期化されていません');
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const nullifyDictatorshipCardFunction = httpsCallable(
+        functions,
+        'nullifyDictatorshipCard'
+      );
+      const result = await nullifyDictatorshipCardFunction({ gameId });
+      return result.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : '独裁カード無効化に失敗しました';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const endSubordinateConsultation = async () => {
+    if (!functions) {
+      throw new Error('Firebase Functions が初期化されていません');
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const endSubordinateConsultationFunction = httpsCallable(
+        functions,
+        'endSubordinateConsultation'
+      );
+      const result = await endSubordinateConsultationFunction({ gameId });
+      return result.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : '部下相談の終了に失敗しました';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     startGame,
     playCard,
     drawCard,
     passTurn,
+    processDictatorshipPhase,
+    nullifyDictatorshipCard,
+    endSubordinateConsultation,
     loading,
     error,
   };

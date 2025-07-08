@@ -113,10 +113,14 @@ export interface FirebaseGame {
   currentPlayerIndex: number;
   turnCount: number;
   maxTurns: number;
+  playerOrder: string[]; // Consistent player order for reliable indexing
   players: Record<string, FirebaseGamePlayer>;
   gameState: FirebaseGameState;
   turnHistory: FirebaseTurnAction[];
   lastUpdated: number;
+  // ゲーム終了時のみ存在
+  winner?: 'boss' | 'subordinate';
+  endReason?: string;
 }
 
 export interface FirebaseGamePlayer {
@@ -133,6 +137,7 @@ export interface FirebaseGamePlayer {
 export interface FirebaseGameState {
   deckCount: number;
   discardPile: Card[];
+  dictatorshipDeck: DictatorshipCard[]; // 独裁カードデッキ
   presidentCard?: {
     card: Card;
     owner: 'boss' | 'subordinate';
@@ -151,6 +156,7 @@ export interface FirebaseGameState {
       boss3Players: number;
     };
   };
+  defenseEffects?: Record<string, number>; // プレイヤーIDごとの防御効果回数
 }
 
 export interface FirebaseTurnAction {
@@ -162,6 +168,8 @@ export interface FirebaseTurnAction {
     cardId?: string;
     targetPlayerId?: string;
     timestamp: number;
+    effectMessage?: string; // カード効果の説明
+    cardName?: string; // 独裁カードなどの名前
   };
 }
 
