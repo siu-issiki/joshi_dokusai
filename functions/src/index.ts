@@ -7,11 +7,11 @@
 import "./config/firebase";
 
 // 各サービスから関数をインポートしてエクスポート
-export { startGame } from "./game/gameService";
-export { playCard, drawCard } from "./game/cardService";
+export {startGame} from "./game/gameService";
+export {playCard, drawCard} from "./game/cardService";
 export {
   processDictatorshipPhase,
   nullifyDictatorshipCard,
   endSubordinateConsultation,
 } from "./game/dictatorshipService";
-export { passTurn } from "./game/turnService";
+export {passTurn} from "./game/turnService";

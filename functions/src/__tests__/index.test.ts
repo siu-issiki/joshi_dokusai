@@ -1,4 +1,4 @@
-import { getDatabase } from "firebase-admin/database";
+import {getDatabase} from "firebase-admin/database";
 import * as logger from "firebase-functions/logger";
 
 // テスト対象の関数をインポート
@@ -31,7 +31,7 @@ describe("Cloud Functions Tests", () => {
     });
     mockRef.set.mockResolvedValue(undefined);
     mockRef.update.mockResolvedValue(undefined);
-    mockRef.push.mockResolvedValue({ key: "test-key" });
+    mockRef.push.mockResolvedValue({key: "test-key"});
     mockRef.child.mockReturnValue(mockRef);
   });
 
@@ -62,7 +62,7 @@ describe("Cloud Functions Tests", () => {
     });
 
     it("should handle database write operations", async () => {
-      const testData = { test: "data" };
+      const testData = {test: "data"};
 
       await mockRef.set(testData);
 
@@ -70,7 +70,7 @@ describe("Cloud Functions Tests", () => {
     });
 
     it("should handle database update operations", async () => {
-      const updates = { status: "playing" };
+      const updates = {status: "playing"};
 
       await mockRef.update(updates);
 
@@ -92,7 +92,7 @@ describe("Cloud Functions Tests", () => {
 
     it("should log errors appropriately", () => {
       const errorMessage = "Test error";
-      const errorData = { gameId: "test-game" };
+      const errorData = {gameId: "test-game"};
 
       (logger.error as jest.Mock)(errorMessage, errorData);
 
@@ -139,8 +139,8 @@ describe("Cloud Functions Tests", () => {
 
     it("should validate dictatorship card nullification permissions", () => {
       // 部下のみが独裁カードを無効化できる
-      const bossPlayer = { role: "boss" };
-      const subordinatePlayer = { role: "subordinate" };
+      const bossPlayer = {role: "boss"};
+      const subordinatePlayer = {role: "subordinate"};
 
       expect(subordinatePlayer.role).toBe("subordinate"); // 無効化可能
       expect(bossPlayer.role).not.toBe("subordinate"); // 無効化不可
@@ -151,7 +151,7 @@ describe("Cloud Functions Tests", () => {
     it("should require authentication for protected functions", () => {
       const mockRequest = {
         auth: null,
-        data: { gameId: "test-game" },
+        data: {gameId: "test-game"},
       };
 
       // 認証が必要な関数では、auth が null の場合エラーを投げるべき
@@ -160,8 +160,8 @@ describe("Cloud Functions Tests", () => {
 
     it("should accept valid authentication", () => {
       const mockRequest = {
-        auth: { uid: "test-user" },
-        data: { gameId: "test-game" },
+        auth: {uid: "test-user"},
+        data: {gameId: "test-game"},
       };
 
       expect(mockRequest.auth?.uid).toBe("test-user");
@@ -173,7 +173,7 @@ describe("Cloud Functions Tests", () => {
       const requiredParams = ["gameId", "roomId", "cardId"];
 
       requiredParams.forEach((param) => {
-        const mockData = { [param]: "test-value" };
+        const mockData = {[param]: "test-value"};
         expect(mockData[param]).toBeDefined();
         expect(typeof mockData[param]).toBe("string");
       });

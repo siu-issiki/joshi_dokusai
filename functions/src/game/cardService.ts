@@ -2,8 +2,8 @@
  * カードプレイサービス
  */
 
-import { onCall } from "firebase-functions/v2/https";
-import { getDatabase } from "firebase-admin/database";
+import {onCall} from "firebase-functions/v2/https";
+import {getDatabase} from "firebase-admin/database";
 import * as logger from "firebase-functions/logger";
 
 import {
@@ -21,14 +21,14 @@ import {
  * カードプレイFunction
  */
 export const playCard = onCall(async (request) => {
-  const { gameId, cardId, targetPlayerId } = request.data;
+  const {gameId, cardId, targetPlayerId} = request.data;
   const uid = request.auth?.uid;
 
   if (!uid) {
     throw new Error("認証が必要です");
   }
 
-  logger.info("Playing card", { gameId, cardId, targetPlayerId, uid });
+  logger.info("Playing card", {gameId, cardId, targetPlayerId, uid});
 
   const db = getDatabase();
 
@@ -70,7 +70,7 @@ export const playCard = onCall(async (request) => {
     const updatedCards = currentCards.filter(
       (card: Card) => card.id !== cardId,
     );
-    await handRef.update({ cards: updatedCards, lastUpdated: Date.now() });
+    await handRef.update({cards: updatedCards, lastUpdated: Date.now()});
 
     // カードを捨札に追加
     const discardPileRef = gameRef.child("gameState/discardPile");
@@ -128,11 +128,11 @@ export const playCard = onCall(async (request) => {
     };
 
     await gameRef.child("turnHistory").push(turnAction);
-    await gameRef.update({ lastUpdated: Date.now() });
+    await gameRef.update({lastUpdated: Date.now()});
 
-    logger.info("Card played successfully", { gameId, cardId, uid });
+    logger.info("Card played successfully", {gameId, cardId, uid});
 
-    return { success: true };
+    return {success: true};
   } catch (error) {
     logger.error("Error playing card", error);
     throw error;
@@ -143,14 +143,14 @@ export const playCard = onCall(async (request) => {
  * カードドローFunction
  */
 export const drawCard = onCall(async (request) => {
-  const { gameId } = request.data;
+  const {gameId} = request.data;
   const uid = request.auth?.uid;
 
   if (!uid) {
     throw new Error("認証が必要です");
   }
 
-  logger.info("Drawing card", { gameId, uid });
+  logger.info("Drawing card", {gameId, uid});
 
   const db = getDatabase();
 
@@ -221,12 +221,12 @@ export const drawCard = onCall(async (request) => {
     // プレイヤー手札に追加
     const handRef = db.ref(`games/${gameId}/playerHands/${uid}`);
     const handSnapshot = await handRef.once("value");
-    const hand = handSnapshot.val() || { cards: [] };
+    const hand = handSnapshot.val() || {cards: []};
 
     // hand.cardsが配列でない場合のフォールバック
     const currentCards = Array.isArray(hand.cards) ? hand.cards : [];
     const updatedCards = [...currentCards, drawnCard];
-    await handRef.set({ cards: updatedCards, lastUpdated: Date.now() });
+    await handRef.set({cards: updatedCards, lastUpdated: Date.now()});
 
     // デッキ状態を更新
     await workCardsDeckRef.set(workCardsDeck);
@@ -238,7 +238,7 @@ export const drawCard = onCall(async (request) => {
       cardId: drawnCardId,
     });
 
-    return { success: true, card: drawnCard };
+    return {success: true, card: drawnCard};
   } catch (error) {
     logger.error("Error drawing card", error);
     throw error;

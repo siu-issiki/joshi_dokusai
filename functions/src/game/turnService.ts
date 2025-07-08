@@ -2,8 +2,8 @@
  * ターン管理サービス
  */
 
-import { onCall } from "firebase-functions/v2/https";
-import { getDatabase } from "firebase-admin/database";
+import {onCall} from "firebase-functions/v2/https";
+import {getDatabase} from "firebase-admin/database";
 import * as logger from "firebase-functions/logger";
 
 import {
@@ -33,14 +33,14 @@ interface GameUpdateData {
  * ターンパスFunction
  */
 export const passTurn = onCall(async (request) => {
-  const { gameId } = request.data;
+  const {gameId} = request.data;
   const uid = request.auth?.uid;
 
   if (!uid) {
     throw new Error("認証が必要です");
   }
 
-  logger.info("Passing turn", { gameId, uid });
+  logger.info("Passing turn", {gameId, uid});
 
   const db = getDatabase();
 
@@ -108,9 +108,9 @@ export const passTurn = onCall(async (request) => {
 
     await gameRef.child("turnHistory").push(turnAction);
 
-    logger.info("Turn passed successfully", { gameId, uid, nextPlayerIndex });
+    logger.info("Turn passed successfully", {gameId, uid, nextPlayerIndex});
 
-    return { success: true, nextPlayerIndex };
+    return {success: true, nextPlayerIndex};
   } catch (error) {
     logger.error("Error passing turn", error);
     throw error;
