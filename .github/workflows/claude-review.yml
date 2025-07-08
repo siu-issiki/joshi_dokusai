@@ -25,7 +25,9 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          instruction: |
+          direct_prompt: "Review this PR and provide feedback"
+          use_sticky_comment: true
+          custom_instructions: |
             このPRをレビューしてください。以下の点に注目してレビューを行ってください：
             
             1. コードの品質とベストプラクティス
