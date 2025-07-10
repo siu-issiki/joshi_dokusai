@@ -3,11 +3,11 @@
  */
 
 import '../test-utils'; // モックセットアップ
-import { getMockRef, createMockGameData, createMockPlayerData, createMockRequest } from '../test-utils';
+import { getMockRef, createMockGameData, createMockPlayerData, createMockRequest, expectAsyncError, MockRef } from '../test-utils';
 import { processDictatorshipPhase, nullifyDictatorshipCard, endSubordinateConsultation } from './dictatorshipService';
 
 describe('dictatorshipService', () => {
-  let mockRef: any;
+  let mockRef: MockRef;
 
   beforeEach(() => {
     mockRef = getMockRef();
@@ -28,12 +28,7 @@ describe('dictatorshipService', () => {
       const request = createMockRequest({ gameId: 'test-game' });
       (request as any).auth = null;
 
-      try {
-        await (processDictatorshipPhase as any)(request);
-        expect(true).toBe(false); // Should not reach here
-      } catch (error: any) {
-        expect(error.message).toContain('認証が必要');
-      }
+      await expectAsyncError(() => (processDictatorshipPhase as any)(request), '認証が必要');
     });
 
     it('should process dictatorship phase with valid game', async () => {
@@ -86,12 +81,7 @@ describe('dictatorshipService', () => {
       const request = createMockRequest({ gameId: 'test-game' });
       (request as any).auth = null;
 
-      try {
-        await (nullifyDictatorshipCard as any)(request);
-        expect(true).toBe(false); // Should not reach here
-      } catch (error: any) {
-        expect(error.message).toContain('認証が必要');
-      }
+      await expectAsyncError(() => (nullifyDictatorshipCard as any)(request), '認証が必要');
     });
 
     it('should validate dictatorship card nullification permissions', async () => {
@@ -166,12 +156,7 @@ describe('dictatorshipService', () => {
 
       const request = createMockRequest({ gameId: 'test-game' }, 'test-user');
 
-      try {
-        await (nullifyDictatorshipCard as any)(request);
-        expect(true).toBe(false); // Should not reach here
-      } catch (error: any) {
-        expect(error.message).toContain('部下のみが独裁カードを無効化できます');
-      }
+      await expectAsyncError(() => (nullifyDictatorshipCard as any)(request), '部下のみが独裁カードを無効化できます');
     });
   });
 
@@ -180,12 +165,7 @@ describe('dictatorshipService', () => {
       const request = createMockRequest({ gameId: 'test-game' });
       (request as any).auth = null;
 
-      try {
-        await (endSubordinateConsultation as any)(request);
-        expect(true).toBe(false); // Should not reach here
-      } catch (error: any) {
-        expect(error.message).toContain('認証が必要');
-      }
+      await expectAsyncError(() => (endSubordinateConsultation as any)(request), '認証が必要');
     });
 
     it('should end subordinate consultation phase', async () => {

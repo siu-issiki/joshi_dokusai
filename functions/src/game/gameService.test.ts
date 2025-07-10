@@ -3,15 +3,21 @@
  */
 
 import '../test-utils'; // モックセットアップ
-import { getMockDatabase, getMockRef, createMockRoomData, createMockRequest } from '../test-utils';
+import {
+  getMockRef,
+  createMockRoomData,
+  createMockRequest,
+  expectAsyncError,
+  expectValidGameState,
+  expectValidPlayerState,
+  MockRef,
+} from '../test-utils';
 import { startGame } from './gameService';
 
 describe('gameService', () => {
-  let mockDatabase: any;
-  let mockRef: any;
+  let mockRef: MockRef;
 
   beforeEach(() => {
-    mockDatabase = getMockDatabase();
     mockRef = getMockRef();
 
     // モックの戻り値を設定
@@ -65,12 +71,7 @@ describe('gameService', () => {
       const request = createMockRequest({ roomId: 'test-room' });
       (request as any).auth = null;
 
-      try {
-        await (startGame as any)(request);
-        expect(true).toBe(false); // Should not reach here
-      } catch (error: any) {
-        expect(error.message).toContain('認証が必要');
-      }
+      await expectAsyncError(() => (startGame as any)(request), '認証が必要');
     });
 
     it('should validate player count correctly', async () => {
@@ -114,11 +115,8 @@ describe('gameService', () => {
         lastUpdated: Date.now(),
       };
 
-      expect(gameState.id).toBeDefined();
-      expect(gameState.status).toBe('playing');
-      expect(gameState.turnCount).toBeGreaterThan(0);
+      expectValidGameState(gameState);
       expect(gameState.maxTurns).toBe(5);
-      expect(Array.isArray(gameState.turnHistory)).toBe(true);
     });
 
     it('should validate player state structure', () => {
@@ -133,11 +131,9 @@ describe('gameService', () => {
         lastAction: Date.now(),
       };
 
-      expect(playerState.id).toBeDefined();
-      expect(['boss', 'subordinate']).toContain(playerState.role);
-      expect(playerState.life).toBeGreaterThanOrEqual(0);
-      expect(playerState.handCount).toBeGreaterThanOrEqual(0);
-      expect(typeof playerState.isConnected).toBe('boolean');
+      expectValidPlayerState(playerState);
+      expect(playerState.name).toBe('Test Player');
+      expect(playerState.maxLife).toBe(7);
     });
 
     it('should validate game phases correctly', () => {
@@ -196,7 +192,9 @@ describe('gameService', () => {
 
   describe('Database Operations', () => {
     it('should initialize database correctly', () => {
-      expect(mockDatabase.ref).toBeDefined();
+      expect(mockRef).toBeDefined();
+      expect(mockRef.once).toBeDefined();
+      expect(mockRef.set).toBeDefined();
     });
 
     it('should handle database read operations', async () => {

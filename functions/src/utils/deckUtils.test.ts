@@ -3,6 +3,7 @@
  */
 
 import '../test-utils'; // モックセットアップ
+import { expectValidCardStructure } from '../test-utils';
 import { createInitialDeck, drawCardFromDeck, GameDeck } from './deckUtils';
 
 describe('deckUtils', () => {
@@ -127,8 +128,8 @@ describe('deckUtils', () => {
       const validCardIds = ['work_001', 'attack_001', 'defense_001', 'recovery_001', 'president_001', 'dict_001'];
 
       validCardIds.forEach((cardId) => {
-        expect(typeof cardId).toBe('string');
-        expect(cardId.length).toBeGreaterThan(0);
+        const mockCard = { id: cardId, type: 'work', name: 'Test Card' };
+        expectValidCardStructure(mockCard);
         expect(cardId).toMatch(/^[a-z_0-9]+$/); // 基本的なID形式チェック
       });
     });

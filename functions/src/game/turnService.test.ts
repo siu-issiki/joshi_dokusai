@@ -3,11 +3,11 @@
  */
 
 import '../test-utils'; // モックセットアップ
-import { getMockRef, createMockGameData, createMockPlayerData, createMockRequest } from '../test-utils';
+import { getMockRef, createMockGameData, createMockPlayerData, createMockRequest, expectAsyncError, MockRef } from '../test-utils';
 import { passTurn } from './turnService';
 
 describe('turnService', () => {
-  let mockRef: any;
+  let mockRef: MockRef;
 
   beforeEach(() => {
     mockRef = getMockRef();
@@ -28,12 +28,7 @@ describe('turnService', () => {
       const request = createMockRequest({ gameId: 'test-game' });
       (request as any).auth = null;
 
-      try {
-        await (passTurn as any)(request);
-        expect(true).toBe(false); // Should not reach here
-      } catch (error: any) {
-        expect(error.message).toContain('認証が必要');
-      }
+      await expectAsyncError(() => (passTurn as any)(request), '認証が必要');
     });
 
     it('should pass turn with valid current player', async () => {

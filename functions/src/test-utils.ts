@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * 共通テストユーティリティ
  * 各テストファイルで共通利用するモック、ヘルパー関数を提供
@@ -7,6 +7,11 @@
 import * as admin from 'firebase-admin';
 import { getDatabase } from 'firebase-admin/database';
 import * as logger from 'firebase-functions/logger';
+
+// Jest/テスト関数の型定義
+declare const jest: any;
+declare const afterEach: any;
+declare const expect: any;
 
 // Firebase Admin SDKをテスト用に初期化
 if (!admin.apps.length) {
@@ -140,6 +145,40 @@ export function createMockRequest(data: Record<string, unknown> = {}, uid: strin
 // モックのリセット関数
 export function resetAllMocks() {
   jest.clearAllMocks();
+}
+
+// エラーハンドリングヘルパー
+export async function expectAsyncError(fn: () => Promise<any>, expectedMessage: string): Promise<void> {
+  try {
+    await fn();
+    expect(true).toBe(false); // Should not reach here
+  } catch (error: any) {
+    expect(error.message).toContain(expectedMessage);
+  }
+}
+
+// テストヘルパーの拡張
+export function expectValidGameState(gameState: any): void {
+  expect(gameState.id).toBeDefined();
+  expect(gameState.status).toBe('playing');
+  expect(gameState.turnCount).toBeGreaterThan(0);
+  expect(Array.isArray(gameState.turnHistory)).toBe(true);
+}
+
+export function expectValidPlayerState(playerState: any): void {
+  expect(playerState.id).toBeDefined();
+  expect(['boss', 'subordinate']).toContain(playerState.role);
+  expect(playerState.life).toBeGreaterThanOrEqual(0);
+  expect(playerState.handCount).toBeGreaterThanOrEqual(0);
+  expect(typeof playerState.isConnected).toBe('boolean');
+}
+
+export function expectValidCardStructure(card: any): void {
+  expect(card.id).toBeDefined();
+  expect(typeof card.id).toBe('string');
+  expect(card.type).toBeDefined();
+  expect(card.name).toBeDefined();
+  expect(typeof card.name).toBe('string');
 }
 
 // テスト後のクリーンアップ

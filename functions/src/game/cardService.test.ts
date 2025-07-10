@@ -3,11 +3,11 @@
  */
 
 import '../test-utils'; // モックセットアップ
-import { getMockRef, createMockGameData, createMockPlayerData, createMockRequest } from '../test-utils';
+import { getMockRef, createMockGameData, createMockPlayerData, createMockRequest, expectAsyncError, MockRef } from '../test-utils';
 import { playCard, drawCard } from './cardService';
 
 describe('cardService', () => {
-  let mockRef: any;
+  let mockRef: MockRef;
 
   beforeEach(() => {
     mockRef = getMockRef();
@@ -28,12 +28,7 @@ describe('cardService', () => {
       const request = createMockRequest({ gameId: 'test-game', cardId: 'test-card' });
       (request as any).auth = null;
 
-      try {
-        await (playCard as any)(request);
-        expect(true).toBe(false); // Should not reach here
-      } catch (error: any) {
-        expect(error.message).toContain('認証が必要');
-      }
+      await expectAsyncError(() => (playCard as any)(request), '認証が必要');
     });
 
     it('should validate required parameters', async () => {
@@ -94,12 +89,7 @@ describe('cardService', () => {
       const request = createMockRequest({ gameId: 'test-game' });
       (request as any).auth = null;
 
-      try {
-        await (drawCard as any)(request);
-        expect(true).toBe(false); // Should not reach here
-      } catch (error: any) {
-        expect(error.message).toContain('認証が必要');
-      }
+      await expectAsyncError(() => (drawCard as any)(request), '認証が必要');
     });
 
     it('should handle card draw with valid game', async () => {
