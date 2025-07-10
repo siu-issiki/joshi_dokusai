@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable */
 /**
  * 共通テストユーティリティ
  * 各テストファイルで共通利用するモック、ヘルパー関数を提供
@@ -7,11 +7,6 @@
 import * as admin from 'firebase-admin';
 import { getDatabase } from 'firebase-admin/database';
 import * as logger from 'firebase-functions/logger';
-
-// Jest/テスト関数の型定義
-declare const jest: any;
-declare const afterEach: any;
-declare const expect: any;
 
 // Firebase Admin SDKをテスト用に初期化
 if (!admin.apps.length) {
@@ -70,7 +65,7 @@ jest.mock('firebase-admin/database', () => {
 
 // テストヘルパー関数
 export function getMockDatabase(): MockDatabase {
-  return getDatabase() as unknown as MockDatabase;
+  return getDatabase() as any;
 }
 
 export function getMockRef(): MockRef {
@@ -79,7 +74,7 @@ export function getMockRef(): MockRef {
 }
 
 export function getMockLogger() {
-  return logger as jest.Mocked<typeof logger>;
+  return logger as any;
 }
 
 // テストデータ生成ヘルパー
